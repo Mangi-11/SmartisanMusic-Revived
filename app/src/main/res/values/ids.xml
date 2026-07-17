@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="legacy_slide_selection_controller" type="id" />
+    <item name="legacy_port_list_footer" type="id" />
+</resources>

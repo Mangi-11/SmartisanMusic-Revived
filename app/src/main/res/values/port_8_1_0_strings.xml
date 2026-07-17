@@ -1,0 +1,16 @@
+<resources>
+    <string name="cd_play_all">播放列表</string>
+    <string name="cd_shuffle">随机播放</string>
+    <string name="close">关闭</string>
+    <string name="sort_by_song_name">歌曲名</string>
+    <string name="sort_by_song_play_time">播放次数</string>
+    <string name="sort_by_song_score">评分</string>
+    <string name="sort_by_song_update_time">添加时间</string>
+    <string name="nostar">无评分</string>
+    <string name="section_today">今天</string>
+    <string name="section_day_before">一天前</string>
+    <string name="section_week_before">一周前</string>
+    <string name="section_month_before">一月前</string>
+    <string name="song_score_header">%1$d 星评分</string>
+    <string name="tab_more">更多</string>
+</resources>

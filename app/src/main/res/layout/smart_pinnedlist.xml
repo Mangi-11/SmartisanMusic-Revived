@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:dslv="http://schemas.android.com/apk/res-auto">
+    <com.smartisan.music.ui.widgets.legacy.HeadersListView android:scrollbarStyle="outsideOverlay" android:id="@id/list" android:layout_width="match_parent" android:layout_height="match_parent" android:listSelector="@drawable/listview_selector" android:cacheColorHint="@color/transparent" android:divider="@color/listview_divider_color" android:dividerHeight="@dimen/listview_dividerHeight" dslv:check_handle_id="@id/cb_del" dslv:drag_enabled="true" dslv:drag_handle_id="@id/iv_right" dslv:drag_scroll_start="0.33" dslv:drag_start_mode="onDown" dslv:float_alpha="0.66" dslv:max_drag_scroll_speed="1.0" dslv:remove_enabled="true" dslv:slide_shuffle_speed="0.5" />
+    <com.smartisan.music.ui.widgets.legacy.QuickBarEx android:id="@id/main_quickbar" android:visibility="gone" android:layout_width="@dimen/quickbar_width" android:layout_height="match_parent" />
+</FrameLayout>

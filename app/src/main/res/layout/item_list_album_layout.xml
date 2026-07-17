@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.smartisan.music.ui.widgets.EditableLayout android:id="@id/rl_list_item_parent" android:descendantFocusability="blocksDescendants" android:layout_width="match_parent" android:layout_height="@dimen/listview_item_height"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.smartisan.music.ui.widgets.CustomCheckBox android:id="@id/cb_del" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/check_box_margin_left" android:button="@drawable/check_box_selector" android:layout_centerVertical="true" />
+    <FrameLayout android:id="@id/icon_layout" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/listview_items_margin_left" android:layout_toRightOf="@id/cb_del" android:layout_centerVertical="true">
+        <ImageView android:id="@id/listview_item_image" android:layout_width="@dimen/album_list_item_image_width" android:layout_height="@dimen/album_list_item_image_height" android:scaleType="centerCrop" />
+        <View android:id="@id/iv_mask_albumcover" android:layout_width="@dimen/album_list_item_image_width" android:layout_height="@dimen/album_list_item_image_height" />
+    </FrameLayout>
+    <RelativeLayout android:gravity="center_vertical" android:layout_gravity="center_vertical" android:paddingLeft="@dimen/common_padding_left" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_toRightOf="@id/icon_layout">
+        <TextView android:textSize="@dimen/text_size_medium" android:textColor="@drawable/text_color_white_and_black_selector" android:ellipsize="end" android:gravity="center_vertical" android:id="@id/listview_item_line_one" android:paddingRight="@dimen/listview_items_padding_left_left1" android:layout_width="@dimen/listview_items_textview_width" android:layout_height="wrap_content" android:singleLine="true" />
+        <TextView android:textSize="@dimen/text_size_small" android:textColor="@drawable/text_color_white_and_gray1_selector" android:ellipsize="end" android:gravity="center_vertical" android:id="@id/listview_item_line_two" android:paddingRight="@dimen/listview_items_padding_left_left1" android:layout_width="@dimen/listview_items_textview_width" android:layout_height="wrap_content" android:layout_marginTop="@dimen/listview_items_margin_top1" android:singleLine="true" android:layout_below="@id/listview_item_line_one" />
+    </RelativeLayout>
+</com.smartisan.music.ui.widgets.EditableLayout>

@@ -1,0 +1,22 @@
+*.iml
+.gradle
+.kotlin/
+/local.properties
+/.idea/
+
+.DS_Store
+Thumbs.db
+
+/build
+/captures
+.externalNativeBuild
+.cxx
+
+# Packaged artifacts
+/app/release/
+/app/debug/
+/*.apk
+/*.aab
+
+# Reverse engineering workspace
+/reverse/*

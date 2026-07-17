@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <layer-list>
+            <item android:drawable="@drawable/action_menu_grid_bg_pressed" />
+            <item>
+                <shape android:shape="rectangle">
+                    <stroke android:width="1px" android:color="@color/list_divider_color" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <layer-list>
+            <item android:drawable="@drawable/action_menu_grid_bg" />
+            <item>
+                <shape android:shape="rectangle">
+                    <stroke android:width="1px" android:color="@color/list_divider_color" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:duplicateParentState="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/list_item_min_height"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <FrameLayout android:id="@id/left_container" android:visibility="gone" android:duplicateParentState="true" android:layout_width="@dimen/left_icon_area_width" android:layout_height="@dimen/left_icon_area_width" android:layout_alignParentLeft="true" android:layout_centerVertical="true" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/right_container" android:duplicateParentState="true" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_centerVertical="true" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="vertical" android:id="@id/mid_container" android:duplicateParentState="true" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toLeftOf="@id/right_container" android:layout_toRightOf="@id/left_container" android:layout_centerVertical="true" />
+</RelativeLayout>

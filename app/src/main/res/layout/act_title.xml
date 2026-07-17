@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:orientation="vertical" android:id="@id/ll_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:smartisanos="http://schemas.android.com/apk/res-auto">
+    <RelativeLayout android:gravity="center" android:id="@id/tv_head" android:background="#ffffff" android:paddingLeft="30.0dp" android:paddingRight="30.0dp" android:layout_width="match_parent" android:layout_height="@dimen/status_bar_height">
+        <TextView android:textSize="@dimen/text_size_act_title" android:textColor="#9a000000" android:gravity="center" android:id="@id/tv_count" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" android:layout_alignParentRight="true" android:layout_centerVertical="true" />
+        <TextView android:textSize="@dimen/text_size_act_title" android:textColor="#9a000000" android:ellipsize="end" android:gravity="center" android:id="@id/head" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" android:layout_toLeftOf="@id/tv_count" android:layout_centerVertical="true" />
+    </RelativeLayout>
+    <View android:id="@id/divider_line" android:background="#70a9a9a9" android:layout_width="match_parent" android:layout_height="0.100000024dp" android:layout_below="@id/tv_head" />
+    <com.smartisan.music.ui.widgets.legacy.TitleBar android:id="@id/act_titlebar" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/divider_line" />
+    <LinearLayout android:orientation="vertical" android:id="@id/fragment_container" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_below="@id/act_titlebar" />
+</RelativeLayout>

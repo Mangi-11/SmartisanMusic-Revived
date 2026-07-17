@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.smartisan.music.views.StateLinearLayout android:gravity="center" android:layout_gravity="center" android:id="@id/bt_play" android:background="@drawable/btn_red_bg_selector" android:layout_width="0.0dp" android:layout_height="30.0dp" android:layout_weight="1.0"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:layout_gravity="center_vertical" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/btn_icon_play_selector" android:adjustViewBounds="true" android:layout_marginEnd="10.0dp" />
+    <TextView android:textSize="@dimen/settings_item_tips_text_size" android:textStyle="bold" android:textColor="@color/red_btn_text_color_selector" android:layout_gravity="center_vertical" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="0.6700001dp" android:text="@string/cd_play_all" />
+</com.smartisan.music.views.StateLinearLayout>

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset android:drawable="@drawable/btn_play_all" android:insetTop="2.0dp" android:insetBottom="-2.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android" />

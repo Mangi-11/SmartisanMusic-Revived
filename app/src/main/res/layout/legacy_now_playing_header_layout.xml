@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@id/header_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_gravity="left"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/tabbar_padding_left"
+        android:textColor="@color/title_text_color"
+        android:textSize="@dimen/radio_category_header_text_size" />
+
+    <ImageButton
+        android:id="@id/clear_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/listview_items_margin_right"
+        android:background="@drawable/header_remove_selector"
+        android:clickable="true"
+        android:contentDescription="@string/str_clear_play_task"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:visibility="gone" />
+</RelativeLayout>

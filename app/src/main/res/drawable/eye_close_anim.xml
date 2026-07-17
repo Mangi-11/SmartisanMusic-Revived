@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android" android:oneshot="true">
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0001" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0002" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0003" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0004" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0005" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0006" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0007" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0008" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0009" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0010" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0011" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0012" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0013" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0014" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0015" />
+    <item android:duration="10" android:drawable="@drawable/eye_icon_0016" />
+</animation-list>
+

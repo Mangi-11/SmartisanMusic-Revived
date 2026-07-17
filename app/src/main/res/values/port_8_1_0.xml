@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Minimal 8.1.0 resource bridge for directly inflated XML layouts. -->
+    <id name="act_titlebar" />
+    <id name="album_art" />
+    <id name="album_cover" />
+    <id name="album_cover_zone" />
+    <id name="album_artist_name" />
+    <id name="album_id_tag" />
+    <id name="album_image" />
+    <id name="album_image_zone" />
+    <id name="album_list_item_artist" />
+    <id name="album_list_item_duration" />
+    <id name="album_list_item_title" />
+    <id name="album_list_item_track" />
+    <id name="album_name" />
+    <id name="all_track_fragment_container" />
+    <id name="arrow" />
+    <id name="artist_name" />
+    <id name="bt_left" />
+    <id name="bt_play" />
+    <id name="bt_right" />
+    <id name="bt_shuffle" />
+    <id name="btn_add_to_playlist" />
+    <id name="btn_add_to_queue" />
+    <id name="btn_more" />
+    <id name="circle_cover" />
+    <id name="control_zone" />
+    <id name="content" />
+    <id name="cover_zone" />
+    <id name="cb_del" />
+    <id name="clear_btn" />
+    <id name="divider_line" />
+    <id name="elvitem" />
+    <id name="edit_layout" />
+    <id name="edit_zone" />
+    <id name="empty" />
+    <id name="empty_selected_view" />
+    <id name="fragment_container" />
+    <id name="folder_row_divider" />
+    <id name="fl_album_image" />
+    <id name="fl_null_artist" />
+    <id name="fl_list_tile" />
+    <id name="first_line_view" />
+    <id name="fake_view_container" />
+    <id name="favorite" />
+    <id name="gridview_image" />
+    <id name="head" />
+    <id name="header_name" />
+    <id name="header_play_all" />
+    <id name="header_play_shuffle" />
+    <id name="icon_layout" />
+    <id name="img_action_more" />
+    <id name="item_summary" />
+    <id name="item_title" />
+    <id name="legacy_album_artwork_request" />
+    <id name="legacy_folder_row_height_animator" />
+    <id name="legacy_folder_row_force_zero_height" />
+    <id name="legacy_song_swipe_delete_controller" />
+    <id name="main_quickbar" />
+    <id name="iv_right" />
+    <id name="iv_right_view" />
+    <id name="iv_mask_albumcover" />
+    <id name="l_alltrack_header" />
+    <id name="layout_play_container" />
+    <id name="left_container" />
+    <id name="left_icon" />
+    <id name="linerlayout" />
+    <id name="list" />
+    <id name="list_content_item" />
+    <id name="listview_grid" />
+    <id name="listview_item_char_hint" />
+    <id name="listview_item_image" />
+    <id name="left_btn" />
+    <id name="listview_item_line_one" />
+    <id name="listview_item_line_two" />
+    <id name="ll_bright" />
+    <id name="ll_left" />
+    <id name="ll_group_button_container" />
+    <id name="ll_title" />
+    <id name="mid_container" />
+    <id name="mime_type" />
+    <id name="next_btn" />
+    <id name="operation_zone" />
+    <id name="play_container" />
+    <id name="play_btn" />
+    <id name="playing_song_header" />
+    <id name="playback_bar" />
+    <id name="playback_bar_content" />
+    <id name="playback_bar_shadow" />
+    <id name="prev_btn" />
+    <id name="quickbar_left_letters_bar" />
+    <id name="quickbar_right_grid_view" />
+    <id name="realtabcontent" />
+    <id name="relativeLayout1" />
+    <id name="right_container" />
+    <id name="rightExpandView" />
+    <id name="rl_list_item_parent" />
+    <id name="rl_right" />
+    <id name="rb_score" />
+    <id name="sb_rb_playlist" />
+    <id name="second_line_view" />
+    <id name="saved_songs_sort_button" />
+    <id name="smartisan_iv_btn_group_shadow" />
+    <id name="smartlist_header" />
+    <id name="song_info_zone" />
+    <id name="song_quality" />
+    <id name="song_vip" />
+    <id name="status_bar_album_art" />
+    <id name="status_bar_artist_name" />
+    <id name="status_bar_collapse" />
+    <id name="status_bar_collect" />
+    <id name="status_bar_last" />
+    <id name="status_bar_next" />
+    <id name="status_bar_play" />
+    <id name="status_bar_seperator" />
+    <id name="status_bar_track_name" />
+    <id name="subtitle" />
+    <id name="tab_switch" />
+    <id name="text" />
+    <id name="textwidth" />
+    <id name="track_name" />
+    <id name="tv_title" />
+    <id name="tv_play_count" />
+    <id name="tv_duration" />
+    <id name="tv_album_name" />
+    <id name="tv_count" />
+    <id name="tv_head" />
+    <id name="view_divider" />
+    <id name="vt_act_title" />
+    <id name="btn_cancel_left" />
+    <id name="btn_cancel_right" />
+    <id name="btn_ok" />
+    <id name="contentPanel" />
+    <id name="content_list" />
+    <id name="check_view" />
+    <id name="container" />
+    <id name="gridview" />
+    <id name="menu_icon" />
+    <id name="menu_dialog_title_bar" />
+    <id name="menu_dialog_title_bar_container" />
+    <id name="menu_text" />
+    <id name="menu_selected" />
+    <id name="menu_title" />
+    <id name="number_picker" />
+    <id name="parentPanel" />
+    <id name="poprelative" />
+    <id name="title" />
+    <id name="titlebar" />
+    <id name="title_view" />
+
+    <attr name="backgroundStyle">
+        <enum name="single" value="1" />
+        <enum name="top" value="2" />
+        <enum name="middle" value="3" />
+        <enum name="bottom" value="4" />
+    </attr>
+    <attr name="backgroundShadow" format="reference" />
+    <attr name="button_count" format="integer" />
+    <attr name="check_handle_id" format="reference" />
+    <attr name="drag_enabled" format="boolean" />
+    <attr name="drag_handle_id" format="reference" />
+    <attr name="drag_scroll_start" format="float" />
+    <attr name="drag_start_mode">
+        <enum name="onDown" value="0" />
+        <enum name="onLongPress" value="2" />
+        <enum name="onMove" value="1" />
+    </attr>
+    <attr name="emptyDrawable" format="reference" />
+    <attr name="float_alpha" format="float" />
+    <attr name="max_drag_scroll_speed" format="float" />
+    <attr name="primaryHint" format="reference|string" />
+    <attr name="remove_enabled" format="boolean" />
+    <attr name="secondaryHint" format="reference|string" />
+    <attr name="shadowButtonStyle">
+        <enum name="longButton" value="2" />
+        <enum name="shrink_longButton" value="3" />
+        <enum name="smallButton" value="1" />
+    </attr>
+    <declare-styleable name="ShadowButton">
+        <attr name="shadowButtonStyle" />
+        <attr name="backgroundShadow" />
+    </declare-styleable>
+    <declare-styleable name="SmartisanBlankView">
+        <attr name="emptyDrawable" />
+        <attr name="primaryHint" />
+        <attr name="secondaryHint" />
+    </declare-styleable>
+    <attr name="show_divider" format="boolean" />
+    <attr name="slide_shuffle_speed" format="float" />
+
+    <dimen name="daily_recommend_cover_width">50.0dp</dimen>
+    <dimen name="album_detail_album_name_size">18.0sp</dimen>
+    <dimen name="album_detail_artist_size">14.0sp</dimen>
+    <dimen name="album_listview_item_padding">5.0dp</dimen>
+    <dimen name="album_detail_text_margin_left">16.0dp</dimen>
+    <dimen name="album_detail_text_margin_top">14.0dp</dimen>
+    <dimen name="album_detail_text_margin_top1">3.0dp</dimen>
+    <dimen name="album_detail_text_margin_top2">4.0dp</dimen>
+    <dimen name="album_header_height">139.0dp</dimen>
+    <dimen name="album_listview_item_margin_top">2.0dp</dimen>
+    <dimen name="album_list_item_image_height">48.0dp</dimen>
+    <dimen name="album_list_item_image_width">48.0dp</dimen>
+    <dimen name="album_opration_zone_padding_Left">7.0dp</dimen>
+    <dimen name="album_opration_zone_padding_bottom">4.0dp</dimen>
+    <dimen name="album_opration_zone_padding_right">2.0dp</dimen>
+    <dimen name="album_play_type_divider_size">4.0dp</dimen>
+    <dimen name="album_song_index_margin_left">6.0dp</dimen>
+    <dimen name="album_song_index_width">32.0dp</dimen>
+    <dimen name="album_text_padding_left">5.0dp</dimen>
+    <dimen name="alum_line_width">6.0dp</dimen>
+    <dimen name="alum_tile_paddingleft">12.0dp</dimen>
+    <dimen name="action_button_left_margin">12.0dp</dimen>
+    <dimen name="audio_normal_text_size">12.0sp</dimen>
+    <dimen name="bar_margin_edge">6.0dp</dimen>
+    <dimen name="button_group_left_right_padding">6.0dp</dimen>
+    <dimen name="button_text_size">14.0sp</dimen>
+    <dimen name="btn_margin_right">8.0dp</dimen>
+    <dimen name="check_box_margin_left">18.0dp</dimen>
+    <dimen name="collect_text_padding_top">8.0dp</dimen>
+    <dimen name="common_padding_left">12.0dp</dimen>
+    <dimen name="float_button_margin">3.0dp</dimen>
+    <dimen name="float_cover_padding_left">12.0dp</dimen>
+    <dimen name="flexible_space">18.0dp</dimen>
+    <dimen name="footer_padding">22.0dp</dimen>
+    <dimen name="footer_text_size">15.0sp</dimen>
+    <dimen name="gridview_horizontalSpacing">1.0px</dimen>
+    <dimen name="gridview_item_ccontainer_height">116.0dp</dimen>
+    <dimen name="gridview_margin">9.0dp</dimen>
+    <dimen name="gridview_padding">3.0dp</dimen>
+    <dimen name="gridview_padding_top2">7.0dp</dimen>
+    <dimen name="gridview_verticalSpacing">2.0dp</dimen>
+    <dimen name="left_icon_area_width">60.0dp</dimen>
+    <dimen name="lv_item_shadow_width">2.0dp</dimen>
+    <dimen name="listview_dividerHeight">0.6700001dp</dimen>
+    <dimen name="listview_item_height">60.0dp</dimen>
+    <dimen name="listview_item_image_height">48.0dp</dimen>
+    <dimen name="listview_item_image_width">48.0dp</dimen>
+    <dimen name="listview_item_line_two_paddingtop">2.0dp</dimen>
+    <dimen name="listview_items_margin_left">18.0dp</dimen>
+    <dimen name="listview_items_margin_right">4.0dp</dimen>
+    <dimen name="listview_items_header_width">265.0dp</dimen>
+    <dimen name="listview_items_margin_top1">1.0dp</dimen>
+    <dimen name="listview_items_padding_left_left1">17.5dp</dimen>
+    <dimen name="listview_items_padding_left_top">0.0dp</dimen>
+    <dimen name="listview_items_textview_width">270.0dp</dimen>
+    <dimen name="list_item_left_right_margin">12.0dp</dimen>
+    <dimen name="list_item_min_height">60.0dp</dimen>
+    <dimen name="list_item_vertical_gap">14.0dp</dimen>
+    <dimen name="mid_container_summary_margin">2.0dp</dimen>
+    <dimen name="mid_container_top_bottom_padding">6.0dp</dimen>
+    <dimen name="settings_row_content_margin_start">18.0dp</dimen>
+    <dimen name="settings_row_title_accessory_gap">12.0dp</dimen>
+    <dimen name="settings_row_accessory_margin_end">8.0dp</dimen>
+    <dimen name="settings_row_value_arrow_gap">2.0dp</dimen>
+    <dimen name="nav_divider_height">0.6700001dp</dimen>
+    <dimen name="notification_control_btn_margin">9.0dp</dimen>
+    <dimen name="play_back_content_height">61.0dp</dimen>
+    <dimen name="playback_bar_text_width">143.29999dp</dimen>
+    <dimen name="play_list_check_box_margin_left">20.0dp</dimen>
+    <dimen name="play_list_check_box_margin_right">20.0dp</dimen>
+    <dimen name="popup_bg_left_right_shadow_width">31.299988dp</dimen>
+    <dimen name="popup_bg_top_bottom_shadow_height">45.69998dp</dimen>
+    <dimen name="popup_list_menu_default_width">220.0dp</dimen>
+    <dimen name="popup_list_menu_item_height">44.0dp</dimen>
+    <dimen name="popup_list_menu_title_height">30.0dp</dimen>
+    <dimen name="popup_list_title_left_margin">12.0dp</dimen>
+    <dimen name="menu_panel_bg_min_distance">12.0dp</dimen>
+    <dimen name="list_divider_height">2.0px</dimen>
+    <dimen name="playlist_right_action_width">30.0dp</dimen>
+    <dimen name="primary_text_size">17.0sp</dimen>
+    <dimen name="quickbar_width">217.5dp</dimen>
+    <dimen name="letters_bar_width">40.0dp</dimen>
+    <dimen name="letters_bar_letter_font_size">10.0dp</dimen>
+    <dimen name="letters_bar_letter_locale_font_size">13.599976dp</dimen>
+    <dimen name="letters_bar_single_letter_min_height">12.0dp</dimen>
+    <dimen name="smartisan_quickbar_letterbar_margin">3.0dp</dimen>
+    <dimen name="smartisan_quickbar_grid_item_space">3.0px</dimen>
+    <dimen name="quickbar_ex_grid_column_width">60.0dp</dimen>
+    <dimen name="smartisan_quickbar_min_distance">4.0dp</dimen>
+    <dimen name="smartisan_quickbarex_gridview_font_size">16.0sp</dimen>
+    <dimen name="realtabcontent_margin_bottom">54.0dp</dimen>
+    <dimen name="right_container_margin">6.0dp</dimen>
+    <dimen name="saved_songs_items_margin_left">15.5dp</dimen>
+    <dimen name="samrtisan_button_fixed_height">48.0dp</dimen>
+    <dimen name="sb_tab_bar_top_padding">7.0dp</dimen>
+    <dimen name="secondary_bar_height">48.0dp</dimen>
+    <dimen name="settings_item_sub_title_size">13.5sp</dimen>
+    <dimen name="settings_item_tips_text_size">13.5sp</dimen>
+    <dimen name="semi_large_text_size">18.0sp</dimen>
+    <dimen name="semi_small_text_size">13.5sp</dimen>
+    <dimen name="smartisan_button_fixed_width">60.0dp</dimen>
+    <dimen name="smartisan_bottom_bar_height">54.0dp</dimen>
+    <dimen name="smartisan_switch_bar_drawablePadding">3.0dp</dimen>
+    <dimen name="smartisan_tabswitch_tabbar_height">@dimen/smartisan_bottom_bar_height</dimen>
+    <dimen name="standard_icon_size">36.0dp</dimen>
+    <dimen name="status_bar_album_art">100.0dp</dimen>
+    <dimen name="status_bar_button_info_container_padding_left">14.0dp</dimen>
+    <dimen name="status_bar_height">26.0dp</dimen>
+    <dimen name="tab_layout_second_column_max_width">480.0dp</dimen>
+    <dimen name="tab_layout_second_column_width">360.0dp</dimen>
+    <dimen name="tertiary_text_size">13.5sp</dimen>
+    <dimen name="text_size_act_title">16.0dp</dimen>
+    <dimen name="text_size_better">15.0sp</dimen>
+    <dimen name="text_size_large">16.0sp</dimen>
+    <dimen name="text_size_medium">16.0sp</dimen>
+    <dimen name="text_size_micro">13.0sp</dimen>
+    <dimen name="text_size_small">13.0sp</dimen>
+    <dimen name="text_size_yun">17.0sp</dimen>
+    <dimen name="title_bar_center_limite">114.0dp</dimen>
+    <dimen name="title_bar_height">50.0dp</dimen>
+    <dimen name="title_bar_margin_view">12.0dp</dimen>
+    <dimen name="title_bar_shadow_height">14.0dp</dimen>
+    <dimen name="title_bar_title_size">18.0px</dimen>
+    <dimen name="title_button_max_width">110.0dp</dimen>
+    <dimen name="title_text_size">20.0sp</dimen>
+    <dimen name="titlebar_height">48.0dp</dimen>
+    <dimen name="titlebar_shadow_height">4.0dp</dimen>
+    <dimen name="time_picker_text_size">16.0dp</dimen>
+    <dimen name="time_picker_text_size_hight">18.0dp</dimen>
+    <dimen name="bar_divider_height">0.6700001dp</dimen>
+    <dimen name="router_padding_top">51.0dp</dimen>
+    <dimen name="max_playback_title">22.0dp</dimen>
+    <dimen name="max_title_view_width">150.0dp</dimen>
+    <dimen name="menu_dialog_btn_margin_edge">24.0dp</dimen>
+    <dimen name="menu_dialog_btn_margin_view">18.0dp</dimen>
+    <dimen name="menu_dialog_horizontal_distance">18.0dp</dimen>
+    <dimen name="menu_dialog_item_text_min_size">18.0dp</dimen>
+    <dimen name="multi_menu_dialog_list_height">354.0dp</dimen>
+    <dimen name="bar_and_bottom_sheet_extra_space">54.0px</dimen>
+    <dimen name="menu_dialog_item_text_size">18.0sp</dimen>
+    <dimen name="menu_dialog_multi_list_height">237.0dp</dimen>
+    <dimen name="revone_dialog_button_height">48.0dp</dimen>
+    <dimen name="revone_global_dialog_content_width">308.0dp</dimen>
+    <dimen name="album_cover_zone_width">95.0dp</dimen>
+    <dimen name="fake_song_playing_zone_layout">105.0dp</dimen>
+    <dimen name="now_playing_header_height">20.0dp</dimen>
+    <dimen name="playback_listview_dividerHeight">2.0px</dimen>
+    <dimen name="quick_context_line_height">30.0dp</dimen>
+    <dimen name="queue_rating_bar_height">40.0dp</dimen>
+    <dimen name="radio_category_header_text_size">13.5sp</dimen>
+    <dimen name="tabbar_padding_left">11.0dp</dimen>
+
+    <color name="btn_text_color_red">#e65c53</color>
+    <color name="btn_text_color_red_pressed">#e03d34</color>
+    <color name="btn_text_color_blue">#5c89f2</color>
+    <color name="btn_text_color_blue_pressed">#3d70ef</color>
+    <color name="has_chosen_letter_font_color">#f5f5f5</color>
+    <color name="list_item_first_line">#99000000</color>
+    <color name="list_item_second_line">#66000000</color>
+    <color name="list_text_color_small">#a4a7ac</color>
+    <color name="add_nav_text_color">#9a000000</color>
+    <color name="bottom_line">#e2e2e2</color>
+    <color name="listview_divider_color">#ebebeb</color>
+    <color name="list_divider_color">@color/listview_divider_color</color>
+    <color name="menu_text_color">#9a000000</color>
+    <color name="nav_list_line">#ebebeb</color>
+    <color name="no_chosen_letter_font_color">#9a000000</color>
+    <color name="quickbar_ex_alphabet_text_dark_color">#f0f0f0</color>
+    <color name="quickbar_ex_alphabet_text_light_color">#f5f5f5</color>
+    <color name="quickbar_ex_alphabet_text_pressed_color">#e5e5e5</color>
+    <color name="setting_item_summary_text_color">#80000000</color>
+    <color name="setting_item_text_color">#353539</color>
+    <color name="setting_item_text_color_disabled">#bababa</color>
+    <color name="setting_item_text_color_highlight">#ffffff</color>
+    <color name="song_index_text_color">#4d000000</color>
+    <color name="tab_bar_text_normal">#66000000</color>
+    <color name="tab_bar_text_press">#9a000000</color>
+    <color name="text_shadow_color_enable">#26000000</color>
+    <color name="title_color">#99000000</color>
+    <color name="title_down_color">#676767</color>
+    <color name="title_or_btn_text_color">#99000000</color>
+    <color name="title_text_color">#9a000000</color>
+    <color name="sub_title_text_color">#4c000000</color>
+    <color name="editor_hint_text_color">#26000000</color>
+    <color name="editor_text_color">#cc000000</color>
+    <color name="status_bar_color_dialog">#99000000</color>
+    <color name="transparent">#00000000</color>
+    <color name="transparent_black">#99000000</color>
+    <color name="playing_queue_color">#ffffff</color>
+    <drawable name="menu_list_item_normal">#ffffff</drawable>
+    <drawable name="menu_list_item_pressed">#f5f5f5</drawable>
+
+    <style name="PopupWindowDropDownDownAnim" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/dropdown_down_enter</item>
+        <item name="android:windowExitAnimation">@anim/dropdown_down_exit</item>
+    </style>
+
+    <style name="PopupWindowDropDownUpAnim" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/dropdown_up_enter</item>
+        <item name="android:windowExitAnimation">@anim/dropdown_up_exit</item>
+    </style>
+
+    <integer name="item_flip">30</integer>
+    <integer name="gridview_columns">3</integer>
+    <integer name="quickbar_ex_num_columns">3</integer>
+    <integer name="smartisan_letterbar_gridview_column_num">3</integer>
+    <integer name="text_shaow">-2</integer>
+
+    <style name="StatusBarButton">
+        <item name="android:background">?android:listChoiceBackgroundIndicator</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="StatusBarText">
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:layout_gravity">left</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:scrollHorizontally">true</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="ListContentItemStyle">
+        <item name="android:layout_marginLeft">@dimen/list_item_left_right_margin</item>
+        <item name="android:layout_marginRight">@dimen/list_item_left_right_margin</item>
+    </style>
+
+    <style name="ListContentItemStyle.Top" parent="@style/ListContentItemStyle">
+        <item name="android:background">@drawable/group_list_item_bg_top</item>
+        <item name="backgroundStyle">top</item>
+    </style>
+
+    <style name="ListContentItemStyle.Mid" parent="@style/ListContentItemStyle">
+        <item name="android:background">@drawable/group_list_item_bg_mid</item>
+        <item name="backgroundStyle">middle</item>
+    </style>
+
+    <style name="ListContentItemStyle.Bottom" parent="@style/ListContentItemStyle">
+        <item name="android:background">@drawable/group_list_item_bg_bottom</item>
+        <item name="backgroundStyle">bottom</item>
+    </style>
+
+    <style name="ListContentItemStyle.Single" parent="@style/ListContentItemStyle">
+        <item name="android:background">@drawable/group_list_item_bg_single</item>
+        <item name="backgroundStyle">single</item>
+    </style>
+
+    <style name="SmartisanBlankViewStyle">
+        <item name="android:gravity">center</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="bt_style">
+        <item name="android:textSize">@dimen/button_text_size</item>
+        <item name="android:textColor">@color/title_color</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="ListContentItemPrimaryText">
+        <item name="android:textColor">@color/setting_item_text_colorlist</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:duplicateParentState">true</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="ListContentItemSecondaryText">
+        <item name="android:textColor">@color/setting_item_summary_text_colorlist</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:duplicateParentState">true</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="MenuDialogTheme" parent="@android:style/Theme.DeviceDefault.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.InputMethod</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <style name="LongButton">
+        <item name="android:textSize">@dimen/semi_large_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_height">60.0dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:includeFontPadding">true</item>
+    </style>
+
+    <style name="LongButton.Shrink" parent="@style/LongButton">
+        <item name="android:layout_height">48.0dp</item>
+        <item name="android:background">@drawable/shrink_long_btn_red_selector</item>
+        <item name="backgroundShadow">@drawable/shadow_button_shrink_shadow_selector</item>
+        <item name="shadowButtonStyle">shrink_longButton</item>
+    </style>
+
+    <style name="LongButton.Shrink.Highlight" parent="@style/LongButton.Shrink" />
+
+    <style name="LongButton.Shrink.Highlight.Red" parent="@style/LongButton.Shrink.Highlight">
+        <item name="android:background">@drawable/shrink_long_btn_red_selector</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="StandardIconStyle">
+        <item name="android:layout_width">@dimen/standard_icon_size</item>
+        <item name="android:layout_height">@dimen/standard_icon_size</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="sb_bottom_tabbar_style">
+        <item name="android:textSize">9.0sp</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:background">@drawable/sb_tabbar_item_selector</item>
+        <item name="android:paddingTop">@dimen/sb_tab_bar_top_padding</item>
+        <item name="android:layout_width">0.0dp</item>
+        <item name="android:layout_height">@dimen/smartisan_tabswitch_tabbar_height</item>
+        <item name="android:button">@null</item>
+        <item name="android:layout_weight">1.0</item>
+    </style>
+</resources>

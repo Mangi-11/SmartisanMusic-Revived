@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/listview_item_height">
+
+    <CheckBox
+        android:id="@id/cb_del"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/check_box_margin_left"
+        android:clickable="false"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@id/cover_zone"
+        android:layout_width="@dimen/listview_item_image_width"
+        android:layout_height="@dimen/listview_item_image_height"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/cb_del"
+        android:paddingLeft="@dimen/common_padding_left"
+        android:paddingTop="@dimen/album_listview_item_padding"
+        android:paddingBottom="@dimen/album_listview_item_padding">
+
+        <ImageView
+            android:id="@id/album_cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cropToPadding="true"
+            android:scaleType="centerCrop" />
+
+        <View
+            android:id="@id/iv_mask_albumcover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/mask_albumcover_list" />
+    </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/iv_right"
+        android:layout_toRightOf="@id/cover_zone"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/common_padding_left">
+
+        <TextView
+            android:id="@id/first_line_view"
+            android:layout_width="@dimen/listview_items_textview_width"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:paddingRight="@dimen/listview_items_padding_left_left1"
+            android:singleLine="true"
+            android:textColor="@drawable/text_color_white_and_black_selector"
+            android:textSize="@dimen/text_size_medium" />
+
+        <TextView
+            android:id="@id/second_line_view"
+            android:layout_width="@dimen/listview_items_textview_width"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/first_line_view"
+            android:layout_marginTop="@dimen/listview_items_margin_top1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:paddingRight="@dimen/listview_items_padding_left_left1"
+            android:singleLine="true"
+            android:textColor="@drawable/text_color_white_and_gray1_selector"
+            android:textSize="@dimen/text_size_small" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@id/iv_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="2.0dp"
+        android:background="@drawable/btn_drag_selector" />
+</RelativeLayout>

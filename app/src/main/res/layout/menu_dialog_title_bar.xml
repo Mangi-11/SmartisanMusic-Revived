@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout android:id="@id/menu_dialog_title_bar_container" android:background="@drawable/bottom_sheet_title_bar_bg" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48.0dp">
+        <ImageView android:id="@id/btn_cancel_left" android:visibility="invisible" android:layout_marginLeft="@dimen/bar_margin_edge" android:src="@drawable/standard_icon_cancel_selector" android:layout_alignParentLeft="true" android:layout_centerVertical="true" android:contentDescription="@string/cancel" style="@style/StandardIconStyle" />
+        <ImageView android:id="@id/btn_cancel_right" android:layout_marginRight="@dimen/bar_margin_edge" android:src="@drawable/standard_icon_cancel_selector" android:layout_alignParentRight="true" android:layout_centerVertical="true" android:contentDescription="@string/cancel" style="@style/StandardIconStyle" />
+        <TextView android:textSize="@dimen/semi_small_text_size" android:textStyle="bold" android:textColor="@color/title_text_color" android:ellipsize="end" android:gravity="center" android:id="@id/title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="6.0dp" android:layout_marginRight="6.0dp" android:maxLines="2" android:layout_toLeftOf="@id/btn_cancel_right" android:layout_toRightOf="@id/btn_cancel_left" android:layout_centerVertical="true" />
+    </RelativeLayout>
+</merge>

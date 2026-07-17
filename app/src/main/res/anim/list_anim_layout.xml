@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layoutAnimation android:delay="20.000004%" android:animation="@anim/fade_in" android:animationOrder="normal"
+  xmlns:android="http://schemas.android.com/apk/res/android" />

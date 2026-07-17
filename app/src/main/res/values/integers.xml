@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="push_enter_exit_time">300</integer>
+    <integer name="delete_button_padding_left">15</integer>
+</resources>

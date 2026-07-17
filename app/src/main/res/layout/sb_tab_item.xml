@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioButton android:textStyle="bold" android:ellipsize="end" android:id="@id/sb_rb_playlist" android:singleLine="true" style="@style/sb_bottom_tabbar_style"
+  xmlns:android="http://schemas.android.com/apk/res/android" />

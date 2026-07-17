@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/fake_song_playing_zone_layout"
+    android:paddingLeft="@dimen/common_padding_left">
+
+    <FrameLayout
+        android:id="@id/album_cover_zone"
+        android:layout_width="@dimen/album_cover_zone_width"
+        android:layout_height="@dimen/album_cover_zone_width"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="5.0dp"
+        android:layout_marginRight="2.0dp"
+        android:layout_marginBottom="5.0dp">
+
+        <ImageView
+            android:id="@id/album_cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <View
+            android:id="@id/iv_mask_albumcover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/mask_albumcover_list" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@id/content"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/common_padding_left"
+        android:layout_toLeftOf="@id/favorite"
+        android:layout_toRightOf="@id/album_cover_zone"
+        android:orientation="vertical"
+        android:paddingTop="13.0dp">
+
+        <TextView
+            android:id="@id/first_line_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:paddingRight="@dimen/listview_items_padding_left_left1"
+            android:singleLine="true"
+            android:textColor="@drawable/text_color_white_and_black_selector"
+            android:textSize="@dimen/text_size_medium" />
+
+        <TextView
+            android:id="@id/second_line_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:paddingRight="@dimen/listview_items_padding_left_left1"
+            android:singleLine="true"
+            android:textColor="@drawable/text_color_white_and_gray1_selector"
+            android:textSize="@dimen/text_size_small" />
+    </LinearLayout>
+
+    <RatingBar
+        android:id="@id/rb_score"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/queue_rating_bar_height"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="2.0dp"
+        android:layout_toRightOf="@id/album_cover_zone"
+        android:clickable="false"
+        android:contentDescription="@string/sort_by_song_score"
+        android:numStars="5"
+        android:progressDrawable="@drawable/rating_bar_style"
+        android:rating="0.0"
+        android:stepSize="1.0" />
+
+    <CheckBox
+        android:id="@id/favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="8.0dp"
+        android:layout_marginRight="2.0dp"
+        android:background="@drawable/btn_favorite_add_selector"
+        android:button="@null"
+        android:checked="false"
+        android:contentDescription="@string/action_collect_song" />
+</RelativeLayout>

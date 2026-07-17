@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:background="@drawable/account_background" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:dslv="http://schemas.android.com/apk/res-auto">
+    <com.smartisan.music.ui.widgets.BackgroundListView android:id="@id/list" android:layout_width="match_parent" android:layout_height="match_parent" android:listSelector="@drawable/listview_selector" android:divider="@null" android:overScrollMode="always" dslv:drag_enabled="false" dslv:float_alpha="0.66" dslv:remove_enabled="false" />
+</FrameLayout>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:gravity="center_vertical" android:orientation="vertical" android:id="@id/smartlist_header" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textSize="13.5sp" android:textColor="@color/title_text_color" android:gravity="left|center" android:id="@id/text" android:paddingLeft="@dimen/listview_items_margin_left" android:layout_width="match_parent" android:layout_height="26.0dp" />
+</LinearLayout>

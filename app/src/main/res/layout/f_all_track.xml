@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:smartisanos="http://schemas.android.com/apk/res-auto">
+    <com.smartisan.music.ui.widgets.legacy.SmartisanBlankView android:id="@id/fl_null_artist" android:background="@drawable/account_background" smartisanos:primaryHint="@string/no_song" smartisanos:secondaryHint="@string/show_song" smartisanos:emptyDrawable="@drawable/blank_song" style="@style/SmartisanBlankViewStyle" />
+    <RelativeLayout android:background="@color/white" android:layout_width="match_parent" android:layout_height="match_parent">
+        <com.smartisan.music.ui.widgets.legacy.ActionButtonGroup android:id="@id/l_alltrack_header" android:background="@color/white" android:visibility="gone" android:layout_width="@dimen/tab_layout_second_column_max_width" android:layout_height="wrap_content" android:minWidth="@dimen/tab_layout_second_column_width" android:layout_centerHorizontal="true" smartisanos:button_count="4" />
+        <include android:id="@id/play_container" android:visibility="gone" android:layout_width="@dimen/tab_layout_second_column_max_width" android:layout_height="wrap_content" android:minWidth="@dimen/tab_layout_second_column_width" android:layout_below="@id/l_alltrack_header" android:layout_centerHorizontal="true" layout="@layout/layout_play_container" />
+        <View android:id="@id/view_divider" android:background="@color/listview_divider_color" android:layout_width="match_parent" android:layout_height="@dimen/listview_dividerHeight" android:layout_below="@id/play_container" />
+        <FrameLayout android:id="@id/all_track_fragment_container" android:background="@drawable/account_background" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_below="@id/view_divider" />
+    </RelativeLayout>
+</merge>

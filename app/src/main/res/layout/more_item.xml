@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.smartisan.music.ui.widgets.legacy.ListContentItemText android:id="@id/list_content_item" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/ListContentItemStyle.Mid"
+  xmlns:android="http://schemas.android.com/apk/res/android" />

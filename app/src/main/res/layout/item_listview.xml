@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.smartisan.music.ui.widgets.EditableLayout android:id="@id/rl_list_item_parent" android:background="@drawable/listview_selector" android:descendantFocusability="blocksDescendants" android:layout_width="match_parent" android:layout_height="@dimen/listview_item_height"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.smartisan.music.ui.widgets.CustomCheckBox android:id="@id/cb_del" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/play_list_check_box_margin_left" android:layout_marginRight="@dimen/play_list_check_box_margin_right" android:button="@drawable/check_box_selector" android:layout_alignParentLeft="true" android:layout_centerVertical="true" />
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_toLeftOf="@id/rl_right" android:layout_toRightOf="@id/cb_del" android:layout_centerVertical="true">
+        <TextView android:textSize="@dimen/text_size_large" android:textColor="@drawable/text_color_white_and_black_selector" android:ellipsize="end" android:id="@id/listview_item_line_one" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" />
+        <TextView android:textSize="@dimen/text_size_micro" android:textColor="@drawable/text_color_white_and_gray1_selector" android:ellipsize="end" android:id="@id/listview_item_line_two" android:paddingTop="3.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" />
+    </LinearLayout>
+    <RelativeLayout android:id="@id/rl_right" android:layout_width="@dimen/playlist_right_action_width" android:layout_height="wrap_content" android:layout_marginRight="@dimen/listview_items_margin_right" android:layout_alignParentRight="true" android:layout_centerVertical="true">
+        <ImageView android:id="@id/arrow" android:background="@drawable/arrow3_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:scaleType="fitCenter" android:layout_alignParentRight="true" android:layout_centerVertical="true" />
+        <ImageView android:id="@id/iv_right_view" android:visibility="visible" android:duplicateParentState="true" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/rename_playlist_selector" android:scaleType="fitCenter" android:layout_alignParentRight="true" android:layout_centerVertical="true" android:contentDescription="@string/edit" />
+    </RelativeLayout>
+</com.smartisan.music.ui.widgets.EditableLayout>

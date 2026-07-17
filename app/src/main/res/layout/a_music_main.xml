@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:drawingCacheQuality="low" android:persistentDrawingCache="none" android:alwaysDrawnWithCache="false" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <FrameLayout android:id="@id/realtabcontent" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginBottom="@dimen/realtabcontent_margin_bottom" />
+    <FrameLayout android:id="@id/playback_bar" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/realtabcontent_margin_bottom" android:layout_alignParentBottom="true" />
+    <ViewStub android:id="@id/vt_act_title" android:layout="@layout/act_title" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    <com.smartisan.music.ui.widgets.legacy.TabSwitcher android:id="@id/tab_switch" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_alignParentBottom="true" />
+</RelativeLayout>

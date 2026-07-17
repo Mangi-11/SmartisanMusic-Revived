@@ -1,0 +1,16 @@
+<resources>
+    <string name="cd_play_all">Playlist</string>
+    <string name="cd_shuffle">Shuffle</string>
+    <string name="close">Close</string>
+    <string name="sort_by_song_name">Song title</string>
+    <string name="sort_by_song_play_time">Play count</string>
+    <string name="sort_by_song_score">Rating</string>
+    <string name="sort_by_song_update_time">Date added</string>
+    <string name="nostar">No rating</string>
+    <string name="section_today">Today</string>
+    <string name="section_day_before">One day ago</string>
+    <string name="section_week_before">One week ago</string>
+    <string name="section_month_before">One month ago</string>
+    <string name="song_score_header">%1$d-star rating</string>
+    <string name="tab_more">More</string>
+</resources>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.smartisan.music.ui.widgets.EditableLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@id/rl_list_item_parent"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/listview_item_height"
+    android:minHeight="@dimen/listview_item_height"
+    android:background="@drawable/listview_selector"
+    android:descendantFocusability="blocksDescendants">
+
+    <com.smartisan.music.ui.widgets.CustomCheckBox
+        android:id="@id/cb_del"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/check_box_margin_left"
+        android:button="@drawable/check_box_selector"
+        android:clickable="false" />
+
+    <TextView
+        android:id="@id/tv_play_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/listview_items_margin_left"
+        android:layout_toLeftOf="@id/rl_right"
+        android:duplicateParentState="true"
+        android:singleLine="true"
+        android:textColor="@drawable/text_color_white_and_gray1_selector"
+        android:textSize="@dimen/text_size_micro" />
+
+    <View
+        android:id="@id/rl_right"
+        android:layout_width="30.0dp"
+        android:layout_height="30.0dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/listview_items_margin_right"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@id/img_action_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="12.0dp"
+        android:layout_marginRight="@dimen/listview_items_margin_right"
+        android:contentDescription="@string/tab_more"
+        android:duplicateParentState="true"
+        android:scaleType="center"
+        android:src="@drawable/btn_more_selector" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/listview_items_margin_left"
+        android:layout_toLeftOf="@id/tv_play_count"
+        android:layout_toRightOf="@id/cb_del"
+        android:focusableInTouchMode="true">
+
+        <com.smartisan.music.ui.widgets.StretchTextView
+            android:id="@id/listview_item_line_one"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:textColor="@drawable/text_color_white_and_black_selector"
+            android:textSize="@dimen/text_size_large" />
+
+        <ImageView
+            android:id="@id/mime_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/listview_item_line_one"
+            android:layout_marginRight="@dimen/album_song_index_margin_left"
+            android:layout_marginTop="@dimen/listview_item_line_two_paddingtop" />
+
+        <TextView
+            android:id="@id/listview_item_line_two"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/listview_item_line_one"
+            android:layout_toRightOf="@id/mime_type"
+            android:ellipsize="end"
+            android:paddingTop="@dimen/listview_item_line_two_paddingtop"
+            android:singleLine="true"
+            android:textColor="@drawable/text_color_white_and_gray1_selector"
+            android:textSize="@dimen/text_size_micro" />
+    </RelativeLayout>
+</com.smartisan.music.ui.widgets.EditableLayout>

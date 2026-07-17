@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <Button android:gravity="center" android:id="@id/bt_left" android:maxWidth="@dimen/title_button_max_width" android:singleLine="true" android:layout_alignParentLeft="true" style="@style/bt_style" />
+    <TextView android:textSize="@dimen/title_text_size" android:textColor="@color/title_color" android:ellipsize="end" android:gravity="center" android:id="@id/tv_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxWidth="@dimen/max_title_view_width" android:singleLine="true" android:shadowColor="#80ffffff" android:shadowDy="@integer/text_shaow" android:shadowRadius="0.1" android:layout_centerInParent="true" />
+    <Button android:gravity="center" android:id="@id/bt_right" android:maxWidth="@dimen/title_button_max_width" android:singleLine="true" android:layout_alignParentRight="true" style="@style/bt_style" />
+</RelativeLayout>

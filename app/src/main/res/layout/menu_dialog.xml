@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:smartisanos="http://schemas.android.com/apk/res-auto">
+    <com.smartisan.music.ui.widgets.legacy.MenuDialogTitleBar android:id="@id/menu_dialog_title_bar" android:layout_width="match_parent" android:layout_height="wrap_content" smartisanos:show_divider="true" />
+    <LinearLayout android:orientation="vertical" android:id="@id/contentPanel" android:background="@drawable/menu_dialog_background" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <ListView android:scrollbarStyle="outsideOverlay" android:id="@id/content_list" android:paddingLeft="@dimen/menu_dialog_horizontal_distance" android:paddingTop="24.0dp" android:paddingRight="@dimen/menu_dialog_horizontal_distance" android:paddingBottom="24.0dp" android:visibility="gone" android:scrollbars="vertical" android:clipChildren="false" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="wrap_content" android:listSelector="@android:color/transparent" android:divider="@android:color/transparent" android:dividerHeight="18.0dp" android:overScrollMode="never" />
+        <com.smartisan.music.ui.widgets.legacy.ShadowButton android:id="@id/btn_ok" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/menu_dialog_horizontal_distance" android:layout_marginTop="24.0dp" android:layout_marginRight="@dimen/menu_dialog_horizontal_distance" android:layout_marginBottom="24.0dp" android:singleLine="true" style="@style/LongButton.Shrink.Highlight.Red" />
+    </LinearLayout>
+</LinearLayout>

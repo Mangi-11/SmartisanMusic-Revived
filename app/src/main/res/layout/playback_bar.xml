@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:id="@id/playback_bar" android:tag="layout/playback_bar_0" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <View android:id="@id/playback_bar_shadow" android:tag="binding_1" android:layout_width="match_parent" android:layout_height="6.0dp" />
+    <LinearLayout android:orientation="vertical" android:id="@id/playback_bar_content" android:background="@color/white" android:layout_width="match_parent" android:layout_height="@dimen/play_back_content_height">
+        <RelativeLayout android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="1.0">
+            <com.smartisan.music.ui.widgets.AlphaImageView android:layout_gravity="center_vertical" android:id="@id/album_art" android:layout_width="@dimen/daily_recommend_cover_width" android:layout_height="@dimen/daily_recommend_cover_width" android:layout_marginLeft="@dimen/float_cover_padding_left" android:scaleType="centerInside" android:layout_centerVertical="true" />
+            <LinearLayout android:orientation="vertical" android:id="@id/song_info_zone" android:paddingLeft="@dimen/float_cover_padding_left" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toLeftOf="@id/control_zone" android:layout_toRightOf="@id/album_art" android:layout_centerVertical="true">
+                <TextView android:textSize="@dimen/text_size_medium" android:textColor="@color/list_item_first_line" android:ellipsize="marquee" android:gravity="center_vertical" android:id="@id/track_name" android:paddingRight="@dimen/float_cover_padding_left" android:focusable="true" android:focusableInTouchMode="true" android:layout_width="@dimen/playback_bar_text_width" android:layout_height="wrap_content" android:singleLine="true" android:marqueeRepeatLimit="marquee_forever" />
+                <TextView android:textSize="@dimen/text_size_small" android:textColor="@color/list_item_second_line" android:ellipsize="end" android:gravity="center_vertical" android:id="@id/artist_name" android:paddingRight="@dimen/float_cover_padding_left" android:layout_width="@dimen/playback_bar_text_width" android:layout_height="wrap_content" android:layout_marginTop="@dimen/listview_items_margin_top1" android:singleLine="true" />
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:id="@id/control_zone" android:paddingRight="@dimen/float_button_margin" android:focusable="true" android:clickable="true" android:layout_width="wrap_content" android:layout_height="match_parent" android:layout_alignParentRight="true" android:layout_centerVertical="true">
+                <ImageButton android:layout_gravity="center_vertical" android:id="@id/left_btn" android:tag="binding_2" android:background="@null" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="@dimen/float_button_margin" />
+                <ImageButton android:layout_gravity="center_vertical" android:id="@id/prev_btn" android:tag="binding_3" android:background="@null" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="@dimen/float_button_margin" android:contentDescription="@string/previous_song" />
+                <ImageButton android:layout_gravity="center_vertical" android:id="@id/play_btn" android:tag="binding_4" android:background="@null" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="@dimen/float_button_margin" />
+                <ImageButton android:layout_gravity="center_vertical" android:id="@id/next_btn" android:tag="binding_5" android:background="@null" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/next_song" />
+            </LinearLayout>
+        </RelativeLayout>
+        <View android:id="@+id/playback_bar_bottom_divider" android:background="@color/nav_list_line" android:layout_width="match_parent" android:layout_height="@dimen/nav_divider_height" />
+    </LinearLayout>
+</LinearLayout>
