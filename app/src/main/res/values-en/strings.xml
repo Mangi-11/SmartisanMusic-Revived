@@ -112,6 +112,16 @@
     <string name="search_tab_artists">Artists</string>
     <string name="settings_section_playback">Playback</string>
     <string name="settings_section_library">Library</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="app_icon">App Icon</string>
+    <string name="app_icon_choose">Choose a Home Screen Icon</string>
+    <string name="app_icon_original">Original Icon</string>
+    <string name="app_icon_original_summary">Original skeuomorphic Smartisan Music icon</string>
+    <string name="app_icon_modern">Realme Vinyl Icon</string>
+    <string name="app_icon_modern_summary">An adaptive icon for modern Android</string>
+    <string name="app_icon_refresh_hint">realme has paused its China business, and realme UI bows out with it. This realme UI 7.0 Music icon is preserved here as a tribute. Some launchers may take a moment to refresh the icon.</string>
+    <string name="app_icon_change_failed">Couldn’t change the app icon. Try again later.</string>
+    <string name="app_icon_option_description">%1$s, %2$s</string>
     <string name="search_no_result">No results</string>
     <string name="search_no_result_subtitle">No matching songs, albums, or artists found</string>
     <string name="library_root">Local Music</string>

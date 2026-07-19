@@ -11,6 +11,7 @@ import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
@@ -26,6 +27,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -55,7 +57,11 @@ import com.smartisan.music.data.settings.PlaybackSettings
 import com.smartisan.music.data.settings.equalizerGainDbPoints
 import com.smartisan.music.data.settings.normalizeAudioFxGainDbPoints
 import com.smartisan.music.data.settings.parseArtistSeparatorInput
+import com.smartisan.music.launcher.AppIcon
+import com.smartisan.music.launcher.AppIconManager
 import com.smartisan.music.ui.navigation.MusicDestination
+import com.smartisan.music.ui.shell.settings.LegacyAppIconSettingsPage
+import com.smartisan.music.ui.shell.settings.labelRes
 import com.smartisan.music.ui.shell.titlebar.LegacyPortSmartisanTitleBar
 import com.smartisan.music.ui.widgets.legacy.ShadowDrawable
 import com.smartisan.music.ui.widgets.legacy.SwitchEx
@@ -80,6 +86,8 @@ internal fun LegacyPortSettingsPage(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val appIconManager = remember(context) { AppIconManager(context) }
+    var appIcon by remember(appIconManager) { mutableStateOf(appIconManager.currentIcon()) }
     var editingArtistSeparators by remember { mutableStateOf(false) }
     var artistSeparatorsInitialValues by remember { mutableStateOf(emptySet<String>()) }
     var secondaryPage by rememberSaveable { mutableStateOf<LegacySettingsSecondaryPage?>(null) }
@@ -112,6 +120,7 @@ internal fun LegacyPortSettingsPage(
                 playbackSettings = playbackSettings,
                 artistSettings = artistSettings,
                 navigationSettings = navigationSettings,
+                appIcon = appIcon,
                 onClose = onClose,
                 onScratchEnabledChange = onScratchEnabledChange,
                 onHidePlayerAxisEnabledChange = onHidePlayerAxisEnabledChange,
@@ -125,6 +134,9 @@ internal fun LegacyPortSettingsPage(
                 },
                 onNavigationClick = {
                     secondaryPage = LegacySettingsSecondaryPage.Navigation
+                },
+                onAppIconClick = {
+                    secondaryPage = LegacySettingsSecondaryPage.AppIcon
                 },
                 modifier = Modifier.fillMaxSize(),
             )
@@ -149,6 +161,28 @@ internal fun LegacyPortSettingsPage(
                         secondaryPage = null
                     },
                     onTabVisibilityChange = onTabVisibilityChange,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                LegacySettingsSecondaryPage.AppIcon -> LegacyAppIconSettingsPage(
+                    active = active,
+                    selectedIcon = appIcon,
+                    onClose = {
+                        secondaryPage = null
+                    },
+                    onIconSelected = { selectedIcon ->
+                        appIconManager.setIcon(selectedIcon)
+                            .onSuccess { appliedIcon ->
+                                appIcon = appliedIcon
+                            }
+                            .onFailure { error ->
+                                Log.e("AppIconSettings", "Failed to change launcher icon", error)
+                                Toast.makeText(
+                                    context,
+                                    R.string.app_icon_change_failed,
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            }
+                    },
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -214,6 +248,7 @@ private fun LegacySettingsRootPage(
     playbackSettings: PlaybackSettings,
     artistSettings: ArtistSettings,
     navigationSettings: NavigationSettings,
+    appIcon: AppIcon,
     onClose: () -> Unit,
     onScratchEnabledChange: (Boolean) -> Unit,
     onHidePlayerAxisEnabledChange: (Boolean) -> Unit,
@@ -221,6 +256,7 @@ private fun LegacySettingsRootPage(
     onAudioFxClick: () -> Unit,
     onArtistSeparatorsClick: () -> Unit,
     onNavigationClick: () -> Unit,
+    onAppIconClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -251,12 +287,14 @@ private fun LegacySettingsRootPage(
                     settings = playbackSettings,
                     artistSettings = artistSettings,
                     navigationSettings = navigationSettings,
+                    appIcon = appIcon,
                     onScratchEnabledChange = onScratchEnabledChange,
                     onHidePlayerAxisEnabledChange = onHidePlayerAxisEnabledChange,
                     onPopcornSoundEnabledChange = onPopcornSoundEnabledChange,
                     onAudioFxClick = onAudioFxClick,
                     onArtistSeparatorsClick = onArtistSeparatorsClick,
                     onNavigationClick = onNavigationClick,
+                    onAppIconClick = onAppIconClick,
                 )
             },
         )
@@ -362,6 +400,7 @@ private enum class LegacySettingsRowShape(
 private enum class LegacySettingsSecondaryPage {
     AudioFx,
     Navigation,
+    AppIcon,
 }
 
 private val AudioFxFrequencyLabels = listOf("60", "230", "910", "4k", "14k")
@@ -461,6 +500,11 @@ private class LegacySettingsContentView(context: Context) : ScrollView(context) 
         titleRes = R.string.bottom_tab_visibility,
         showArrow = true,
     )
+    private val appIconRow = LegacySettingsValueRow(
+        context = context,
+        titleRes = R.string.app_icon,
+        showArrow = true,
+    )
 
     init {
         setBackgroundResource(R.drawable.account_background)
@@ -504,18 +548,28 @@ private class LegacySettingsContentView(context: Context) : ScrollView(context) 
             ),
         )
         content.addView(gapView(context))
+        content.addView(sectionTitleView(context, R.string.settings_section_appearance))
+        content.addView(
+            settingsGroup(
+                context,
+                appIconRow to LegacySettingsRowShape.Single,
+            ),
+        )
+        content.addView(gapView(context))
     }
 
     fun bind(
         settings: PlaybackSettings,
         artistSettings: ArtistSettings,
         navigationSettings: NavigationSettings,
+        appIcon: AppIcon,
         onScratchEnabledChange: (Boolean) -> Unit,
         onHidePlayerAxisEnabledChange: (Boolean) -> Unit,
         onPopcornSoundEnabledChange: (Boolean) -> Unit,
         onAudioFxClick: () -> Unit,
         onArtistSeparatorsClick: () -> Unit,
         onNavigationClick: () -> Unit,
+        onAppIconClick: () -> Unit,
     ) {
         scratchRow.bind(settings.scratchEnabled, onScratchEnabledChange)
         axisRow.bind(settings.hidePlayerAxisEnabled, onHidePlayerAxisEnabledChange)
@@ -531,6 +585,10 @@ private class LegacySettingsContentView(context: Context) : ScrollView(context) 
         bottomTabRow.bind(
             value = navigationSettings.toHiddenSummary(context),
             onClick = onNavigationClick,
+        )
+        appIconRow.bind(
+            value = context.getString(appIcon.labelRes()),
+            onClick = onAppIconClick,
         )
     }
 

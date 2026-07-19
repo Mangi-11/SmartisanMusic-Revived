@@ -106,6 +106,16 @@
     <string name="search_tab_artists">艺术家</string>
     <string name="settings_section_playback">播放体验</string>
     <string name="settings_section_library">资料库</string>
+    <string name="settings_section_appearance">外观</string>
+    <string name="app_icon">应用图标</string>
+    <string name="app_icon_choose">选择桌面图标</string>
+    <string name="app_icon_original">原版图标</string>
+    <string name="app_icon_original_summary">锤子音乐原版拟物化图标</string>
+    <string name="app_icon_modern">真我黑胶图标</string>
+    <string name="app_icon_modern_summary">更适合现代 Android 的自适应图标</string>
+    <string name="app_icon_refresh_hint">realme 已暂停中国市场，realme UI 也随之谢幕。保留这枚 realme UI 7.0 音乐图标，以此致敬。部分桌面可能需要片刻才能刷新图标。</string>
+    <string name="app_icon_change_failed">无法更换应用图标，请稍后重试</string>
+    <string name="app_icon_option_description">%1$s，%2$s</string>
     <string name="search_no_result">无搜索结果</string>
     <string name="search_no_result_subtitle">没有找到相关歌曲、专辑或艺术家</string>
     <string name="library_root">本地音乐</string>
