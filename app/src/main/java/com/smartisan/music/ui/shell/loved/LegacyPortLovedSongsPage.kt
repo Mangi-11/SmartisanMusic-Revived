@@ -78,8 +78,8 @@ internal fun LegacyPortLovedSongsPage(
     favoriteRecords: List<FavoriteSongRecord>,
     hiddenMediaIds: Set<String>,
     libraryLoaded: Boolean,
-    onClose: () -> Unit,
-    closePredictiveBackState: LegacyPortPredictiveBackState? = null,
+    onClose: (() -> Unit)?,
+    closePredictiveBackState: LegacyPortPredictiveBackState?,
     onTrackMoreClick: (MediaItem) -> Unit,
     onRemoveFavoriteMediaIds: (Set<String>) -> Unit,
     modifier: Modifier = Modifier,
@@ -132,13 +132,13 @@ internal fun LegacyPortLovedSongsPage(
         editMode = false
         selectedMediaIds = emptySet()
     }
-    if (closePredictiveBackState != null) {
+    if (closePredictiveBackState != null && onClose != null) {
         LegacyPortPredictiveBackHandler(
             enabled = active && !editMode,
             state = closePredictiveBackState,
             onBack = onClose,
         )
-    } else {
+    } else if (onClose != null) {
         BackHandler(enabled = active && !editMode) {
             onClose()
         }
@@ -154,12 +154,13 @@ internal fun LegacyPortLovedSongsPage(
             hasSongs = sortedEntries.isNotEmpty(),
             selectedCount = selectedMediaIds.size,
             sortMode = sortMode,
+            showRootBack = onClose != null,
             onBack = {
                 if (editMode) {
                     editMode = false
                     selectedMediaIds = emptySet()
                 } else {
-                    onClose()
+                    onClose?.invoke()
                 }
             },
             onSortModeChanged = { nextSortMode ->
@@ -354,6 +355,7 @@ private fun LegacyLovedSongsTitleBar(
     hasSongs: Boolean,
     selectedCount: Int,
     sortMode: LovedSongsSortMode,
+    showRootBack: Boolean,
     onBack: () -> Unit,
     onSortModeChanged: (LovedSongsSortMode) -> Unit,
     onEnterEdit: () -> Unit,
@@ -415,6 +417,7 @@ private fun LegacyLovedSongsTitleBar(
                     root.findViewById<TextView>(R.id.tv_title)?.setText(R.string.collect_music)
 
                     leftButton?.apply {
+                        visibility = if (editMode || showRootBack) View.VISIBLE else View.INVISIBLE
                         setBackgroundResource(
                             if (editMode) {
                                 R.drawable.standard_icon_cancel_selector

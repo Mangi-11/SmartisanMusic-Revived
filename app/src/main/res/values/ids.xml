@@ -2,4 +2,7 @@
 <resources>
     <item name="legacy_slide_selection_controller" type="id" />
     <item name="legacy_port_list_footer" type="id" />
+    <item name="navigation_action_move_earlier" type="id" />
+    <item name="navigation_action_move_later" type="id" />
+    <item name="navigation_action_swap_zone" type="id" />
 </resources>

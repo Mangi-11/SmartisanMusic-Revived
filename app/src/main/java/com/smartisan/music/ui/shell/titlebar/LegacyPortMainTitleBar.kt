@@ -31,6 +31,7 @@ internal fun LegacyPortTitleBar(
     onAlbumDetailBack: () -> Unit,
     onArtistBack: () -> Unit,
     onToggleArtistAlbumViewMode: () -> Unit,
+    onRootBack: (() -> Unit)?,
     onSearchClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -54,6 +55,7 @@ internal fun LegacyPortTitleBar(
             onAlbumDetailBack = onAlbumDetailBack,
             onArtistBack = onArtistBack,
             onToggleArtistAlbumViewMode = onToggleArtistAlbumViewMode,
+            onRootBack = onRootBack,
             onSearchClick = onSearchClick,
         )
     }
@@ -88,6 +90,7 @@ internal fun LegacyPortSearchDetailTitleBar(
         onAlbumDetailBack = onBack,
         onArtistBack = onBack,
         onToggleArtistAlbumViewMode = onToggleArtistAlbumViewMode,
+        onRootBack = null,
         onSearchClick = {},
         modifier = modifier,
     )
@@ -112,6 +115,7 @@ private fun TitleBar.setupLegacyMainTitleBar(
     onAlbumDetailBack: () -> Unit,
     onArtistBack: () -> Unit,
     onToggleArtistAlbumViewMode: () -> Unit,
+    onRootBack: (() -> Unit)?,
     onSearchClick: () -> Unit,
 ) {
     removeAllLeftViews()
@@ -192,7 +196,13 @@ private fun TitleBar.setupLegacyMainTitleBar(
             }
         }
         MusicDestination.Artist -> {
-            addLeftImageView(R.drawable.standard_icon_multi_select_selector).visibility = View.INVISIBLE
+            if (onRootBack != null) {
+                addLeftImageView(R.drawable.standard_icon_back_selector).apply {
+                    setOnClickListener { onRootBack() }
+                }
+            } else {
+                addLeftImageView(R.drawable.standard_icon_multi_select_selector).visibility = View.INVISIBLE
+            }
             addRightImageView(R.drawable.search_btn_selector).apply {
                 setOnClickListener {
                     onSearchClick()
@@ -200,20 +210,31 @@ private fun TitleBar.setupLegacyMainTitleBar(
             }
         }
         else -> {
-            addLeftImageView(R.drawable.standard_icon_multi_select_selector).apply {
-                setOnClickListener {
-                    when (destination) {
-                        MusicDestination.Songs -> {
-                            onEnterSongsEditMode()
-                        }
-                        MusicDestination.Album -> {
-                            onEnterAlbumEditMode()
-                        }
-                        else -> Unit
-                    }
+            val enterEdit = {
+                when (destination) {
+                    MusicDestination.Songs -> onEnterSongsEditMode()
+                    MusicDestination.Album -> onEnterAlbumEditMode()
+                    else -> Unit
                 }
             }
-            addRightImageView(R.drawable.search_btn_selector).apply {
+            if (onRootBack != null) {
+                addLeftImageView(R.drawable.standard_icon_back_selector).apply {
+                    setOnClickListener { onRootBack() }
+                }
+                if (destination == MusicDestination.Songs || destination == MusicDestination.Album) {
+                    addRightImageView(R.drawable.standard_icon_multi_select_selector, 0).apply {
+                        setOnClickListener { enterEdit() }
+                    }
+                }
+            } else {
+                addLeftImageView(R.drawable.standard_icon_multi_select_selector).apply {
+                    setOnClickListener { enterEdit() }
+                }
+            }
+            addRightImageView(
+                R.drawable.search_btn_selector,
+                if (onRootBack != null) 1 else 0,
+            ).apply {
                 setOnClickListener {
                     onSearchClick()
                 }

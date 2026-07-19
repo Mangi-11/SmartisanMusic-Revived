@@ -56,9 +56,9 @@ import androidx.compose.ui.zIndex
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.smartisan.music.R
-import com.smartisan.music.data.settings.PlaybackSettings
 import com.smartisan.music.data.library.LibraryExclusions
 import com.smartisan.music.data.library.LibraryExclusionsStore
+import com.smartisan.music.data.settings.PlaybackSettings
 import com.smartisan.music.playback.LocalAudioLibrary
 import com.smartisan.music.playback.LocalPlaybackBrowser
 import com.smartisan.music.playback.isPlaybackActiveForUi
@@ -104,8 +104,8 @@ internal fun LegacyPortFolderPage(
     active: Boolean,
     libraryRefreshVersion: Int,
     libraryRefreshing: Boolean,
-    onClose: () -> Unit,
-    closePredictiveBackState: LegacyPortPredictiveBackState? = null,
+    onClose: (() -> Unit)?,
+    closePredictiveBackState: LegacyPortPredictiveBackState?,
     onRefreshLibrary: () -> Unit,
     onMediaIdsHidden: (Set<String>) -> Unit,
     onRequestDeleteMediaIds: (Set<String>) -> Unit,
@@ -161,13 +161,13 @@ internal fun LegacyPortFolderPage(
         editMode = false
         selectedDirectoryKeys = emptySet()
     }
-    if (closePredictiveBackState != null) {
+    if (closePredictiveBackState != null && onClose != null) {
         LegacyPortPredictiveBackHandler(
             enabled = active && target == null && !editMode,
             state = closePredictiveBackState,
             onBack = onClose,
         )
-    } else {
+    } else if (onClose != null) {
         BackHandler(enabled = active && target == null && !editMode) {
             onClose()
         }
@@ -181,14 +181,16 @@ internal fun LegacyPortFolderPage(
         val titleAreaHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() +
             dimensionResource(R.dimen.title_bar_height)
         val titleShadowHeight = dimensionResource(R.dimen.title_bar_shadow_height)
-        val handleBack = {
+        val handleBack: () -> Unit = {
             when {
                 target != null -> target = null
                 editMode -> {
                     editMode = false
                     selectedDirectoryKeys = emptySet()
                 }
-                else -> onClose()
+                else -> {
+                    onClose?.invoke()
+                }
             }
         }
         val enterEdit = {
@@ -222,6 +224,7 @@ internal fun LegacyPortFolderPage(
                             selectedCount = selectedDirectoryKeys.size,
                             libraryRefreshing = libraryRefreshing,
                             onBack = handleBack,
+                            showRootBack = onClose != null,
                             onEnterEdit = enterEdit,
                             onDeleteSelected = deleteSelected,
                             onRefreshLibrary = onRefreshLibrary,
@@ -239,6 +242,7 @@ internal fun LegacyPortFolderPage(
                             libraryRefreshing = libraryRefreshing,
                             showRightActions = false,
                             onBack = handleBack,
+                            showRootBack = true,
                             onEnterEdit = enterEdit,
                             onDeleteSelected = deleteSelected,
                             onRefreshLibrary = onRefreshLibrary,
@@ -354,6 +358,7 @@ private fun TitleBar.setupLegacyFolderTitleBar(
     libraryRefreshing: Boolean,
     showRightActions: Boolean = true,
     onBack: () -> Unit,
+    showRootBack: Boolean,
     onEnterEdit: () -> Unit,
     onDeleteSelected: () -> Unit,
     onRefreshLibrary: () -> Unit,
@@ -380,9 +385,11 @@ private fun TitleBar.setupLegacyFolderTitleBar(
             }
         }
         else -> {
-            addLeftImageView(R.drawable.standard_icon_back_selector).apply {
-                setOnClickListener {
-                    onBack()
+            if (showRootBack) {
+                addLeftImageView(R.drawable.standard_icon_back_selector).apply {
+                    setOnClickListener {
+                        onBack()
+                    }
                 }
             }
             if (showRightActions) {
@@ -852,7 +859,7 @@ private fun playFolderEyeTransition(
 }
 
 @Composable
-private fun LegacyFolderDetailPage(
+internal fun LegacyFolderDetailPage(
     active: Boolean,
     tracks: List<MediaItem>,
     browser: Player?,

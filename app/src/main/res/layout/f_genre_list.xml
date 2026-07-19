@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:smartisanos="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.smartisan.music.ui.widgets.legacy.SmartisanBlankView
+        android:id="@+id/fl_null_playlist"
+        style="@style/SmartisanBlankViewStyle"
+        android:background="@drawable/account_background"
+        smartisanos:emptyDrawable="@drawable/blank_style"
+        smartisanos:primaryHint="@string/no_style"
+        smartisanos:secondaryHint="@string/show_style" />
+
+    <com.smartisan.music.ui.widgets.SlideListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/account_background"
+        android:cacheColorHint="@color/transparent"
+        android:divider="@color/listview_divider_color"
+        android:dividerHeight="@dimen/listview_dividerHeight"
+        android:listSelector="@drawable/listview_selector"
+        android:overScrollMode="always"
+        android:scrollbars="vertical" />
+</merge>

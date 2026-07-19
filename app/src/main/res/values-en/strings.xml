@@ -139,6 +139,10 @@
         <item quantity="one">%1$d song</item>
         <item quantity="other">%1$d songs</item>
     </plurals>
+    <plurals name="genre_count">
+        <item quantity="one">%1$d genre</item>
+        <item quantity="other">%1$d genres</item>
+    </plurals>
     <string name="uncollect_song_dialog_title">Remove selected songs from Liked Songs?</string>
     <string name="uncollect_song_confirm">Remove from Liked</string>
     <string name="pause">Pause</string>
@@ -247,11 +251,25 @@
         <item quantity="other">%1$d songs</item>
     </plurals>
     <string name="settings_section_navigation">Bottom Navigation</string>
-    <string name="bottom_tab_visibility">Tabs to Show</string>
+    <string name="bottom_tab_visibility">Pinned Tabs</string>
     <string name="bottom_tab_more_locked">Always shown</string>
-    <plurals name="bottom_tab_hidden_summary">
-        <item quantity="one">%1$d hidden</item>
-        <item quantity="other">%1$d hidden</item>
+    <plurals name="bottom_tab_pinned_count">
+        <item quantity="one">%1$d pinned tab</item>
+        <item quantity="other">%1$d pinned tabs</item>
     </plurals>
-    <string name="bottom_tab_all_visible">All shown</string>
+    <plurals name="bottom_tab_more_count">
+        <item quantity="one">%1$d tab in More</item>
+        <item quantity="other">%1$d tabs in More</item>
+    </plurals>
+    <string name="bottom_tab_layout_summary">%1$s, %2$s</string>
+    <string name="navigation_editor_title">Drag icons to change feature positions</string>
+    <string name="navigation_editor_open_action">Edit navigation order</string>
+    <string name="navigation_editor_bottom_item_description">%1$s, in the bottom bar</string>
+    <string name="navigation_editor_overflow_item_description">%1$s, in More</string>
+    <string name="navigation_editor_move_earlier">Move earlier</string>
+    <string name="navigation_editor_move_later">Move later</string>
+    <string name="navigation_editor_pin_replacing">Pin and replace the last bottom item</string>
+    <string name="navigation_editor_unpin_replacing">Move to More and replace its first item</string>
+    <string name="navigation_editor_item_moved">Moved %1$s</string>
+    <string name="navigation_editor_items_swapped">Swapped %1$s and %2$s</string>
 </resources>

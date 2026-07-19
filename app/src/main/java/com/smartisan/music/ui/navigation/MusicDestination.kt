@@ -7,37 +7,63 @@ import com.smartisan.music.R
 enum class MusicDestination(
     val route: String,
     @param:StringRes val labelRes: Int,
-    @param:DrawableRes val iconRes: Int,
-    @param:DrawableRes val selectedIconRes: Int,
+    @param:DrawableRes val bottomIconRes: Int,
+    @param:DrawableRes val overflowIconRes: Int,
+    val movable: Boolean = true,
 ) {
     Playlist(
         route = "playlist",
         labelRes = R.string.tab_play_list,
-        iconRes = R.drawable.tabbar_playlist,
-        selectedIconRes = R.drawable.tabbar_playlist_down,
+        bottomIconRes = R.drawable.tabbar_playlist_selector,
+        overflowIconRes = R.drawable.morepage_playlist_selector,
     ),
     Artist(
         route = "artist",
         labelRes = R.string.tab_artist,
-        iconRes = R.drawable.tabbar_artist,
-        selectedIconRes = R.drawable.tabbar_artist_down,
+        bottomIconRes = R.drawable.tabbar_artist_selector,
+        overflowIconRes = R.drawable.morepage_artist_selector,
     ),
     Album(
         route = "album",
         labelRes = R.string.tab_album,
-        iconRes = R.drawable.tabbar_album,
-        selectedIconRes = R.drawable.tabbar_album_down,
+        bottomIconRes = R.drawable.tabbar_album_selector,
+        overflowIconRes = R.drawable.morepage_album_selector,
     ),
     Songs(
         route = "songs",
         labelRes = R.string.tab_song,
-        iconRes = R.drawable.tabbar_song,
-        selectedIconRes = R.drawable.tabbar_song_down,
+        bottomIconRes = R.drawable.tabbar_song_selector,
+        overflowIconRes = R.drawable.morepage_song_selector,
+    ),
+    Genre(
+        route = "genre",
+        labelRes = R.string.tab_style,
+        bottomIconRes = R.drawable.tabbar_style_selector,
+        overflowIconRes = R.drawable.morepage_style_selector,
+    ),
+    LovedSongs(
+        route = "loved_songs",
+        labelRes = R.string.collect_music,
+        bottomIconRes = R.drawable.tabbar_like_selector,
+        overflowIconRes = R.drawable.morepage_like_selector,
+    ),
+    Folder(
+        route = "folder",
+        labelRes = R.string.tab_directory,
+        bottomIconRes = R.drawable.tabbar_folder_selector,
+        overflowIconRes = R.drawable.morepage_folder_selector,
     ),
     More(
         route = "more",
         labelRes = R.string.tab_more,
-        iconRes = R.drawable.tabbar_more,
-        selectedIconRes = R.drawable.tabbar_more_down,
+        bottomIconRes = R.drawable.tabbar_more_selector,
+        overflowIconRes = R.drawable.tabbar_more_selector,
+        movable = false,
     );
+
+    companion object {
+        val movableEntries: List<MusicDestination> = entries.filter(MusicDestination::movable)
+
+        fun fromRoute(route: String): MusicDestination? = entries.firstOrNull { it.route == route }
+    }
 }

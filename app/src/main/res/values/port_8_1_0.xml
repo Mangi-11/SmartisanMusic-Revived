@@ -284,6 +284,9 @@
     <dimen name="saved_songs_items_margin_left">15.5dp</dimen>
     <dimen name="samrtisan_button_fixed_height">48.0dp</dimen>
     <dimen name="sb_tab_bar_top_padding">7.0dp</dimen>
+    <!-- Music 8.1.0 sb_editable_tab_bar.xml: overflow zone is 80dp with 11dp top padding. -->
+    <dimen name="navigation_editor_overflow_height">80.0dp</dimen>
+    <dimen name="smartisan_switch_bar_top_rg_padding">11.0dp</dimen>
     <dimen name="secondary_bar_height">48.0dp</dimen>
     <dimen name="settings_item_sub_title_size">13.5sp</dimen>
     <dimen name="settings_item_tips_text_size">13.5sp</dimen>
@@ -377,6 +380,7 @@
     <color name="status_bar_color_dialog">#99000000</color>
     <color name="transparent">#00000000</color>
     <color name="transparent_black">#99000000</color>
+    <color name="tab_bar_top_background">#f5f5f5</color>
     <color name="playing_queue_color">#ffffff</color>
     <drawable name="menu_list_item_normal">#ffffff</drawable>
     <drawable name="menu_list_item_pressed">#f5f5f5</drawable>

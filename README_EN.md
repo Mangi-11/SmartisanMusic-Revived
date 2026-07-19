@@ -27,7 +27,7 @@ Smartisan OS has left the stage, so this project uses Smartisan Music 8.1.0 as i
 - **Rebuilt local library**: MediaStore indexes songs and provides song, album, artist, genre, and folder views, along with library exclusions, rescanning, sorting, filtering, and an alphabetical sidebar.
 - **Rebuilt favorites and playlists**: The original favorites and user-created playlists are retained, with persistence and play statistics reimplemented in Room. The queue, current item, and playback position are saved and restored as well.
 - **Expanded playback screen**: Embedded lyrics, a sleep timer, and a reorderable queue complement the original turntable and controls.
-- **New personalization options**: Custom artist separators, configurable bottom navigation items, switchable app icons, and lightweight sound effects are added. Alongside the original icon, the yellow vinyl icon from realme UI 7.0 Music is preserved with color and monochrome layers adapted to Android's adaptive-icon specification. Sound effects include several presets and a custom equalizer curve.
+- **New personalization options**: Custom artist separators, reorderable and pinnable bottom navigation, switchable app icons, and lightweight sound effects are added. Alongside the original icon, the yellow vinyl icon from realme UI 7.0 Music is preserved with color and monochrome layers adapted to Android's adaptive-icon specification. Sound effects include several presets and a custom equalizer curve.
 - **Refined turntable interaction**: Tonearm dragging, vinyl rotation, scratching, crackle audio, and playback-state transitions are reimplemented for modern touch handling, lifecycles, and frame timing.
 - **Richer library actions**: Multi-select, swipe actions, playlist insertion, ringtone assignment, and version-appropriate MediaStore deletion authorization are supported. Audio can also be opened directly from file managers and other apps.
 - **Android 8.1 and later support**: Separate compatibility paths cover legacy and scoped storage, system bars, gesture navigation, display cutouts, WindowInsets, and predictive back without replacing the original visual language.
@@ -48,7 +48,7 @@ Smartisan OS has left the stage, so this project uses Smartisan Music 8.1.0 as i
 - Original, Bass, Clear, Vocal, Rock, and custom sound profiles
 - Sleep timer, system music volume control, and ringtone assignment
 - External audio opening and MediaStore-backed media deletion
-- Custom artist separators, configurable bottom navigation items, and switchable app icons
+- Custom artist separators, bottom-navigation order and pinned items, and switchable app icons
 
 ## Local media and permissions
 

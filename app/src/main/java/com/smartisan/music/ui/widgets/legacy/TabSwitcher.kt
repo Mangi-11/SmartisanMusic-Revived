@@ -8,6 +8,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.ImageView
 import android.widget.Checkable
 import android.widget.LinearLayout
@@ -15,6 +16,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import com.smartisan.music.R
 import com.smartisan.music.ui.navigation.MusicDestination
+import com.smartisan.music.ui.navigation.NavigationLayout
 
 class TabSwitcher @JvmOverloads constructor(
     context: Context,
@@ -32,6 +34,7 @@ class TabSwitcher @JvmOverloads constructor(
     private var bottomInset = 0
     private var suppressSelectionCallback = false
     private var onDestinationSelected: ((MusicDestination) -> Unit)? = null
+    private var onEditRequested: (() -> Unit)? = null
 
     init {
         val barHeight = resources.getDimensionPixelSize(R.dimen.smartisan_tabswitch_tabbar_height)
@@ -77,7 +80,7 @@ class TabSwitcher @JvmOverloads constructor(
             },
         )
 
-        setDestinations(MusicDestination.entries)
+        setDestinations(NavigationLayout().bottomDestinations)
     }
 
     fun setTopChromeVisible(visible: Boolean) {
@@ -105,6 +108,10 @@ class TabSwitcher @JvmOverloads constructor(
         onDestinationSelected = listener
     }
 
+    fun setOnEditRequestedListener(listener: (() -> Unit)?) {
+        onEditRequested = listener
+    }
+
     fun setCurrentDestination(destination: MusicDestination) {
         selectDestination(destination, notify = false, animate = true)
     }
@@ -122,7 +129,7 @@ class TabSwitcher @JvmOverloads constructor(
             val label = context.getString(destination.labelRes)
             val itemView = BottomTabItemView(context).apply {
                 id = View.generateViewId()
-                setDrawableResource(destination.tabIconSelectorRes())
+                setDrawableResource(destination.bottomIconRes)
                 text = label
                 contentDescription = label
                 setTextColor(context.getColorStateList(R.color.tab_bar_text_color))
@@ -136,6 +143,11 @@ class TabSwitcher @JvmOverloads constructor(
                         ?: return@setOnCheckedChangeListener
                     selectDestination(selected, notify = true, animate = true)
                 }
+                setOnLongClickListener {
+                    onEditRequested?.invoke()
+                    true
+                }
+                setLongClickActionLabel(context.getString(R.string.navigation_editor_open_action))
             }
             tabContainer.addView(
                 itemView,
@@ -178,18 +190,9 @@ class TabSwitcher @JvmOverloads constructor(
         }
     }
 
-    private fun MusicDestination.tabIconSelectorRes(): Int {
-        return when (this) {
-            MusicDestination.Playlist -> R.drawable.tabbar_playlist_selector
-            MusicDestination.Artist -> R.drawable.tabbar_artist_selector
-            MusicDestination.Album -> R.drawable.tabbar_album_selector
-            MusicDestination.Songs -> R.drawable.tabbar_song_selector
-            MusicDestination.More -> R.drawable.tabbar_more_selector
-        }
-    }
 }
 
-private class BottomTabItemView @JvmOverloads constructor(
+internal class BottomTabItemView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -198,6 +201,7 @@ private class BottomTabItemView @JvmOverloads constructor(
     private var textView: TextView? = null
     private var checked = false
     private var broadcasting = false
+    private var longClickActionLabel: CharSequence? = null
     private var onCheckedChangeListener: ((BottomTabItemView, Boolean) -> Unit)? = null
 
     var text: CharSequence = ""
@@ -277,6 +281,22 @@ private class BottomTabItemView @JvmOverloads constructor(
 
     fun setOnCheckedChangeListener(listener: ((BottomTabItemView, Boolean) -> Unit)?) {
         onCheckedChangeListener = listener
+    }
+
+    fun setLongClickActionLabel(label: CharSequence?) {
+        longClickActionLabel = label
+    }
+
+    override fun onInitializeAccessibilityNodeInfo(info: AccessibilityNodeInfo) {
+        super.onInitializeAccessibilityNodeInfo(info)
+        val actionLabel = longClickActionLabel ?: return
+        info.removeAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_LONG_CLICK)
+        info.addAction(
+            AccessibilityNodeInfo.AccessibilityAction(
+                AccessibilityNodeInfo.ACTION_LONG_CLICK,
+                actionLabel,
+            ),
+        )
     }
 
     private fun getImageViewOrCreate(): ImageView {

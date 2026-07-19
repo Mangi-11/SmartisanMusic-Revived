@@ -3,6 +3,7 @@ package com.smartisan.music.ui.shell
 import android.graphics.Bitmap
 import android.view.View
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -50,7 +51,6 @@ import com.smartisan.music.data.settings.NavigationSettings
 import com.smartisan.music.data.settings.NavigationSettingsStore
 import com.smartisan.music.data.settings.PlaybackSettings
 import com.smartisan.music.data.settings.PlaybackSettingsStore
-import com.smartisan.music.data.settings.visibleDestinations
 import com.smartisan.music.isExternalAudioLaunchItem
 import com.smartisan.music.platform.media.audioMediaItemUri
 import com.smartisan.music.playback.LocalAudioLibrary
@@ -82,6 +82,7 @@ import com.smartisan.music.ui.shell.playback.toExternalAudioMediaItem
 import com.smartisan.music.ui.shell.search.LegacyPortSearchOverlay
 import com.smartisan.music.ui.shell.search.LegacySearchDrilldownTarget
 import com.smartisan.music.ui.shell.tabs.LegacyPortBottomBar
+import com.smartisan.music.ui.shell.tabs.LegacyNavigationEditorOverlay
 import com.smartisan.music.ui.shell.tabs.LegacyPortTabContent
 import com.smartisan.music.ui.shell.titlebar.LegacyPortTitleBarShadow
 import com.smartisan.music.ui.shell.titlebar.LegacyPortTitleBar
@@ -149,7 +150,10 @@ private fun LegacyPortMainShellContent(
     val playbackSettings by playbackSettingsStore.settings.collectAsState(initial = PlaybackSettings())
     val artistSettings by artistSettingsStore.settings.collectAsState(initial = ArtistSettings())
     val libraryDisplaySettings by libraryDisplaySettingsStore.settings.collectAsState(initial = LibraryDisplaySettings())
-    val navigationSettings by navigationSettingsStore.settings.collectAsState(initial = NavigationSettings())
+    val persistedNavigationSettings: NavigationSettings? by navigationSettingsStore.settings.collectAsState(
+        initial = null,
+    )
+    val navigationSettings = persistedNavigationSettings ?: NavigationSettings()
     val albumViewMode = libraryDisplaySettings.albumViewMode
     val artistAlbumViewMode = libraryDisplaySettings.artistAlbumViewMode
     val unknownSongTitle = stringResource(R.string.unknown_song_title)
@@ -160,19 +164,33 @@ private fun LegacyPortMainShellContent(
     var searchQuery by remember { mutableStateOf("") }
     var searchDrilldownTarget by remember { mutableStateOf<LegacySearchDrilldownTarget?>(null) }
     var currentDestination by remember { mutableStateOf(MusicDestination.Playlist) }
+    var presentedFromMore by remember { mutableStateOf(false) }
     var playlistAddModeActive by remember { mutableStateOf(false) }
     var moreSettingsPageActive by remember { mutableStateOf(false) }
+    var navigationEditorVisible by remember { mutableStateOf(false) }
+    var navigationLayoutInitialized by remember { mutableStateOf(false) }
 
-    // 底部导航栏可见 tab 列表：根据用户隐藏配置计算，进入「添加到播放列表」模式时
-    // 临时补回 Songs tab（该模式强制把选中项切到 Songs）。
-    val visibleDestinations = remember(navigationSettings, playlistAddModeActive) {
-        val forceVisible = if (playlistAddModeActive) setOf(MusicDestination.Songs) else emptySet()
-        navigationSettings.visibleDestinations(forceVisible = forceVisible)
+    val navigationLayout = navigationSettings.layout
+    // 加歌模式只临时替换底栏末位，不污染用户保存的导航布局。
+    val bottomDestinations = remember(navigationLayout, playlistAddModeActive) {
+        navigationLayout.bottomDestinationsEnsuring(
+            MusicDestination.Songs.takeIf { playlistAddModeActive },
+        )
     }
-    // 当前选中 tab 被隐藏时，自动切到第一个仍可见的 tab（More 始终可见，无需校正）。
-    LaunchedEffect(visibleDestinations) {
-        if (currentDestination !in visibleDestinations && currentDestination != MusicDestination.More) {
-            currentDestination = visibleDestinations.firstOrNull() ?: MusicDestination.Playlist
+    val overflowDestinations = navigationLayout.overflowDestinations
+
+    // 冷启动先选择真实布局中的首个固定项，避免 DataStore 载入后把默认播放列表伪装成
+    // “从更多进入”。运行中若用户把当前入口移入更多，则保留页面并补上返回来源语义。
+    LaunchedEffect(persistedNavigationSettings, currentDestination) {
+        val persistedLayout = persistedNavigationSettings?.layout ?: return@LaunchedEffect
+        if (!navigationLayoutInitialized) {
+            navigationLayoutInitialized = true
+            if (currentDestination != MusicDestination.More && !persistedLayout.isPinned(currentDestination)) {
+                currentDestination = persistedLayout.bottomDestinations.first()
+                presentedFromMore = false
+            }
+        } else if (currentDestination != MusicDestination.More && !persistedLayout.isPinned(currentDestination)) {
+            presentedFromMore = true
         }
     }
     var songsEditMode by remember { mutableStateOf(false) }
@@ -223,6 +241,7 @@ private fun LegacyPortMainShellContent(
     val albumPredictiveBackState = rememberLegacyPortPredictiveBackState()
     val artistRootPredictiveBackState = rememberLegacyPortPredictiveBackState()
     val artistNestedPredictiveBackState = rememberLegacyPortPredictiveBackState()
+    val moreDestinationPredictiveBackState = rememberLegacyPortPredictiveBackState()
     val playbackBarRequestedVisible = snapshot.mediaItem != null
     val playbackBarHeight = 67.dp
     var playbackBarComposed by remember { mutableStateOf(false) }
@@ -247,6 +266,11 @@ private fun LegacyPortMainShellContent(
 
     fun closeArtistDetail() {
         selectedArtistTarget = selectedArtistTarget?.parentTarget()
+    }
+
+    fun returnToMore() {
+        presentedFromMore = false
+        currentDestination = MusicDestination.More
     }
 
     DisposableEffect(controller) {
@@ -494,6 +518,18 @@ private fun LegacyPortMainShellContent(
     ) {
         closeArtistDetail()
     }
+
+    LegacyPortPredictiveBackHandler(
+        enabled = presentedFromMore && when (currentDestination) {
+            MusicDestination.Songs -> !songsEditMode
+            MusicDestination.Album -> selectedAlbumId == null && !albumEditMode
+            MusicDestination.Artist -> selectedArtistTarget == null
+            else -> false
+        },
+        state = moreDestinationPredictiveBackState,
+    ) {
+        returnToMore()
+    }
     LegacyPortPredictiveBackHandler(
         enabled = currentDestination == MusicDestination.Artist &&
             selectedArtistTarget != null &&
@@ -551,242 +587,268 @@ private fun LegacyPortMainShellContent(
         val titleContentHeight = dimensionResource(R.dimen.title_bar_height)
         val titleShadowHeight = dimensionResource(R.dimen.title_bar_shadow_height)
         val titleAreaHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + titleContentHeight
-        val mainTitleShadowVisible = currentDestination == MusicDestination.Artist ||
-            currentDestination == MusicDestination.Album
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = if (hideBottomChrome) 0.dp else realTabContentBottomMargin),
-        ) {
-            val titleBarContent: @Composable (String?, LegacyArtistTarget?, Modifier) -> Unit = { albumDetailTitle, artistTarget, titleModifier ->
-                LegacyPortTitleBar(
-                    destination = currentDestination,
-                    songsEditMode = currentDestination == MusicDestination.Songs && songsEditMode,
-                    selectedSongCount = selectedSongIds.size,
-                    albumEditMode = currentDestination == MusicDestination.Album && albumEditMode,
-                    selectedAlbumCount = selectedAlbumIds.size,
-                    albumDetailTitle = albumDetailTitle,
-                    albumViewMode = albumViewMode,
-                    artistTarget = artistTarget,
-                    artistAlbumViewMode = artistAlbumViewMode,
-                    onEnterSongsEditMode = {
-                        songsEditMode = true
-                        selectedSongIds = emptySet()
-                    },
-                    onExitSongsEditMode = {
-                        songsEditMode = false
-                        selectedSongIds = emptySet()
-                        showSongDeleteConfirm = false
-                    },
-                    onRequestDeleteSelected = {
-                        if (selectedSongIds.isNotEmpty()) {
-                            requestSongDeleteConfirmation(selectedSongIds)
+        val destinationSurface: @Composable (MusicDestination, Boolean) -> Unit = { destination, fromMore ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = if (hideBottomChrome) 0.dp else realTabContentBottomMargin),
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    val titleBarContent: @Composable (String?, LegacyArtistTarget?, Modifier) -> Unit = { albumDetailTitle, artistTarget, titleModifier ->
+                        LegacyPortTitleBar(
+                            destination = destination,
+                            songsEditMode = destination == MusicDestination.Songs && songsEditMode,
+                            selectedSongCount = selectedSongIds.size,
+                            albumEditMode = destination == MusicDestination.Album && albumEditMode,
+                            selectedAlbumCount = selectedAlbumIds.size,
+                            albumDetailTitle = albumDetailTitle,
+                            albumViewMode = albumViewMode,
+                            artistTarget = artistTarget,
+                            artistAlbumViewMode = artistAlbumViewMode,
+                            onEnterSongsEditMode = {
+                                songsEditMode = true
+                                selectedSongIds = emptySet()
+                            },
+                            onExitSongsEditMode = {
+                                songsEditMode = false
+                                selectedSongIds = emptySet()
+                                showSongDeleteConfirm = false
+                            },
+                            onRequestDeleteSelected = {
+                                if (selectedSongIds.isNotEmpty()) {
+                                    requestSongDeleteConfirmation(selectedSongIds)
+                                }
+                            },
+                            onEnterAlbumEditMode = {
+                                albumEditMode = true
+                                selectedAlbumIds = emptySet()
+                            },
+                            onExitAlbumEditMode = {
+                                albumEditMode = false
+                                selectedAlbumIds = emptySet()
+                            },
+                            onToggleAlbumViewMode = {
+                                val nextMode = if (albumViewMode == AlbumViewMode.List) {
+                                    AlbumViewMode.Tile
+                                } else {
+                                    AlbumViewMode.List
+                                }
+                                scope.launch {
+                                    libraryDisplaySettingsStore.setAlbumViewMode(nextMode)
+                                }
+                            },
+                            onAlbumDetailBack = {
+                                closeAlbumDetail()
+                            },
+                            onArtistBack = {
+                                closeArtistDetail()
+                            },
+                            onToggleArtistAlbumViewMode = {
+                                val nextMode = if (artistAlbumViewMode == AlbumViewMode.List) {
+                                    AlbumViewMode.Tile
+                                } else {
+                                    AlbumViewMode.List
+                                }
+                                scope.launch {
+                                    libraryDisplaySettingsStore.setArtistAlbumViewMode(nextMode)
+                                }
+                            },
+                            onRootBack = ::returnToMore.takeIf { fromMore },
+                            onSearchClick = ::openCurrentSearch,
+                            modifier = titleModifier,
+                        )
+                    }
+                    if (destination !in DestinationsWithOwnedTitleBar) {
+                        when (destination) {
+                            MusicDestination.Album -> LegacyPortTitleBarTransition(
+                                secondaryKey = selectedAlbumTitle,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(titleAreaHeight),
+                                label = "legacy album title transition",
+                                predictiveBackProgress = albumPredictiveBackState.progress,
+                                predictiveBackExitConsumed = albumPredictiveBackState.exitConsumed,
+                                onPredictiveBackExitConsumedReset = albumPredictiveBackState::reset,
+                                primaryContent = {
+                                    titleBarContent(null, null, Modifier.fillMaxSize())
+                                },
+                                secondaryContent = { detailTitle ->
+                                    titleBarContent(detailTitle, null, Modifier.fillMaxSize())
+                                },
+                            )
+                            MusicDestination.Artist -> LegacyPortArtistTitleStack(
+                                selectedTarget = selectedArtistTarget,
+                                rootPredictiveBackProgress = artistRootPredictiveBackState.progress,
+                                rootPredictiveBackExitConsumed = artistRootPredictiveBackState.exitConsumed,
+                                onRootPredictiveBackExitConsumedReset = artistRootPredictiveBackState::reset,
+                                nestedPredictiveBackProgress = artistNestedPredictiveBackState.progress,
+                                nestedPredictiveBackExitConsumed = artistNestedPredictiveBackState.exitConsumed,
+                                onNestedPredictiveBackExitConsumedReset = artistNestedPredictiveBackState::reset,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(titleAreaHeight),
+                            ) { artistTarget, titleModifier ->
+                                titleBarContent(null, artistTarget, titleModifier)
+                            }
+                            else -> titleBarContent(null, null, Modifier.fillMaxWidth())
                         }
-                    },
-                    onEnterAlbumEditMode = {
-                        albumEditMode = true
-                        selectedAlbumIds = emptySet()
-                    },
-                    onExitAlbumEditMode = {
-                        albumEditMode = false
-                        selectedAlbumIds = emptySet()
-                    },
-                    onToggleAlbumViewMode = {
-                        val nextMode = if (albumViewMode == AlbumViewMode.List) {
-                            AlbumViewMode.Tile
-                        } else {
-                            AlbumViewMode.List
-                        }
-                        scope.launch {
-                            libraryDisplaySettingsStore.setAlbumViewMode(nextMode)
-                        }
-                    },
-                    onAlbumDetailBack = {
-                        closeAlbumDetail()
-                    },
-                    onArtistBack = {
-                        closeArtistDetail()
-                    },
-                    onToggleArtistAlbumViewMode = {
-                        val nextMode = if (artistAlbumViewMode == AlbumViewMode.List) {
-                            AlbumViewMode.Tile
-                        } else {
-                            AlbumViewMode.List
-                        }
-                        scope.launch {
-                            libraryDisplaySettingsStore.setArtistAlbumViewMode(nextMode)
-                        }
-                    },
-                    onSearchClick = ::openCurrentSearch,
-                    modifier = titleModifier,
-                )
-            }
-            if (currentDestination == MusicDestination.Playlist || currentDestination == MusicDestination.More) {
-                // 播放列表页和更多二级页需要复刻原版自身的标题栏、详情栈和加歌/文件夹过渡。
-            } else if (currentDestination == MusicDestination.Album) {
-                LegacyPortTitleBarTransition(
-                    secondaryKey = selectedAlbumTitle,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(titleAreaHeight),
-                    label = "legacy album title transition",
-                    predictiveBackProgress = albumPredictiveBackState.progress,
-                    predictiveBackExitConsumed = albumPredictiveBackState.exitConsumed,
-                    onPredictiveBackExitConsumedReset = albumPredictiveBackState::reset,
-                    primaryContent = {
-                        titleBarContent(null, null, Modifier.fillMaxSize())
-                    },
-                    secondaryContent = { detailTitle ->
-                        titleBarContent(detailTitle, null, Modifier.fillMaxSize())
-                    },
-                )
-            } else if (currentDestination == MusicDestination.Artist) {
-                LegacyPortArtistTitleStack(
-                    selectedTarget = selectedArtistTarget,
-                    rootPredictiveBackProgress = artistRootPredictiveBackState.progress,
-                    rootPredictiveBackExitConsumed = artistRootPredictiveBackState.exitConsumed,
-                    onRootPredictiveBackExitConsumedReset = artistRootPredictiveBackState::reset,
-                    nestedPredictiveBackProgress = artistNestedPredictiveBackState.progress,
-                    nestedPredictiveBackExitConsumed = artistNestedPredictiveBackState.exitConsumed,
-                    onNestedPredictiveBackExitConsumedReset = artistNestedPredictiveBackState::reset,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(titleAreaHeight),
-                ) { artistTarget, titleModifier ->
-                    titleBarContent(null, artistTarget, titleModifier)
+                    }
+                    LegacyPortTabContent(
+                        destination = destination,
+                        presentedFromMore = fromMore,
+                        overflowDestinations = overflowDestinations,
+                        mediaItems = legacyLibraryItems,
+                        favoriteRecords = favoriteRecords,
+                        libraryLoaded = legacyLibrary.loaded,
+                        songsEditMode = destination == MusicDestination.Songs && songsEditMode,
+                        selectedSongIds = selectedSongIds,
+                        albumViewMode = albumViewMode,
+                        albumEditMode = destination == MusicDestination.Album && albumEditMode,
+                        selectedAlbumId = selectedAlbumId,
+                        selectedAlbumIds = selectedAlbumIds,
+                        albumPredictiveBackProgress = albumPredictiveBackState.progress,
+                        albumPredictiveBackExitConsumed = albumPredictiveBackState.exitConsumed,
+                        onAlbumPredictiveBackExitConsumedReset = albumPredictiveBackState::reset,
+                        artistAlbumViewMode = artistAlbumViewMode,
+                        selectedArtistTarget = selectedArtistTarget,
+                        artistRootPredictiveBackProgress = artistRootPredictiveBackState.progress,
+                        artistRootPredictiveBackExitConsumed = artistRootPredictiveBackState.exitConsumed,
+                        onArtistRootPredictiveBackExitConsumedReset = artistRootPredictiveBackState::reset,
+                        artistNestedPredictiveBackProgress = artistNestedPredictiveBackState.progress,
+                        artistNestedPredictiveBackExitConsumed = artistNestedPredictiveBackState.exitConsumed,
+                        onArtistNestedPredictiveBackExitConsumedReset = artistNestedPredictiveBackState::reset,
+                        moreDestinationPredictiveBackState = moreDestinationPredictiveBackState,
+                        playbackBarOverlayHeight = if (hideBottomChrome) 0.dp else playbackBarOverlayHeight,
+                        hiddenMediaIds = libraryExclusions.hiddenMediaIds,
+                        libraryRefreshVersion = libraryRefreshVersion,
+                        libraryRefreshing = libraryRefreshing,
+                        playbackSettings = playbackSettings,
+                        artistSettings = artistSettings,
+                        onRefreshLibrary = ::refreshLegacyLibrary,
+                        onRequestAddToPlaylist = ::requestAddToPlaylist,
+                        onRequestAddToQueue = ::enqueueMediaItems,
+                        onScratchEnabledChange = { enabled ->
+                            scope.launch {
+                                playbackSettingsStore.setScratchEnabled(enabled)
+                            }
+                        },
+                        onHidePlayerAxisEnabledChange = { enabled ->
+                            scope.launch {
+                                playbackSettingsStore.setHidePlayerAxisEnabled(enabled)
+                            }
+                        },
+                        onPopcornSoundEnabledChange = { enabled ->
+                            scope.launch {
+                                playbackSettingsStore.setPopcornSoundEnabled(enabled)
+                            }
+                        },
+                        onAudioFxEnabledChange = { enabled ->
+                            scope.launch {
+                                playbackSettingsStore.setAudioFxEnabled(enabled)
+                            }
+                        },
+                        onAudioFxPresetChange = { preset ->
+                            scope.launch {
+                                playbackSettingsStore.setAudioFxPreset(preset)
+                            }
+                        },
+                        onAudioFxCustomGainDbPointsChange = { gains ->
+                            scope.launch {
+                                playbackSettingsStore.setAudioFxCustomGainDbPoints(gains)
+                            }
+                        },
+                        onArtistSeparatorsChange = { separators ->
+                            scope.launch {
+                                artistSettingsStore.setSeparators(separators)
+                            }
+                            selectedArtistTarget = null
+                            searchDrilldownTarget = null
+                        },
+                        navigationSettings = navigationSettings,
+                        onTabPinnedChange = { route, pinned ->
+                            scope.launch {
+                                navigationSettingsStore.setTabPinned(route, pinned)
+                            }
+                        },
+                        onOverflowDestinationSelected = { destination ->
+                            presentedFromMore = true
+                            currentDestination = destination
+                        },
+                        onReturnToMore = ::returnToMore,
+                        onMediaIdsHidden = ::reclaimHiddenMediaIds,
+                        onRequestDeleteMediaIds = ::requestSystemDeleteMediaIds,
+                        onRequestSongDeleteConfirmation = { mediaIds, onDismiss ->
+                            requestSongDeleteConfirmation(mediaIds, onDismiss)
+                        },
+                        onLibraryTrackMoreClick = { item ->
+                            showTrackActions(item, LegacyTrackActionSource.Library)
+                        },
+                        onLovedSongsTrackMoreClick = { item ->
+                            showTrackActions(item, LegacyTrackActionSource.Loved)
+                        },
+                        onPlaylistTrackMoreClick = { item ->
+                            showTrackActions(item, LegacyTrackActionSource.Playlist)
+                        },
+                        onRemoveFavoriteMediaIds = ::removeFavoriteMediaIds,
+                        onMoreSettingsPageActiveChanged = { active ->
+                            moreSettingsPageActive = active
+                        },
+                        onSongSelectionChange = { mediaId, selected ->
+                            selectedSongIds = selectedSongIds.withSelection(mediaId, selected)
+                        },
+                        onAlbumSelectionChange = { albumId, selected ->
+                            selectedAlbumIds = selectedAlbumIds.withSelection(albumId, selected)
+                        },
+                        onAlbumSelected = { albumId, albumTitle ->
+                            albumEditMode = false
+                            selectedAlbumIds = emptySet()
+                            selectedAlbumId = albumId
+                            selectedAlbumTitle = albumTitle
+                        },
+                        onArtistTargetChanged = { target ->
+                            selectedArtistTarget = target
+                        },
+                        onPlaylistAddModeActiveChanged = { active ->
+                            playlistAddModeActive = active
+                        },
+                        onLibraryNeeded = {
+                            libraryLoadRequested = true
+                        },
+                        onSearchClick = ::openCurrentSearch,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                    )
                 }
-            } else {
-                titleBarContent(null, null, Modifier.fillMaxWidth())
+                if (destination == MusicDestination.Artist || destination == MusicDestination.Album) {
+                    LegacyPortTitleBarShadow(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .offset(y = titleAreaHeight)
+                            .fillMaxWidth()
+                            .height(titleShadowHeight)
+                            .zIndex(1f),
+                    )
+                }
             }
-            LegacyPortTabContent(
-                destination = currentDestination,
-                mediaItems = legacyLibraryItems,
-                favoriteRecords = favoriteRecords,
-                libraryLoaded = legacyLibrary.loaded,
-                songsEditMode = currentDestination == MusicDestination.Songs && songsEditMode,
-                selectedSongIds = selectedSongIds,
-                albumViewMode = albumViewMode,
-                albumEditMode = currentDestination == MusicDestination.Album && albumEditMode,
-                selectedAlbumId = selectedAlbumId,
-                selectedAlbumIds = selectedAlbumIds,
-                albumPredictiveBackProgress = albumPredictiveBackState.progress,
-                albumPredictiveBackExitConsumed = albumPredictiveBackState.exitConsumed,
-                onAlbumPredictiveBackExitConsumedReset = albumPredictiveBackState::reset,
-                artistAlbumViewMode = artistAlbumViewMode,
-                selectedArtistTarget = selectedArtistTarget,
-                artistRootPredictiveBackProgress = artistRootPredictiveBackState.progress,
-                artistRootPredictiveBackExitConsumed = artistRootPredictiveBackState.exitConsumed,
-                onArtistRootPredictiveBackExitConsumedReset = artistRootPredictiveBackState::reset,
-                artistNestedPredictiveBackProgress = artistNestedPredictiveBackState.progress,
-                artistNestedPredictiveBackExitConsumed = artistNestedPredictiveBackState.exitConsumed,
-                onArtistNestedPredictiveBackExitConsumedReset = artistNestedPredictiveBackState::reset,
-                playbackBarOverlayHeight = if (hideBottomChrome) 0.dp else playbackBarOverlayHeight,
-                hiddenMediaIds = libraryExclusions.hiddenMediaIds,
-                libraryRefreshVersion = libraryRefreshVersion,
-                libraryRefreshing = libraryRefreshing,
-                playbackSettings = playbackSettings,
-                artistSettings = artistSettings,
-                onRefreshLibrary = ::refreshLegacyLibrary,
-                onRequestAddToPlaylist = ::requestAddToPlaylist,
-                onRequestAddToQueue = ::enqueueMediaItems,
-                onScratchEnabledChange = { enabled ->
-                    scope.launch {
-                        playbackSettingsStore.setScratchEnabled(enabled)
-                    }
-                },
-                onHidePlayerAxisEnabledChange = { enabled ->
-                    scope.launch {
-                        playbackSettingsStore.setHidePlayerAxisEnabled(enabled)
-                    }
-                },
-                onPopcornSoundEnabledChange = { enabled ->
-                    scope.launch {
-                        playbackSettingsStore.setPopcornSoundEnabled(enabled)
-                    }
-                },
-                onAudioFxEnabledChange = { enabled ->
-                    scope.launch {
-                        playbackSettingsStore.setAudioFxEnabled(enabled)
-                    }
-                },
-                onAudioFxPresetChange = { preset ->
-                    scope.launch {
-                        playbackSettingsStore.setAudioFxPreset(preset)
-                    }
-                },
-                onAudioFxCustomGainDbPointsChange = { gains ->
-                    scope.launch {
-                        playbackSettingsStore.setAudioFxCustomGainDbPoints(gains)
-                    }
-                },
-                onArtistSeparatorsChange = { separators ->
-                    scope.launch {
-                        artistSettingsStore.setSeparators(separators)
-                    }
-                    selectedArtistTarget = null
-                    searchDrilldownTarget = null
-                },
-                navigationSettings = navigationSettings,
-                onTabVisibilityChange = { route, visible ->
-                    scope.launch {
-                        navigationSettingsStore.setTabVisible(route, visible)
-                    }
-                },
-                onMediaIdsHidden = ::reclaimHiddenMediaIds,
-                onRequestDeleteMediaIds = ::requestSystemDeleteMediaIds,
-                onRequestSongDeleteConfirmation = { mediaIds, onDismiss ->
-                    requestSongDeleteConfirmation(mediaIds, onDismiss)
-                },
-                onLibraryTrackMoreClick = { item ->
-                    showTrackActions(item, LegacyTrackActionSource.Library)
-                },
-                onLovedSongsTrackMoreClick = { item ->
-                    showTrackActions(item, LegacyTrackActionSource.Loved)
-                },
-                onPlaylistTrackMoreClick = { item ->
-                    showTrackActions(item, LegacyTrackActionSource.Playlist)
-                },
-                onRemoveFavoriteMediaIds = ::removeFavoriteMediaIds,
-                onMoreSettingsPageActiveChanged = { active ->
-                    moreSettingsPageActive = active
-                },
-                onSongSelectionChange = { mediaId, selected ->
-                    selectedSongIds = selectedSongIds.withSelection(mediaId, selected)
-                },
-                onAlbumSelectionChange = { albumId, selected ->
-                    selectedAlbumIds = selectedAlbumIds.withSelection(albumId, selected)
-                },
-                onAlbumSelected = { albumId, albumTitle ->
-                    albumEditMode = false
-                    selectedAlbumIds = emptySet()
-                    selectedAlbumId = albumId
-                    selectedAlbumTitle = albumTitle
-                },
-                onArtistTargetChanged = { target ->
-                    selectedArtistTarget = target
-                },
-                onPlaylistAddModeActiveChanged = { active ->
-                    playlistAddModeActive = active
-                },
-                onLibraryNeeded = {
-                    libraryLoadRequested = true
-                },
-                onSearchClick = ::openCurrentSearch,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-            )
         }
-        if (mainTitleShadowVisible) {
-            LegacyPortTitleBarShadow(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset(y = titleAreaHeight)
-                    .fillMaxWidth()
-                    .height(titleShadowHeight)
-                    .zIndex(1f),
-            )
-        }
+        LegacyPortPageStackTransition(
+            secondaryKey = currentDestination.takeIf { presentedFromMore },
+            modifier = Modifier.fillMaxSize(),
+            label = "legacy more destination stack",
+            predictiveBackProgress = moreDestinationPredictiveBackState.progress,
+            predictiveBackExitConsumed = moreDestinationPredictiveBackState.exitConsumed,
+            onPredictiveBackExitConsumedReset = moreDestinationPredictiveBackState::reset,
+            primaryContent = {
+                destinationSurface(
+                    if (presentedFromMore) MusicDestination.More else currentDestination,
+                    false,
+                )
+            },
+            secondaryContent = { destination ->
+                destinationSurface(destination, true)
+            },
+        )
         if (!hideBottomChrome) {
             Column(
                 modifier = Modifier
@@ -830,10 +892,20 @@ private fun LegacyPortMainShellContent(
                     )
                 }
                 LegacyPortBottomBar(
-                    currentDestination = if (playlistAddModeActive) MusicDestination.Songs else currentDestination,
-                    destinations = visibleDestinations,
+                    currentDestination = when {
+                        playlistAddModeActive -> MusicDestination.Songs
+                        presentedFromMore -> MusicDestination.More
+                        else -> currentDestination
+                    },
+                    destinations = bottomDestinations,
                     onDestinationSelected = { destination ->
+                        presentedFromMore = false
                         currentDestination = destination
+                    },
+                    onEditRequested = {
+                        if (!playlistAddModeActive) {
+                            navigationEditorVisible = true
+                        }
                     },
                     topChromeVisible = !playbackBarComposed,
                 )
@@ -1061,6 +1133,23 @@ private fun LegacyPortMainShellContent(
                     .zIndex(2f),
             )
         }
+        LegacyNavigationEditorOverlay(
+            visible = navigationEditorVisible,
+            layout = navigationLayout,
+            selectedDestination = if (presentedFromMore) MusicDestination.More else currentDestination,
+            onDismissRequest = {
+                navigationEditorVisible = false
+            },
+            onCommit = { layout ->
+                navigationEditorVisible = false
+                scope.launch {
+                    navigationSettingsStore.commitLayout(layout)
+                }
+            },
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(5f),
+        )
     }
 }
 
@@ -1069,12 +1158,23 @@ private fun MusicDestination.requiresFullLibraryItems(): Boolean {
         MusicDestination.Songs,
         MusicDestination.Album,
         MusicDestination.Artist,
+        MusicDestination.Genre,
+        MusicDestination.LovedSongs,
         -> true
         MusicDestination.Playlist,
+        MusicDestination.Folder,
         MusicDestination.More,
         -> false
     }
 }
+
+private val DestinationsWithOwnedTitleBar = setOf(
+    MusicDestination.Playlist,
+    MusicDestination.More,
+    MusicDestination.Genre,
+    MusicDestination.LovedSongs,
+    MusicDestination.Folder,
+)
 
 private fun List<MediaItem>.withRatingOverrides(ratingOverrides: Map<String, Int>): List<MediaItem> {
     if (isEmpty() || ratingOverrides.isEmpty()) {

@@ -3,8 +3,6 @@ package com.smartisan.music.ui.shell
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
-import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.asPaddingValues
@@ -39,6 +37,7 @@ internal fun LegacyPlaylistTitleArea(
     onRootEnterEdit: () -> Unit,
     onRootExitEdit: () -> Unit,
     onRootDeleteSelected: () -> Unit,
+    onRootBack: (() -> Unit)?,
     onDetailBack: () -> Unit,
     onDetailEnterEdit: () -> Unit,
     onDetailExitEdit: () -> Unit,
@@ -67,6 +66,7 @@ internal fun LegacyPlaylistTitleArea(
                 onRootEnterEdit = onRootEnterEdit,
                 onRootExitEdit = onRootExitEdit,
                 onRootDeleteSelected = onRootDeleteSelected,
+                onRootBack = onRootBack,
                 onDetailBack = onDetailBack,
                 onDetailEnterEdit = onDetailEnterEdit,
                 onDetailExitEdit = onDetailExitEdit,
@@ -144,20 +144,23 @@ private fun TitleBar.setupLegacyPlaylistTitleBar(
     onRootEnterEdit: () -> Unit,
     onRootExitEdit: () -> Unit,
     onRootDeleteSelected: () -> Unit,
+    onRootBack: (() -> Unit)?,
     onDetailBack: () -> Unit,
     onDetailEnterEdit: () -> Unit,
     onDetailExitEdit: () -> Unit,
     onSearchClick: () -> Unit,
 ) {
+    removeAllLeftViews()
+    removeAllRightViews()
     setShadowVisible(false)
     setCenterText(if (target == null) context.getString(R.string.tab_play_list) else detailTitle)
 
     when {
         target == null && rootEditMode -> {
-            setPlaylistLeftImageView(R.drawable.standard_icon_cancel_selector) {
+            addLeftImageView(R.drawable.standard_icon_cancel_selector).setOnClickListener {
                 onRootExitEdit()
             }
-            setPlaylistRightImageView(R.drawable.titlebar_btn_delete_selector).apply {
+            addRightImageView(R.drawable.titlebar_btn_delete_selector).apply {
                 isEnabled = rootSelectedCount > 0
                 setOnClickListener {
                     if (rootSelectedCount > 0) {
@@ -167,21 +170,30 @@ private fun TitleBar.setupLegacyPlaylistTitleBar(
             }
         }
         target == null -> {
-            setPlaylistLeftImageView(R.drawable.standard_icon_multi_select_selector) {
-                onRootEnterEdit()
-            }
-            setPlaylistRightImageView(R.drawable.search_btn_selector).apply {
-                isEnabled = true
-                setOnClickListener {
+            if (onRootBack != null) {
+                addLeftImageView(R.drawable.standard_icon_back_selector).setOnClickListener {
+                    onRootBack()
+                }
+                addRightImageView(R.drawable.standard_icon_multi_select_selector, 0).setOnClickListener {
+                    onRootEnterEdit()
+                }
+                addRightImageView(R.drawable.search_btn_selector, 1).setOnClickListener {
+                    onSearchClick()
+                }
+            } else {
+                addLeftImageView(R.drawable.standard_icon_multi_select_selector).setOnClickListener {
+                    onRootEnterEdit()
+                }
+                addRightImageView(R.drawable.search_btn_selector).setOnClickListener {
                     onSearchClick()
                 }
             }
         }
         detailEditMode -> {
-            setPlaylistLeftImageView(R.drawable.standard_icon_cancel_selector) {
+            addLeftImageView(R.drawable.standard_icon_cancel_selector).setOnClickListener {
                 onDetailExitEdit()
             }
-            setPlaylistRightImageView(R.drawable.standard_icon_hignlight_confirm_selector).apply {
+            addRightImageView(R.drawable.standard_icon_hignlight_confirm_selector).apply {
                 isEnabled = true
                 setOnClickListener {
                     onDetailExitEdit()
@@ -189,37 +201,16 @@ private fun TitleBar.setupLegacyPlaylistTitleBar(
             }
         }
         else -> {
-            setPlaylistLeftImageView(R.drawable.standard_icon_back_selector) {
+            addLeftImageView(R.drawable.standard_icon_back_selector).setOnClickListener {
                 onDetailBack()
             }
-            setPlaylistRightImageView(R.drawable.standard_icon_multi_select_selector).apply {
+            addRightImageView(R.drawable.standard_icon_multi_select_selector).apply {
                 isEnabled = true
                 setOnClickListener {
                     onDetailEnterEdit()
                 }
             }
         }
-    }
-}
-
-private fun TitleBar.setPlaylistLeftImageView(
-    resId: Int,
-    onClick: () -> Unit,
-): ImageView {
-    return ((getLeftViewByIndex(0) as? ImageView) ?: addLeftImageView(resId)).apply {
-        visibility = View.VISIBLE
-        isEnabled = true
-        setImageResource(resId)
-        setOnClickListener {
-            onClick()
-        }
-    }
-}
-
-private fun TitleBar.setPlaylistRightImageView(resId: Int): ImageView {
-    return ((getRightViewByIndex(0) as? ImageView) ?: addRightImageView(resId)).apply {
-        visibility = View.VISIBLE
-        setImageResource(resId)
     }
 }
 

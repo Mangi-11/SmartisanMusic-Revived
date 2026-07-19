@@ -144,6 +144,8 @@ internal fun LegacyPortPlaylistPage(
     onAddModeActiveChanged: (Boolean) -> Unit,
     onLibraryNeeded: () -> Unit,
     onSearchClick: () -> Unit,
+    onClose: (() -> Unit)?,
+    closePredictiveBackState: LegacyPortPredictiveBackState?,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -255,6 +257,17 @@ internal fun LegacyPortPlaylistPage(
         rootEditMode = false
         selectedPlaylistIds = emptySet()
     }
+    if (closePredictiveBackState != null && onClose != null) {
+        LegacyPortPredictiveBackHandler(
+            enabled = active && target == null && !rootEditMode && !addModeVisible,
+            state = closePredictiveBackState,
+            onBack = onClose,
+        )
+    } else if (onClose != null) {
+        BackHandler(enabled = active && target == null && !rootEditMode && !addModeVisible) {
+            onClose()
+        }
+    }
     LegacyPortPredictiveBackHandler(
         enabled = !addModeVisible && !detailEditMode && target != null,
         state = detailPredictiveBackState,
@@ -296,6 +309,7 @@ internal fun LegacyPortPlaylistPage(
                         deleteRequest = LegacyPlaylistDeleteRequest.RootSelected
                     }
                 },
+                onRootBack = onClose,
                 onDetailBack = {
                     target = null
                     detailEditMode = false

@@ -132,6 +132,9 @@
     <plurals name="track_count">
         <item quantity="other">%1$d 首歌曲</item>
     </plurals>
+    <plurals name="genre_count">
+        <item quantity="other">%1$d 种风格</item>
+    </plurals>
     <string name="uncollect_song_dialog_title">确认取消喜欢选中的歌曲？</string>
     <string name="uncollect_song_confirm">取消喜欢</string>
     <string name="pause">暂停</string>
@@ -238,10 +241,23 @@
         <item quantity="other">%1$d 首歌曲</item>
     </plurals>
     <string name="settings_section_navigation">底部导航栏</string>
-    <string name="bottom_tab_visibility">导航栏显示项</string>
+    <string name="bottom_tab_visibility">底栏固定项</string>
     <string name="bottom_tab_more_locked">固定显示</string>
-    <plurals name="bottom_tab_hidden_summary">
-        <item quantity="other">已隐藏 %1$d 项</item>
+    <plurals name="bottom_tab_pinned_count">
+        <item quantity="other">已固定 %1$d 项</item>
     </plurals>
-    <string name="bottom_tab_all_visible">全部显示</string>
+    <plurals name="bottom_tab_more_count">
+        <item quantity="other">更多 %1$d 项</item>
+    </plurals>
+    <string name="bottom_tab_layout_summary">%1$s，%2$s</string>
+    <string name="navigation_editor_title">拖动图标来更改功能的位置</string>
+    <string name="navigation_editor_open_action">编辑底栏顺序</string>
+    <string name="navigation_editor_bottom_item_description">%1$s，位于底栏</string>
+    <string name="navigation_editor_overflow_item_description">%1$s，位于更多</string>
+    <string name="navigation_editor_move_earlier">向前移动</string>
+    <string name="navigation_editor_move_later">向后移动</string>
+    <string name="navigation_editor_pin_replacing">固定到底栏并替换末项</string>
+    <string name="navigation_editor_unpin_replacing">移到更多并替换首项</string>
+    <string name="navigation_editor_item_moved">已移动%1$s</string>
+    <string name="navigation_editor_items_swapped">已交换%1$s和%2$s</string>
 </resources>

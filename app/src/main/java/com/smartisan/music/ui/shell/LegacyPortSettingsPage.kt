@@ -51,7 +51,6 @@ import com.smartisan.music.data.settings.ArtistSettings
 import com.smartisan.music.data.settings.AudioFxMaxGainDb
 import com.smartisan.music.data.settings.AudioFxMinGainDb
 import com.smartisan.music.data.settings.AudioFxPreset
-import com.smartisan.music.data.settings.canHideAnyTab
 import com.smartisan.music.data.settings.NavigationSettings
 import com.smartisan.music.data.settings.PlaybackSettings
 import com.smartisan.music.data.settings.equalizerGainDbPoints
@@ -60,6 +59,8 @@ import com.smartisan.music.data.settings.parseArtistSeparatorInput
 import com.smartisan.music.launcher.AppIcon
 import com.smartisan.music.launcher.AppIconManager
 import com.smartisan.music.ui.navigation.MusicDestination
+import com.smartisan.music.ui.navigation.MaxBottomDestinationCount
+import com.smartisan.music.ui.navigation.MinBottomDestinationCount
 import com.smartisan.music.ui.shell.settings.LegacyAppIconSettingsPage
 import com.smartisan.music.ui.shell.settings.labelRes
 import com.smartisan.music.ui.shell.titlebar.LegacyPortSmartisanTitleBar
@@ -82,7 +83,7 @@ internal fun LegacyPortSettingsPage(
     onAudioFxPresetChange: (AudioFxPreset) -> Unit,
     onAudioFxCustomGainDbPointsChange: (List<Float>) -> Unit,
     onArtistSeparatorsChange: (Set<String>) -> Unit,
-    onTabVisibilityChange: (String, Boolean) -> Unit,
+    onTabPinnedChange: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -160,7 +161,7 @@ internal fun LegacyPortSettingsPage(
                     onClose = {
                         secondaryPage = null
                     },
-                    onTabVisibilityChange = onTabVisibilityChange,
+                    onTabPinnedChange = onTabPinnedChange,
                     modifier = Modifier.fillMaxSize(),
                 )
                 LegacySettingsSecondaryPage.AppIcon -> LegacyAppIconSettingsPage(
@@ -351,7 +352,7 @@ private fun LegacyNavigationSettingsPage(
     active: Boolean,
     navigationSettings: NavigationSettings,
     onClose: () -> Unit,
-    onTabVisibilityChange: (String, Boolean) -> Unit,
+    onTabPinnedChange: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -379,8 +380,8 @@ private fun LegacyNavigationSettingsPage(
             update = { view ->
                 view.visibility = if (active) View.VISIBLE else View.INVISIBLE
                 view.bind(
-                    hiddenTabs = navigationSettings.hiddenTabs,
-                    onTabVisibilityChange = onTabVisibilityChange,
+                    navigationSettings = navigationSettings,
+                    onTabPinnedChange = onTabPinnedChange,
                 )
             },
         )
@@ -439,24 +440,22 @@ private fun AudioFxPreset.summaryRes(): Int {
     }
 }
 
-/**
- * 底部导航栏设置项右侧摘要：统计被隐藏的可隐藏 tab 数量（「更多」不计入）。
- */
-private fun NavigationSettings.toHiddenSummary(context: Context): String {
-    val hideableRoutes = MusicDestination.entries
-        .filter { it != MusicDestination.More }
-        .map { it.route }
-        .toSet()
-    val hiddenCount = hiddenTabs.count { it in hideableRoutes }
-    return if (hiddenCount == 0) {
-        context.getString(R.string.bottom_tab_all_visible)
-    } else {
-        context.resources.getQuantityString(
-            R.plurals.bottom_tab_hidden_summary,
-            hiddenCount,
-            hiddenCount,
-        )
-    }
+private fun NavigationSettings.toNavigationSummary(context: Context): String {
+    val pinnedSummary = context.resources.getQuantityString(
+        R.plurals.bottom_tab_pinned_count,
+        layout.bottomCount,
+        layout.bottomCount,
+    )
+    val overflowSummary = context.resources.getQuantityString(
+        R.plurals.bottom_tab_more_count,
+        layout.overflowDestinations.size,
+        layout.overflowDestinations.size,
+    )
+    return context.getString(
+        R.string.bottom_tab_layout_summary,
+        pinnedSummary,
+        overflowSummary,
+    )
 }
 
 private fun View.applyLegacySettingsBackground(shape: LegacySettingsRowShape) {
@@ -583,7 +582,7 @@ private class LegacySettingsContentView(context: Context) : ScrollView(context) 
             onClick = onArtistSeparatorsClick,
         )
         bottomTabRow.bind(
-            value = navigationSettings.toHiddenSummary(context),
+            value = navigationSettings.toNavigationSummary(context),
             onClick = onNavigationClick,
         )
         appIconRow.bind(
@@ -661,10 +660,8 @@ private class LegacySettingsContentView(context: Context) : ScrollView(context) 
 }
 
 /**
- * 底部导航栏显示项二级页内容视图。
- *
- * 4 个可隐藏 tab（播放列表/艺术家/专辑/歌曲）各一个开关行，开关语义为「显示该 tab」；
- * 「更多」tab 固定显示，用禁用开关行 + 「固定显示」摘要标注。至少保留 1 个可隐藏 tab 可见。
+ * 开关表示“固定到底栏”；关闭后页面仍可从「更多」进入，不会从应用中消失。
+ * 底栏保留 2–4 个内容目的地，再加一个不可移动的「更多」。
  */
 private class LegacyNavigationContentView(context: Context) : ScrollView(context) {
     private val content = LinearLayout(context).apply {
@@ -675,12 +672,7 @@ private class LegacyNavigationContentView(context: Context) : ScrollView(context
 
     private data class TabRow(val destination: MusicDestination, val row: LegacySettingsSwitchRow)
 
-    private val hideableRows = listOf(
-        MusicDestination.Playlist,
-        MusicDestination.Artist,
-        MusicDestination.Album,
-        MusicDestination.Songs,
-    ).map { destination ->
+    private val movableRows = MusicDestination.movableEntries.map { destination ->
         TabRow(destination, LegacySettingsSwitchRow(context, destination.labelRes))
     }
     private val moreRow = LegacySettingsSwitchRow(
@@ -706,7 +698,7 @@ private class LegacyNavigationContentView(context: Context) : ScrollView(context
         content.addView(gapView(context))
         content.addView(sectionTitleView(context, R.string.bottom_tab_visibility))
 
-        val allRows = (hideableRows.map { it.row } + moreRow)
+        val allRows = (movableRows.map { it.row } + moreRow)
         content.addView(
             settingsGroup(
                 context,
@@ -723,25 +715,22 @@ private class LegacyNavigationContentView(context: Context) : ScrollView(context
     }
 
     fun bind(
-        hiddenTabs: Set<String>,
-        onTabVisibilityChange: (route: String, visible: Boolean) -> Unit,
+        navigationSettings: NavigationSettings,
+        onTabPinnedChange: (route: String, pinned: Boolean) -> Unit,
     ) {
-        hideableRows.forEach { (destination, row) ->
-            val visible = destination.route !in hiddenTabs
-            row.bind(checked = visible) { checked ->
-                if (checked) {
-                    // 打开某 tab：增量回调，由 store 在 edit 块内基于存储值移除。
-                    onTabVisibilityChange(destination.route, true)
-                } else {
-                    // 关闭某 tab：若这是最后一个可见的可隐藏 tab，拦截并弹回打开状态，
-                    // 避免开关视觉抖动。store 侧 setTabVisible 还有第二道拦截防线，
-                    // 防止连续快速切换时基于过期快照放过本应拒绝的隐藏。
-                    if (canHideAnyTab(hiddenTabs + destination.route)) {
-                        onTabVisibilityChange(destination.route, false)
-                    } else {
-                        row.setCheckedSilent(true)
-                    }
-                }
+        val layout = navigationSettings.layout
+        movableRows.forEach { (destination, row) ->
+            val pinned = layout.isPinned(destination)
+            val enabled = if (pinned) {
+                layout.bottomCount > MinBottomDestinationCount
+            } else {
+                layout.bottomCount < MaxBottomDestinationCount
+            }
+            row.bind(
+                checked = pinned,
+                enabled = enabled,
+            ) { checked ->
+                onTabPinnedChange(destination.route, checked)
             }
         }
         moreRow.bindLocked(checked = true)
@@ -1504,19 +1493,24 @@ private class LegacySettingsSwitchRow(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
     ) {
-        this.onCheckedChange = onCheckedChange
-        if (switchView.isChecked != checked) {
-            binding = true
-            switchView.isChecked = checked
-            binding = false
-        }
+        bind(
+            checked = checked,
+            enabled = true,
+            onCheckedChange = onCheckedChange,
+        )
     }
 
-    /**
-     * 静默把开关拨回 [checked]：更新视觉但不触发 [onCheckedChange] 回调。
-     * 用于拦截不允许的关闭操作后把开关弹回打开状态，避免视觉抖动。
-     */
-    fun setCheckedSilent(checked: Boolean) {
+    fun bind(
+        checked: Boolean,
+        enabled: Boolean = true,
+        onCheckedChange: (Boolean) -> Unit,
+    ) {
+        this.onCheckedChange = onCheckedChange
+        isEnabled = enabled
+        isClickable = enabled
+        isFocusable = enabled
+        switchView.isEnabled = enabled
+        titleView.alpha = if (enabled) 1f else 0.55f
         if (switchView.isChecked != checked) {
             binding = true
             switchView.isChecked = checked

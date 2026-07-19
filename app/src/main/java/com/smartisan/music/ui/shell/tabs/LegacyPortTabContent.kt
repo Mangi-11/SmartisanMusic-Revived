@@ -23,13 +23,19 @@ import com.smartisan.music.ui.navigation.MusicDestination
 import com.smartisan.music.ui.shell.LegacyArtistTarget
 import com.smartisan.music.ui.shell.LegacyPortAlbumPage
 import com.smartisan.music.ui.shell.LegacyPortArtistPage
+import com.smartisan.music.ui.shell.LegacyPortFolderPage
+import com.smartisan.music.ui.shell.LegacyPortGenrePage
 import com.smartisan.music.ui.shell.LegacyPortMorePage
 import com.smartisan.music.ui.shell.LegacyPortPlaylistPage
+import com.smartisan.music.ui.shell.LegacyPortPredictiveBackState
+import com.smartisan.music.ui.shell.loved.LegacyPortLovedSongsPage
 import com.smartisan.music.ui.shell.songs.LegacyPortSongsPage
 
 @Composable
 internal fun LegacyPortTabContent(
     destination: MusicDestination,
+    presentedFromMore: Boolean,
+    overflowDestinations: List<MusicDestination>,
     mediaItems: List<MediaItem>,
     favoriteRecords: List<FavoriteSongRecord>,
     libraryLoaded: Boolean,
@@ -50,6 +56,7 @@ internal fun LegacyPortTabContent(
     artistNestedPredictiveBackProgress: Float?,
     artistNestedPredictiveBackExitConsumed: Boolean,
     onArtistNestedPredictiveBackExitConsumedReset: () -> Unit,
+    moreDestinationPredictiveBackState: LegacyPortPredictiveBackState,
     playbackBarOverlayHeight: Dp = 0.dp,
     hiddenMediaIds: Set<String>,
     libraryRefreshVersion: Int,
@@ -67,7 +74,9 @@ internal fun LegacyPortTabContent(
     onAudioFxCustomGainDbPointsChange: (List<Float>) -> Unit,
     onArtistSeparatorsChange: (Set<String>) -> Unit,
     navigationSettings: NavigationSettings,
-    onTabVisibilityChange: (String, Boolean) -> Unit,
+    onTabPinnedChange: (String, Boolean) -> Unit,
+    onOverflowDestinationSelected: (MusicDestination) -> Unit,
+    onReturnToMore: () -> Unit,
     onMediaIdsHidden: (Set<String>) -> Unit,
     onRequestDeleteMediaIds: (Set<String>) -> Unit,
     onRequestSongDeleteConfirmation: (Set<String>, (() -> Unit)?) -> Unit,
@@ -162,21 +171,19 @@ internal fun LegacyPortTabContent(
                 onAddModeActiveChanged = onPlaylistAddModeActiveChanged,
                 onLibraryNeeded = onLibraryNeeded,
                 onSearchClick = onSearchClick,
+                onClose = onReturnToMore.takeIf { presentedFromMore },
+                closePredictiveBackState = moreDestinationPredictiveBackState.takeIf { presentedFromMore },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = playbackBarOverlayHeight),
             )
             MusicDestination.More -> LegacyPortMorePage(
                 active = true,
-                mediaItems = mediaItems,
-                favoriteRecords = favoriteRecords,
-                hiddenMediaIds = hiddenMediaIds,
+                overflowDestinations = overflowDestinations,
                 playbackSettings = playbackSettings,
                 artistSettings = artistSettings,
-                libraryLoaded = libraryLoaded,
-                libraryRefreshVersion = libraryRefreshVersion,
-                libraryRefreshing = libraryRefreshing,
-                onRefreshLibrary = onRefreshLibrary,
+                navigationSettings = navigationSettings,
+                onDestinationSelected = onOverflowDestinationSelected,
                 onScratchEnabledChange = onScratchEnabledChange,
                 onHidePlayerAxisEnabledChange = onHidePlayerAxisEnabledChange,
                 onPopcornSoundEnabledChange = onPopcornSoundEnabledChange,
@@ -184,16 +191,51 @@ internal fun LegacyPortTabContent(
                 onAudioFxPresetChange = onAudioFxPresetChange,
                 onAudioFxCustomGainDbPointsChange = onAudioFxCustomGainDbPointsChange,
                 onArtistSeparatorsChange = onArtistSeparatorsChange,
-                navigationSettings = navigationSettings,
-                onTabVisibilityChange = onTabVisibilityChange,
-                onMediaIdsHidden = onMediaIdsHidden,
-                onRequestDeleteMediaIds = onRequestDeleteMediaIds,
-                onLovedSongsTrackMoreClick = onLovedSongsTrackMoreClick,
-                onFolderTrackMoreClick = onLibraryTrackMoreClick,
-                onRemoveFavoriteMediaIds = onRemoveFavoriteMediaIds,
+                onTabPinnedChange = onTabPinnedChange,
                 onSettingsPageActiveChanged = onMoreSettingsPageActiveChanged,
+                onSearchClick = onSearchClick,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = playbackBarOverlayHeight),
+            )
+            MusicDestination.Genre -> LegacyPortGenrePage(
+                active = true,
+                mediaItems = mediaItems,
+                hiddenMediaIds = hiddenMediaIds,
+                libraryLoaded = libraryLoaded,
+                onClose = onReturnToMore.takeIf { presentedFromMore },
+                closePredictiveBackState = moreDestinationPredictiveBackState.takeIf { presentedFromMore },
+                onTrackMoreClick = onLibraryTrackMoreClick,
                 onLibraryNeeded = onLibraryNeeded,
                 onSearchClick = onSearchClick,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = playbackBarOverlayHeight),
+            )
+            MusicDestination.LovedSongs -> LegacyPortLovedSongsPage(
+                active = true,
+                mediaItems = mediaItems,
+                favoriteRecords = favoriteRecords,
+                hiddenMediaIds = hiddenMediaIds,
+                libraryLoaded = libraryLoaded,
+                onClose = onReturnToMore.takeIf { presentedFromMore },
+                closePredictiveBackState = moreDestinationPredictiveBackState.takeIf { presentedFromMore },
+                onTrackMoreClick = onLovedSongsTrackMoreClick,
+                onRemoveFavoriteMediaIds = onRemoveFavoriteMediaIds,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = playbackBarOverlayHeight),
+            )
+            MusicDestination.Folder -> LegacyPortFolderPage(
+                active = true,
+                libraryRefreshVersion = libraryRefreshVersion,
+                libraryRefreshing = libraryRefreshing,
+                onClose = onReturnToMore.takeIf { presentedFromMore },
+                closePredictiveBackState = moreDestinationPredictiveBackState.takeIf { presentedFromMore },
+                onRefreshLibrary = onRefreshLibrary,
+                onMediaIdsHidden = onMediaIdsHidden,
+                onRequestDeleteMediaIds = onRequestDeleteMediaIds,
+                onTrackMoreClick = onLibraryTrackMoreClick,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = playbackBarOverlayHeight),
