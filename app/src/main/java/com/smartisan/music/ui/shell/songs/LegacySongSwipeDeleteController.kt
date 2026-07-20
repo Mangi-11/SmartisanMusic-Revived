@@ -1,5 +1,6 @@
 package com.smartisan.music.ui.shell.songs
 
+import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -7,7 +8,6 @@ import android.widget.AdapterView
 import android.widget.ImageView
 import android.widget.ListView
 import com.smartisan.music.ui.shell.LegacySwipeDeleteRow
-import kotlin.math.abs
 import kotlin.math.max
 
 internal fun ListView.legacySongSwipeDeleteController(): LegacySongSwipeDeleteController {
@@ -24,7 +24,13 @@ internal fun ListView.legacySongSwipeDeleteController(): LegacySongSwipeDeleteCo
 internal class LegacySongSwipeDeleteController(
     private val listView: ListView,
 ) {
-    private val touchSlop = ViewConfiguration.get(listView.context).scaledTouchSlop
+    private val viewConfiguration = ViewConfiguration.get(listView.context)
+    private val touchSlop = viewConfiguration.scaledTouchSlop.toFloat()
+    private val ambiguousGestureMultiplier = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        viewConfiguration.scaledAmbiguousGestureMultiplier
+    } else {
+        1f
+    }
     private var enabled = false
     private var keyAtPosition: (Int) -> String? = { null }
     private var onDeleteClick: (String, () -> Unit) -> Unit = { _, _ -> }
@@ -36,6 +42,7 @@ internal class LegacySongSwipeDeleteController(
     private var activePosition = AdapterView.INVALID_POSITION
     private var activeKey: String? = null
     private var activeRow: LegacySwipeDeleteRow? = null
+    private var gesture = LegacySongSwipeDeleteMotion.Gesture.PENDING
     private var dragging = false
     private var dragDistance = 0f
     private var openRow: LegacySwipeDeleteRow? = null
@@ -78,6 +85,7 @@ internal class LegacySongSwipeDeleteController(
         downX = event.x
         downY = event.y
         dragDistance = 0f
+        gesture = LegacySongSwipeDeleteMotion.Gesture.PENDING
         dragging = false
         deleteTapPending = false
         val touched = rowAt(event.x, event.y)
@@ -107,11 +115,20 @@ internal class LegacySongSwipeDeleteController(
         val dx = event.x - downX
         val dy = event.y - downY
         if (!dragging) {
-            if (dx <= touchSlop || abs(dx) <= abs(dy)) {
-                if (abs(dy) > touchSlop && abs(dy) > abs(dx)) {
-                    clearActive()
+            gesture = LegacySongSwipeDeleteMotion.resolve(
+                current = gesture,
+                deltaX = dx,
+                deltaY = dy,
+                touchSlop = gestureSlop(event),
+            )
+            when (gesture) {
+                LegacySongSwipeDeleteMotion.Gesture.PENDING -> return false
+                LegacySongSwipeDeleteMotion.Gesture.LIST_SCROLL -> {
+                    abandonActiveRowForListScroll()
+                    return false
                 }
-                return false
+
+                LegacySongSwipeDeleteMotion.Gesture.SWIPE_DELETE -> Unit
             }
             dragging = true
             setSwipeActive(true)
@@ -280,11 +297,30 @@ internal class LegacySongSwipeDeleteController(
         activePosition = AdapterView.INVALID_POSITION
         activeKey = null
         activeRow = null
+        gesture = LegacySongSwipeDeleteMotion.Gesture.PENDING
         dragging = false
         dragDistance = 0f
         if (!keepOpen) {
             openRow = null
             openKey = null
+        }
+    }
+
+    private fun abandonActiveRowForListScroll() {
+        activePosition = AdapterView.INVALID_POSITION
+        activeKey = null
+        activeRow = null
+        dragging = false
+        dragDistance = 0f
+    }
+
+    private fun gestureSlop(event: MotionEvent): Float {
+        val isAmbiguous = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            event.classification == MotionEvent.CLASSIFICATION_AMBIGUOUS_GESTURE
+        return if (isAmbiguous) {
+            touchSlop * ambiguousGestureMultiplier
+        } else {
+            touchSlop
         }
     }
 
