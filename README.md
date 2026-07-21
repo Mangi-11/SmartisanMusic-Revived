@@ -99,7 +99,7 @@ Debug APK 位于 `app/build/outputs/apk/debug/`。
 ./gradlew assembleRelease
 ```
 
-Release APK 位于 `app/build/outputs/apk/release/SmartisanMusic-Revived-0.1.0.apk`。
+Release APK 位于 `app/build/outputs/apk/release/SmartisanMusic-Revived-0.1.1.apk`。
 
 ## 致谢
 
