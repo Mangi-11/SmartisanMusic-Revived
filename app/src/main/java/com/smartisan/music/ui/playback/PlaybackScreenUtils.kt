@@ -142,11 +142,16 @@ internal fun Context.trySetDefaultRingtone(ringtoneUri: Uri): Boolean {
 
 internal fun formatPlaybackTime(positionMs: Long): String {
     val totalSeconds = (positionMs / 1_000L).coerceAtLeast(0L)
-    val minutes = totalSeconds / 60L
+    val hours = totalSeconds / 3_600L
+    val minutes = (totalSeconds / 60L) % 60L
     val seconds = totalSeconds % 60L
-    val minutesText = if (minutes < 10L) "0$minutes" else minutes.toString()
     val secondsText = if (seconds < 10L) "0$seconds" else seconds.toString()
-    return "$minutesText:$secondsText"
+    return if (hours > 0L) {
+        val minutesText = if (minutes < 10L) "0$minutes" else minutes.toString()
+        "$hours:$minutesText:$secondsText"
+    } else {
+        "${totalSeconds / 60L}:$secondsText"
+    }
 }
 
 internal fun fractionFromPosition(positionX: Float, trackWidthPx: Int): Float {

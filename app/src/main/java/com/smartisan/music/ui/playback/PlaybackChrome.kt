@@ -1,9 +1,9 @@
 package com.smartisan.music.ui.playback
 
+import android.widget.ProgressBar
 import android.widget.SeekBar
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,7 +26,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -126,24 +124,22 @@ internal fun PlaybackTimeSeekBar(
     } else {
         0L
     }
+    val trackProgress = (shownFraction * PlaybackSeekBarProgressMax.toFloat()).roundToInt()
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 2.dp),
+        modifier = modifier.fillMaxWidth(),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(PlaybackSeekBarHeight)
-                .padding(horizontal = PlaybackContentHorizontalPadding),
+                .height(PlaybackSeekBarHeight),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = formatPlaybackTime(shownPosition),
-                style = PlaybackTimeStyle.copy(textAlign = TextAlign.Start),
+                style = PlaybackTimeStyle.copy(textAlign = TextAlign.Center),
                 maxLines = 1,
-                modifier = Modifier.width(PlaybackSeekTimeWidth),
+                modifier = Modifier.width(PlaybackSeekBarHorizontalPadding),
             )
             Box(
                 modifier = Modifier
@@ -182,21 +178,32 @@ internal fun PlaybackTimeSeekBar(
                         )
                     },
             ) {
-                Box(
+                AndroidView(
+                    factory = { context ->
+                        ProgressBar(
+                            context,
+                            null,
+                            0,
+                        ).apply {
+                            isIndeterminate = false
+                            max = PlaybackSeekBarProgressMax
+                            progressDrawable = ContextCompat.getDrawable(
+                                context,
+                                R.drawable.seekbar_progress,
+                            )
+                            minimumHeight = 0
+                            setPadding(0, 0, 0, 0)
+                        }
+                    },
+                    update = { progressBar ->
+                        if (progressBar.progress != trackProgress) {
+                            progressBar.progress = trackProgress
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(PlaybackSeekTrackHeight)
-                        .align(Alignment.Center)
-                        .clip(CircleShape)
-                        .background(PlaybackTrackColor),
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(shownFraction)
-                        .height(PlaybackSeekTrackHeight)
-                        .align(Alignment.CenterStart)
-                        .clip(CircleShape)
-                        .background(PlaybackTrackFillColor),
+                        .height(PlaybackSeekTrackDrawableHeight)
+                        .align(Alignment.Center),
                 )
                 Image(
                     painter = painterResource(thumbRes),
@@ -216,19 +223,22 @@ internal fun PlaybackTimeSeekBar(
             }
             Text(
                 text = "-${formatPlaybackTime((duration - shownPosition).coerceAtLeast(0L))}",
-                style = PlaybackTimeStyle.copy(textAlign = TextAlign.End),
+                style = PlaybackTimeStyle.copy(textAlign = TextAlign.Center),
                 maxLines = 1,
-                modifier = Modifier.width(PlaybackSeekTimeWidth),
+                modifier = Modifier.width(PlaybackSeekBarHorizontalPadding),
             )
         }
-        Box(
+        AndroidDrawableImage(
+            drawableRes = R.drawable.playing_progress_bar_line,
+            contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(PlaybackSeekBarDividerHeight)
-                .background(PlaybackTopBarDivider.copy(alpha = 0.7f)),
+                .height(PlaybackSeekBarDividerHeight),
         )
     }
 }
+
+private const val PlaybackSeekBarProgressMax = 10_000
 
 @Composable
 internal fun PlaybackControlButtons(

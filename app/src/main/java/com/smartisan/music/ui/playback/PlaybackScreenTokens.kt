@@ -8,12 +8,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 internal val PlaybackPageBackground = Color.White
-internal val PlaybackTopBarDivider = Color(0xFFE6E6E6)
 private val PlaybackTitleColor = Color(0xFF6B6B6F)
 private val PlaybackSubtitleColor = Color(0x88333333)
-private val PlaybackTimeColor = Color(0x88333333)
-internal val PlaybackTrackColor = Color(0x1F000000)
-internal val PlaybackTrackFillColor = Color(0xFFBBBBBB)
+private val PlaybackTimeColor = Color(0xFF737272)
 
 internal const val PlaybackDiscCycleDurationMs = 15_500f
 internal const val ScratchCycleDurationMs = 1_800f
@@ -66,12 +63,12 @@ internal const val PlaybackAlbumArtDiameterRatio = 405f / 1080f
 internal const val PlaybackTurntableAxisDiameterRatio = 62f / 1080f
 internal const val PlaybackTurntableAxisSourceDiameterPx = 60
 
-internal val PlaybackContentHorizontalPadding = 16.dp
 internal val PlaybackVisualStageTopPadding = 16.dp
-internal val PlaybackSeekBarHeight = 48.dp
-internal val PlaybackSeekTimeWidth = 44.dp
-internal val PlaybackSeekTrackHeight = 8.dp
-internal val PlaybackSeekThumbWidth = 22.3.dp
+// Music 8.1.0: audio_player.xml and the source xxhdpi playback assets.
+internal val PlaybackSeekBarHeight = 41.dp
+internal val PlaybackSeekBarHorizontalPadding = 51.299988.dp
+internal val PlaybackSeekTrackDrawableHeight = (41f / 3f).dp
+internal val PlaybackSeekThumbWidth = (67f / 3f).dp
 internal val PlaybackSeekThumbHeight = 41.dp
 internal val PlaybackSeekBarDividerHeight = 0.7.dp
 internal val PlaybackVolumeBarHeight = 60.dp
@@ -129,6 +126,6 @@ internal val PlaybackArtistStyle = TextStyle(
 )
 internal val PlaybackTimeStyle = TextStyle(
     fontSize = 12.sp,
-    fontWeight = FontWeight.Medium,
+    fontWeight = FontWeight.Normal,
     color = PlaybackTimeColor,
 )
