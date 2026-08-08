@@ -9,11 +9,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,15 +23,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.smartisan.music.data.settings.ThemeSettingsStore
 import com.smartisan.music.ui.shell.LegacyPortMainShell
 import com.smartisan.music.ui.theme.MusicTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private var playbackLaunchRequest by mutableIntStateOf(0)
     private var externalAudioLaunchRequestId by mutableIntStateOf(0)
     private var externalAudioLaunchRequest by mutableStateOf<ExternalAudioLaunchRequest?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val themeSettingsStore = ThemeSettingsStore(this)
+        AppCompatDelegate.setDefaultNightMode(themeSettingsStore.currentMode().appCompatNightMode)
         super.onCreate(savedInstanceState)
         consumeLaunchIntent(intent)
         enableEdgeToEdge()
@@ -44,6 +48,10 @@ class MainActivity : ComponentActivity() {
                     playbackLaunchRequest = playbackLaunchRequest,
                     externalAudioLaunchRequest = externalAudioLaunchRequest,
                     onExternalAudioLaunchConsumed = ::clearExternalAudioLaunchRequest,
+                    onThemeModeChange = { mode ->
+                        themeSettingsStore.setMode(mode)
+                        AppCompatDelegate.setDefaultNightMode(mode.appCompatNightMode)
+                    },
                 )
             }
         }

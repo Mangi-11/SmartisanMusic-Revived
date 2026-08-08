@@ -52,6 +52,7 @@ import com.smartisan.music.data.settings.AudioFxMaxGainDb
 import com.smartisan.music.data.settings.AudioFxMinGainDb
 import com.smartisan.music.data.settings.AudioFxPreset
 import com.smartisan.music.data.settings.NavigationSettings
+import com.smartisan.music.data.settings.ThemeMode
 import com.smartisan.music.data.settings.PlaybackSettings
 import com.smartisan.music.data.settings.equalizerGainDbPoints
 import com.smartisan.music.data.settings.normalizeAudioFxGainDbPoints
@@ -75,6 +76,7 @@ internal fun LegacyPortSettingsPage(
     playbackSettings: PlaybackSettings,
     artistSettings: ArtistSettings,
     navigationSettings: NavigationSettings,
+    themeMode: ThemeMode,
     onClose: () -> Unit,
     onScratchEnabledChange: (Boolean) -> Unit,
     onHidePlayerAxisEnabledChange: (Boolean) -> Unit,
@@ -84,6 +86,7 @@ internal fun LegacyPortSettingsPage(
     onAudioFxCustomGainDbPointsChange: (List<Float>) -> Unit,
     onArtistSeparatorsChange: (Set<String>) -> Unit,
     onTabPinnedChange: (String, Boolean) -> Unit,
+    onThemeModeChange: (ThemeMode) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -121,6 +124,7 @@ internal fun LegacyPortSettingsPage(
                 playbackSettings = playbackSettings,
                 artistSettings = artistSettings,
                 navigationSettings = navigationSettings,
+                themeMode = themeMode,
                 appIcon = appIcon,
                 onClose = onClose,
                 onScratchEnabledChange = onScratchEnabledChange,
@@ -138,6 +142,9 @@ internal fun LegacyPortSettingsPage(
                 },
                 onAppIconClick = {
                     secondaryPage = LegacySettingsSecondaryPage.AppIcon
+                },
+                onThemeClick = {
+                    secondaryPage = LegacySettingsSecondaryPage.Theme
                 },
                 modifier = Modifier.fillMaxSize(),
             )
@@ -162,6 +169,15 @@ internal fun LegacyPortSettingsPage(
                         secondaryPage = null
                     },
                     onTabPinnedChange = onTabPinnedChange,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                LegacySettingsSecondaryPage.Theme -> LegacyThemeSettingsPage(
+                    active = active,
+                    themeMode = themeMode,
+                    onClose = {
+                        secondaryPage = null
+                    },
+                    onThemeModeChange = onThemeModeChange,
                     modifier = Modifier.fillMaxSize(),
                 )
                 LegacySettingsSecondaryPage.AppIcon -> LegacyAppIconSettingsPage(
@@ -249,6 +265,7 @@ private fun LegacySettingsRootPage(
     playbackSettings: PlaybackSettings,
     artistSettings: ArtistSettings,
     navigationSettings: NavigationSettings,
+    themeMode: ThemeMode,
     appIcon: AppIcon,
     onClose: () -> Unit,
     onScratchEnabledChange: (Boolean) -> Unit,
@@ -258,6 +275,7 @@ private fun LegacySettingsRootPage(
     onArtistSeparatorsClick: () -> Unit,
     onNavigationClick: () -> Unit,
     onAppIconClick: () -> Unit,
+    onThemeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -288,6 +306,7 @@ private fun LegacySettingsRootPage(
                     settings = playbackSettings,
                     artistSettings = artistSettings,
                     navigationSettings = navigationSettings,
+                    themeMode = themeMode,
                     appIcon = appIcon,
                     onScratchEnabledChange = onScratchEnabledChange,
                     onHidePlayerAxisEnabledChange = onHidePlayerAxisEnabledChange,
@@ -296,6 +315,7 @@ private fun LegacySettingsRootPage(
                     onArtistSeparatorsClick = onArtistSeparatorsClick,
                     onNavigationClick = onNavigationClick,
                     onAppIconClick = onAppIconClick,
+                    onThemeClick = onThemeClick,
                 )
             },
         )
@@ -341,6 +361,47 @@ private fun LegacyAudioFxSettingsPage(
                     onAudioFxEnabledChange = onAudioFxEnabledChange,
                     onAudioFxPresetChange = onAudioFxPresetChange,
                     onAudioFxCustomGainDbPointsChange = onAudioFxCustomGainDbPointsChange,
+                )
+            },
+        )
+    }
+}
+
+@Composable
+private fun LegacyThemeSettingsPage(
+    active: Boolean,
+    themeMode: ThemeMode,
+    onClose: () -> Unit,
+    onThemeModeChange: (ThemeMode) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(colorResource(R.color.page_background)),
+    ) {
+        LegacyPortSmartisanTitleBar(
+            modifier = Modifier.fillMaxWidth(),
+            showShadow = true,
+        ) { titleBar ->
+            titleBar.setupLegacySettingsTitleBar(
+                titleRes = R.string.theme_settings,
+                onClose = onClose,
+                closeAffordance = LegacySettingsCloseAffordance.Back,
+            )
+        }
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            factory = { context ->
+                LegacyThemeContentView(context)
+            },
+            update = { view ->
+                view.visibility = if (active) View.VISIBLE else View.INVISIBLE
+                view.bind(
+                    selectedMode = themeMode,
+                    onThemeModeChange = onThemeModeChange,
                 )
             },
         )
@@ -401,6 +462,7 @@ private enum class LegacySettingsRowShape(
 private enum class LegacySettingsSecondaryPage {
     AudioFx,
     Navigation,
+    Theme,
     AppIcon,
 }
 
@@ -504,6 +566,11 @@ private class LegacySettingsContentView(context: Context) : ScrollView(context) 
         titleRes = R.string.app_icon,
         showArrow = true,
     )
+    private val themeRow = LegacySettingsValueRow(
+        context = context,
+        titleRes = R.string.theme_settings,
+        showArrow = true,
+    )
 
     init {
         setBackgroundResource(R.drawable.account_background)
@@ -551,7 +618,8 @@ private class LegacySettingsContentView(context: Context) : ScrollView(context) 
         content.addView(
             settingsGroup(
                 context,
-                appIconRow to LegacySettingsRowShape.Single,
+                themeRow to LegacySettingsRowShape.Top,
+                appIconRow to LegacySettingsRowShape.Bottom,
             ),
         )
         content.addView(gapView(context))
@@ -561,6 +629,7 @@ private class LegacySettingsContentView(context: Context) : ScrollView(context) 
         settings: PlaybackSettings,
         artistSettings: ArtistSettings,
         navigationSettings: NavigationSettings,
+        themeMode: ThemeMode,
         appIcon: AppIcon,
         onScratchEnabledChange: (Boolean) -> Unit,
         onHidePlayerAxisEnabledChange: (Boolean) -> Unit,
@@ -569,6 +638,7 @@ private class LegacySettingsContentView(context: Context) : ScrollView(context) 
         onArtistSeparatorsClick: () -> Unit,
         onNavigationClick: () -> Unit,
         onAppIconClick: () -> Unit,
+        onThemeClick: () -> Unit,
     ) {
         scratchRow.bind(settings.scratchEnabled, onScratchEnabledChange)
         axisRow.bind(settings.hidePlayerAxisEnabled, onHidePlayerAxisEnabledChange)
@@ -588,6 +658,10 @@ private class LegacySettingsContentView(context: Context) : ScrollView(context) 
         appIconRow.bind(
             value = context.getString(appIcon.labelRes()),
             onClick = onAppIconClick,
+        )
+        themeRow.bind(
+            value = context.getString(themeMode.labelRes),
+            onClick = onThemeClick,
         )
     }
 
@@ -813,7 +887,11 @@ private class LegacyAudioFxContentView(context: Context) : ScrollView(context) {
     private val enabledRow = LegacySettingsSwitchRow(context, R.string.audio_fx_enabled)
     private val previewPanel = LegacyAudioFxPreviewPanel(context)
     private val presetRows = AudioFxPreset.entries.map { preset ->
-        preset to LegacyAudioFxPresetRow(context, preset)
+        preset to LegacySettingsChoiceRow(
+            context = context,
+            titleRes = preset.labelRes(),
+            summaryRes = preset.summaryRes(),
+        )
     }
 
     init {
@@ -931,6 +1009,112 @@ private class LegacyAudioFxContentView(context: Context) : ScrollView(context) {
     }
 }
 
+private class LegacyThemeContentView(context: Context) : ScrollView(context) {
+    private val content = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL
+        clipChildren = false
+        clipToPadding = false
+    }
+    private val modeRows = ThemeMode.entries.map { mode ->
+        mode to LegacySettingsChoiceRow(
+            context = context,
+            titleRes = mode.labelRes,
+        )
+    }
+
+    init {
+        setBackgroundResource(R.drawable.account_background)
+        isFillViewport = true
+        isVerticalScrollBarEnabled = false
+        overScrollMode = OVER_SCROLL_ALWAYS
+        clipChildren = false
+        clipToPadding = false
+        addView(
+            content,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT,
+            ),
+        )
+        content.addView(gapView(context))
+        content.addView(
+            settingsGroup(
+                context,
+                *modeRows.mapIndexed { index, pair ->
+                    pair.second to when (index) {
+                        0 -> LegacySettingsRowShape.Top
+                        modeRows.lastIndex -> LegacySettingsRowShape.Bottom
+                        else -> LegacySettingsRowShape.Middle
+                    }
+                }.toTypedArray(),
+            ),
+        )
+        content.addView(gapView(context))
+    }
+
+    fun bind(
+        selectedMode: ThemeMode,
+        onThemeModeChange: (ThemeMode) -> Unit,
+    ) {
+        modeRows.forEach { (mode, row) ->
+            row.bind(
+                selected = mode == selectedMode,
+                enabled = true,
+                onClick = { onThemeModeChange(mode) },
+            )
+        }
+    }
+
+    private fun gapView(context: Context): View {
+        return View(context).apply {
+            setBackgroundColor(Color.TRANSPARENT)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                resources.getDimensionPixelSize(R.dimen.list_item_vertical_gap),
+            )
+        }
+    }
+
+    private fun settingsGroup(
+        context: Context,
+        vararg rows: Pair<View, LegacySettingsRowShape>,
+    ): LinearLayout {
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            clipChildren = false
+            clipToPadding = false
+            rows.forEach { (row, shape) ->
+                row.applyLegacySettingsBackground(shape)
+                addView(row, rowLayoutParams(context))
+            }
+        }
+    }
+
+    private fun rowLayoutParams(context: Context): LinearLayout.LayoutParams {
+        val margin = context.resources.getDimensionPixelSize(R.dimen.list_item_left_right_margin)
+        return LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            context.resources.getDimensionPixelSize(R.dimen.list_item_min_height),
+        ).apply {
+            leftMargin = margin
+            rightMargin = margin
+        }
+    }
+
+    private fun View.applyLegacySettingsBackground(shape: LegacySettingsRowShape) {
+        val target = requireNotNull(context.getDrawable(shape.backgroundRes)).mutate()
+        val shadow = requireNotNull(context.getDrawable(shape.shadowRes)).mutate()
+        val shadowPadding = Rect()
+        shadow.getPadding(shadowPadding)
+        background = ShadowDrawable(
+            shadow = shadow,
+            target = target,
+            insetLeftRight = shadowPadding.left,
+            insetTopBottom = shadowPadding.top,
+        )
+    }
+}
+
 private class LegacyAudioFxPreviewPanel(context: Context) : LinearLayout(context) {
     private val titleView = TextView(context).apply {
         gravity = Gravity.CENTER_VERTICAL
@@ -983,15 +1167,16 @@ private class LegacyAudioFxPreviewPanel(context: Context) : LinearLayout(context
     }
 }
 
-private class LegacyAudioFxPresetRow(
+private class LegacySettingsChoiceRow(
     context: Context,
-    private val preset: AudioFxPreset,
+    titleRes: Int,
+    summaryRes: Int? = null,
 ) : RelativeLayout(context) {
     private val titleView = TextView(context).apply {
         id = View.generateViewId()
         gravity = Gravity.CENTER_VERTICAL
         setSingleLine(true)
-        setText(preset.labelRes())
+        setText(titleRes)
         setTextColor(context.getColorStateList(R.color.setting_item_text_colorlist))
         setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.primary_text_size))
         setDuplicateParentStateEnabled(true)
@@ -1000,7 +1185,8 @@ private class LegacyAudioFxPresetRow(
         id = View.generateViewId()
         gravity = Gravity.CENTER_VERTICAL
         setSingleLine(true)
-        setText(preset.summaryRes())
+        summaryRes?.let(::setText)
+        visibility = if (summaryRes == null) View.GONE else View.VISIBLE
         setTextColor(context.getColorStateList(R.color.setting_item_summary_text_colorlist))
         setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.settings_item_tips_text_size))
         setDuplicateParentStateEnabled(true)

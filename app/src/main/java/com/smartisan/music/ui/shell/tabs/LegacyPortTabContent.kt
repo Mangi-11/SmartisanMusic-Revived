@@ -17,6 +17,7 @@ import com.smartisan.music.data.favorite.FavoriteSongRecord
 import com.smartisan.music.data.settings.ArtistSettings
 import com.smartisan.music.data.settings.AudioFxPreset
 import com.smartisan.music.data.settings.NavigationSettings
+import com.smartisan.music.data.settings.ThemeMode
 import com.smartisan.music.data.settings.PlaybackSettings
 import com.smartisan.music.ui.album.AlbumViewMode
 import com.smartisan.music.ui.navigation.MusicDestination
@@ -74,7 +75,9 @@ internal fun LegacyPortTabContent(
     onAudioFxCustomGainDbPointsChange: (List<Float>) -> Unit,
     onArtistSeparatorsChange: (Set<String>) -> Unit,
     navigationSettings: NavigationSettings,
+    themeMode: ThemeMode,
     onTabPinnedChange: (String, Boolean) -> Unit,
+    onThemeModeChange: (ThemeMode) -> Unit,
     onOverflowDestinationSelected: (MusicDestination) -> Unit,
     onReturnToMore: () -> Unit,
     onMediaIdsHidden: (Set<String>) -> Unit,
@@ -183,6 +186,7 @@ internal fun LegacyPortTabContent(
                 playbackSettings = playbackSettings,
                 artistSettings = artistSettings,
                 navigationSettings = navigationSettings,
+                themeMode = themeMode,
                 onDestinationSelected = onOverflowDestinationSelected,
                 onScratchEnabledChange = onScratchEnabledChange,
                 onHidePlayerAxisEnabledChange = onHidePlayerAxisEnabledChange,
@@ -192,6 +196,7 @@ internal fun LegacyPortTabContent(
                 onAudioFxCustomGainDbPointsChange = onAudioFxCustomGainDbPointsChange,
                 onArtistSeparatorsChange = onArtistSeparatorsChange,
                 onTabPinnedChange = onTabPinnedChange,
+                onThemeModeChange = onThemeModeChange,
                 onSettingsPageActiveChanged = onMoreSettingsPageActiveChanged,
                 onSearchClick = onSearchClick,
                 modifier = Modifier

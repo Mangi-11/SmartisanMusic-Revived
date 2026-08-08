@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
@@ -25,6 +26,8 @@ private val Context.navigationSettingsDataStore by preferencesDataStore(
 
 data class NavigationSettings(
     val layout: NavigationLayout = NavigationLayout(),
+    val lastDestination: MusicDestination? = null,
+    val lastPresentedFromMore: Boolean = false,
 )
 
 class NavigationSettingsStore(
@@ -49,6 +52,16 @@ class NavigationSettingsStore(
             preferences.writeLayout(updated)
         }
     }
+
+    suspend fun setLastDestination(
+        destination: MusicDestination,
+        presentedFromMore: Boolean,
+    ) {
+        context.navigationSettingsDataStore.edit { preferences ->
+            preferences[LastDestinationKey] = destination.route
+            preferences[LastPresentedFromMoreKey] = presentedFromMore
+        }
+    }
 }
 
 internal fun Preferences.toNavigationSettings(): NavigationSettings {
@@ -61,7 +74,20 @@ internal fun Preferences.toNavigationSettings(): NavigationSettings {
             bottomCount = this[BottomCountKey] ?: NavigationLayout().bottomCount,
         )
     }
-    return NavigationSettings(layout = layout)
+    return NavigationSettings(
+        layout = layout,
+        lastDestination = this[LastDestinationKey]?.let(MusicDestination::fromRoute),
+        lastPresentedFromMore = this[LastPresentedFromMoreKey] ?: false,
+    )
+}
+
+internal fun NavigationSettings.restoredDestination(): Pair<MusicDestination, Boolean> {
+    val remembered = lastDestination ?: layout.bottomDestinations.first()
+    return when {
+        remembered == MusicDestination.More -> MusicDestination.More to false
+        layout.isPinned(remembered) -> remembered to false
+        else -> remembered to (lastPresentedFromMore || !layout.isPinned(remembered))
+    }
 }
 
 private fun NavigationLayout.normalized(): NavigationLayout {
@@ -80,3 +106,5 @@ private fun MutablePreferences.writeLayout(layout: NavigationLayout) {
 private val OrderedRoutesKey = stringPreferencesKey("ordered_routes_v2")
 private val BottomCountKey = intPreferencesKey("bottom_count_v2")
 private val LegacyHiddenTabsKey = stringSetPreferencesKey("hidden_tabs")
+private val LastDestinationKey = stringPreferencesKey("last_destination")
+private val LastPresentedFromMoreKey = booleanPreferencesKey("last_presented_from_more")

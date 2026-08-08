@@ -212,6 +212,34 @@ class NavigationSettingsTest {
     }
 
     @Test
+    fun rememberedPinnedDestinationRestoresAsBottomDestination() {
+        val settings = NavigationSettings(
+            layout = NavigationLayout(),
+            lastDestination = MusicDestination.Songs,
+            lastPresentedFromMore = true,
+        )
+
+        assertEquals(MusicDestination.Songs to false, settings.restoredDestination())
+    }
+
+    @Test
+    fun rememberedOverflowDestinationRestoresFromMore() {
+        val settings = NavigationSettings(
+            layout = NavigationLayout(),
+            lastDestination = MusicDestination.Genre,
+        )
+
+        assertEquals(MusicDestination.Genre to true, settings.restoredDestination())
+    }
+
+    @Test
+    fun missingRememberedDestinationUsesFirstBottomDestination() {
+        val settings = NavigationSettings(layout = NavigationLayout())
+
+        assertEquals(MusicDestination.Playlist to false, settings.restoredDestination())
+    }
+
+    @Test
     fun temporaryPinDoesNotMutatePersistedLayout() {
         val layout = NavigationLayout(bottomCount = MinBottomDestinationCount)
         val effective = layout.bottomDestinationsEnsuring(MusicDestination.Songs)

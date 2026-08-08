@@ -33,7 +33,7 @@ Smartisan OS has left the stage, so this project uses Smartisan Music 8.1.0 as i
 - **Android 8.1 and later support**: Separate compatibility paths cover legacy and scoped storage, system bars, gesture navigation, display cutouts, WindowInsets, and predictive back without replacing the original visual language.
 - **Modern data architecture**: Room, DataStore, Coroutines, and StateFlow manage the library, favorites, playlists, settings, and playback state without private Smartisan OS services or system-signature capabilities.
 - **Removed legacy baggage**: Business code is written in Kotlin and retains only the resources and public APIs required by the current implementation. The original background services, databases, and settings migrations are not carried forward.
-- **System-following dark mode**: Implemented purely through resources (`values-night` and same-name `drawable-night` variants) with no in-app toggle and no runtime skinning branches. The original 8.1.0 had no dark mode, so the night visuals are this project's own design: the charcoal palette comes from the sibling Smartisan Weather revival (page `#25282D`, title bar `#292C31`, cards `#34373C`), and the night bitmaps are generated from the original assets by `tools/generate_night_drawables.py` (proportional darkening or white-out with alpha and nine-patch markers preserved; safe to re-run). The red and blue brand accents are shared by both themes.
+- **Theme selection**: Supports system-following, light, and dark modes through a radio-style settings page reused from the audio-effects UI. Visuals remain resource-driven through `values-night` and same-name `drawable-night` variants. The original 8.1.0 had no dark mode, so the night visuals are this project's own design: the charcoal palette comes from the sibling Smartisan Weather revival (page `#25282D`, title bar `#292C31`, cards `#34373C`), and the night bitmaps are generated from the original assets by `tools/generate_night_drawables.py` (proportional darkening or white-out with alpha and nine-patch markers preserved; safe to re-run). The red and blue brand accents are shared by both themes.
 
 ## Current features
 
@@ -41,7 +41,7 @@ Smartisan OS has left the stage, so this project uses Smartisan Music 8.1.0 as i
 - Song, album, artist, genre, and folder browsing
 - Sorting, filtering, alphabetical navigation, multi-select, and swipe actions
 - Favorites, user-created playlists, and play statistics
-- System-following dark mode with a charcoal night palette
+- System-following, light, and dark themes with a charcoal night palette
 - Background playback, media notifications, and headset and Bluetooth controls
 - Sequential, shuffle, repeat-one, and repeat-all playback modes
 - Expandable queue, drag-to-reorder, and queue and position recovery

@@ -37,6 +37,12 @@ android {
     buildFeatures {
         compose = true
     }
+
+    lint {
+        // The legacy shell intentionally keeps platform View subclasses for 8.1.0 visual parity.
+        // AppCompat is used for DayNight theme switching, not as a replacement for those views.
+        disable += "AppCompatCustomView"
+    }
 }
 
 androidComponents {
@@ -54,6 +60,8 @@ androidComponents {
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.appcompat.resources)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)

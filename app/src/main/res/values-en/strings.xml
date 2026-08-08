@@ -113,6 +113,10 @@
     <string name="settings_section_playback">Playback</string>
     <string name="settings_section_library">Library</string>
     <string name="settings_section_appearance">Appearance</string>
+    <string name="theme_settings">Theme</string>
+    <string name="theme_mode_system">Follow system</string>
+    <string name="theme_mode_light">Light mode</string>
+    <string name="theme_mode_dark">Dark mode</string>
     <string name="app_icon">App Icon</string>
     <string name="app_icon_choose">Choose a Home Screen Icon</string>
     <string name="app_icon_original">Original Icon</string>

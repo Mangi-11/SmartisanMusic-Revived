@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- 夜间使用平台深色父主题；windowLight* 由 values-night/bools.xml 提供 false -->
-    <style name="Theme.Music" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowLightStatusBar">@bool/light_system_bars</item>
-        <item name="android:windowLightNavigationBar">@bool/light_system_bars</item>
-    </style>
-
     <style name="MmsDialogTheme" parent="@android:style/Theme.DeviceDefault.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowFrame">@null</item>

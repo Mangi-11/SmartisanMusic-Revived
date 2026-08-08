@@ -49,6 +49,9 @@ import com.smartisan.music.data.settings.LibraryDisplaySettings
 import com.smartisan.music.data.settings.LibraryDisplaySettingsStore
 import com.smartisan.music.data.settings.NavigationSettings
 import com.smartisan.music.data.settings.NavigationSettingsStore
+import com.smartisan.music.data.settings.restoredDestination
+import com.smartisan.music.data.settings.ThemeMode
+import com.smartisan.music.data.settings.ThemeSettingsStore
 import com.smartisan.music.data.settings.PlaybackSettings
 import com.smartisan.music.data.settings.PlaybackSettingsStore
 import com.smartisan.music.isExternalAudioLaunchItem
@@ -102,6 +105,7 @@ fun LegacyPortMainShell(
     playbackLaunchRequest: Int = 0,
     externalAudioLaunchRequest: ExternalAudioLaunchRequest? = null,
     onExternalAudioLaunchConsumed: (Int) -> Unit = {},
+    onThemeModeChange: (ThemeMode) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     ProvidePlaybackController {
@@ -109,6 +113,7 @@ fun LegacyPortMainShell(
             playbackLaunchRequest = playbackLaunchRequest,
             externalAudioLaunchRequest = externalAudioLaunchRequest,
             onExternalAudioLaunchConsumed = onExternalAudioLaunchConsumed,
+            onThemeModeChange = onThemeModeChange,
             modifier = modifier,
         )
     }
@@ -119,6 +124,7 @@ private fun LegacyPortMainShellContent(
     playbackLaunchRequest: Int,
     externalAudioLaunchRequest: ExternalAudioLaunchRequest?,
     onExternalAudioLaunchConsumed: (Int) -> Unit,
+    onThemeModeChange: (ThemeMode) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -145,6 +151,9 @@ private fun LegacyPortMainShellContent(
     val navigationSettingsStore = remember(context.applicationContext) {
         NavigationSettingsStore(context.applicationContext)
     }
+    val themeSettingsStore = remember(context.applicationContext) {
+        ThemeSettingsStore(context.applicationContext)
+    }
     val favoriteIds by favoriteRepository.observeFavoriteIds().collectAsState(initial = emptySet())
     val libraryExclusions by libraryExclusionsStore.exclusions.collectAsState(initial = LibraryExclusions())
     val playbackSettings by playbackSettingsStore.settings.collectAsState(initial = PlaybackSettings())
@@ -154,6 +163,7 @@ private fun LegacyPortMainShellContent(
         initial = null,
     )
     val navigationSettings = persistedNavigationSettings ?: NavigationSettings()
+    val themeMode = remember(themeSettingsStore) { themeSettingsStore.currentMode() }
     val albumViewMode = libraryDisplaySettings.albumViewMode
     val artistAlbumViewMode = libraryDisplaySettings.artistAlbumViewMode
     val unknownSongTitle = stringResource(R.string.unknown_song_title)
@@ -169,6 +179,7 @@ private fun LegacyPortMainShellContent(
     var moreSettingsPageActive by remember { mutableStateOf(false) }
     var navigationEditorVisible by remember { mutableStateOf(false) }
     var navigationLayoutInitialized by remember { mutableStateOf(false) }
+    var navigationStateRestored by remember { mutableStateOf(false) }
 
     val navigationLayout = navigationSettings.layout
     // 加歌模式只临时替换底栏末位，不污染用户保存的导航布局。
@@ -179,18 +190,25 @@ private fun LegacyPortMainShellContent(
     }
     val overflowDestinations = navigationLayout.overflowDestinations
 
-    // 冷启动先选择真实布局中的首个固定项，避免 DataStore 载入后把默认播放列表伪装成
-    // “从更多进入”。运行中若用户把当前入口移入更多，则保留页面并补上返回来源语义。
+    // 冷启动恢复上次一级板块；详情页和弹窗状态不进入持久化恢复范围。
     LaunchedEffect(persistedNavigationSettings, currentDestination) {
         val persistedLayout = persistedNavigationSettings?.layout ?: return@LaunchedEffect
         if (!navigationLayoutInitialized) {
             navigationLayoutInitialized = true
-            if (currentDestination != MusicDestination.More && !persistedLayout.isPinned(currentDestination)) {
-                currentDestination = persistedLayout.bottomDestinations.first()
-                presentedFromMore = false
-            }
+            val (restoredDestination, restoredFromMore) = persistedNavigationSettings
+                ?.restoredDestination()
+                ?: (persistedLayout.bottomDestinations.first() to false)
+            currentDestination = restoredDestination
+            presentedFromMore = restoredFromMore
+            navigationStateRestored = true
         } else if (currentDestination != MusicDestination.More && !persistedLayout.isPinned(currentDestination)) {
             presentedFromMore = true
+        }
+    }
+
+    LaunchedEffect(currentDestination, presentedFromMore, navigationStateRestored) {
+        if (navigationStateRestored) {
+            navigationSettingsStore.setLastDestination(currentDestination, presentedFromMore)
         }
     }
     var songsEditMode by remember { mutableStateOf(false) }
@@ -765,11 +783,13 @@ private fun LegacyPortMainShellContent(
                             searchDrilldownTarget = null
                         },
                         navigationSettings = navigationSettings,
+                        themeMode = themeMode,
                         onTabPinnedChange = { route, pinned ->
                             scope.launch {
                                 navigationSettingsStore.setTabPinned(route, pinned)
                             }
                         },
+                        onThemeModeChange = onThemeModeChange,
                         onOverflowDestinationSelected = { destination ->
                             presentedFromMore = true
                             currentDestination = destination
@@ -888,7 +908,7 @@ private fun LegacyPortMainShellContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(playbackBarHeight),
-                        bottomDividerVisible = false,
+                        bottomDividerVisible = true,
                     )
                 }
                 LegacyPortBottomBar(

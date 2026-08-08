@@ -27,6 +27,7 @@ import com.smartisan.music.R
 import com.smartisan.music.data.settings.ArtistSettings
 import com.smartisan.music.data.settings.AudioFxPreset
 import com.smartisan.music.data.settings.NavigationSettings
+import com.smartisan.music.data.settings.ThemeMode
 import com.smartisan.music.data.settings.PlaybackSettings
 import com.smartisan.music.ui.navigation.MusicDestination
 import com.smartisan.music.ui.shell.titlebar.LegacyPortSmartisanTitleBar
@@ -45,6 +46,7 @@ internal fun LegacyPortMorePage(
     playbackSettings: PlaybackSettings,
     artistSettings: ArtistSettings,
     navigationSettings: NavigationSettings,
+    themeMode: ThemeMode,
     onDestinationSelected: (MusicDestination) -> Unit,
     onScratchEnabledChange: (Boolean) -> Unit,
     onHidePlayerAxisEnabledChange: (Boolean) -> Unit,
@@ -54,6 +56,7 @@ internal fun LegacyPortMorePage(
     onAudioFxCustomGainDbPointsChange: (List<Float>) -> Unit,
     onArtistSeparatorsChange: (Set<String>) -> Unit,
     onTabPinnedChange: (String, Boolean) -> Unit,
+    onThemeModeChange: (ThemeMode) -> Unit,
     onSettingsPageActiveChanged: (Boolean) -> Unit,
     onSearchClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -100,6 +103,7 @@ internal fun LegacyPortMorePage(
                     playbackSettings = playbackSettings,
                     artistSettings = artistSettings,
                     navigationSettings = navigationSettings,
+                    themeMode = themeMode,
                     onClose = { settingsVisible = false },
                     onScratchEnabledChange = onScratchEnabledChange,
                     onHidePlayerAxisEnabledChange = onHidePlayerAxisEnabledChange,
@@ -109,6 +113,7 @@ internal fun LegacyPortMorePage(
                     onAudioFxCustomGainDbPointsChange = onAudioFxCustomGainDbPointsChange,
                     onArtistSeparatorsChange = onArtistSeparatorsChange,
                     onTabPinnedChange = onTabPinnedChange,
+                    onThemeModeChange = onThemeModeChange,
                     modifier = Modifier.fillMaxSize(),
                 )
             },

@@ -107,6 +107,10 @@
     <string name="settings_section_playback">播放体验</string>
     <string name="settings_section_library">资料库</string>
     <string name="settings_section_appearance">外观</string>
+    <string name="theme_settings">主题设置</string>
+    <string name="theme_mode_system">跟随系统</string>
+    <string name="theme_mode_light">浅色模式</string>
+    <string name="theme_mode_dark">深色模式</string>
     <string name="app_icon">应用图标</string>
     <string name="app_icon_choose">选择桌面图标</string>
     <string name="app_icon_original">原版图标</string>
