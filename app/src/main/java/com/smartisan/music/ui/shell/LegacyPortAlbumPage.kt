@@ -174,6 +174,10 @@ private fun LegacyPortAlbumOverviewPage(
             LegacyAlbumRoot(viewContext)
         },
         update = { root ->
+            if (!root.initialGridRevealPlayed && root.active != true && active) {
+                root.initialGridRevealPending = true
+            }
+            root.active = active
             root.visibility = if (active) View.VISIBLE else View.INVISIBLE
             root.bindPlayActions(
                 albums = albums,
@@ -280,11 +284,29 @@ private fun LegacyPortAlbumOverviewPage(
             if (previousMode == null) {
                 root.showModeImmediately(viewMode)
             } else if (previousMode != viewMode) {
-                switchAnimator.animate(
-                    root = root,
-                    from = previousMode,
-                    to = viewMode,
-                )
+                if (active) {
+                    root.initialGridRevealPending = false
+                    root.initialGridRevealPlayed = true
+                    switchAnimator.animate(
+                        root = root,
+                        from = previousMode,
+                        to = viewMode,
+                    )
+                } else {
+                    root.showModeImmediately(viewMode)
+                }
+            } else if (
+                active &&
+                viewMode == AlbumViewMode.Tile &&
+                albums.isNotEmpty() &&
+                root.initialGridRevealPending
+            ) {
+                root.initialGridRevealPending = false
+                root.initialGridRevealPlayed = true
+                switchAnimator.revealGrid(root)
+            } else if (active && viewMode == AlbumViewMode.List) {
+                root.initialGridRevealPending = false
+                root.initialGridRevealPlayed = true
             }
         },
     )
@@ -296,8 +318,11 @@ private class LegacyAlbumRoot(context: Context) : LinearLayout(context) {
     val gridView: GridView
     val artworkLoader = LegacyAlbumArtworkLoader(context)
     private val listFooterView = LegacyAlbumFooterView(context)
+    var active: Boolean? = null
     var viewMode: AlbumViewMode? = null
     var editMode: Boolean? = null
+    var initialGridRevealPending: Boolean = false
+    var initialGridRevealPlayed: Boolean = false
 
     init {
         orientation = VERTICAL
@@ -736,6 +761,14 @@ private class LegacyAlbumViewSwitchAnimator {
         } else {
             root.showModeImmediately(to)
         }
+    }
+
+    fun revealGrid(root: LegacyAlbumRoot) {
+        generation += 1
+        val currentGen = generation
+        animator?.cancel()
+        animator = null
+        animateListToGrid(root, currentGen)
     }
 
     private fun animateListToGrid(root: LegacyAlbumRoot, gen: Int) {
