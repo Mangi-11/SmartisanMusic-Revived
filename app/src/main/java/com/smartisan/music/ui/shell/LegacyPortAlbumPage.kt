@@ -7,6 +7,7 @@ import android.animation.PropertyValuesHolder
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -670,7 +671,7 @@ private class LegacyAlbumGridAdapter(
                 TextView(context).apply {
                     id = R.id.tv_album_name
                     gravity = Gravity.CENTER
-                    maxLines = 1
+                    ellipsize = TextUtils.TruncateAt.END
                     setSingleLine(true)
                     textSize = 13f
                     setTextColor(context.getColor(R.color.text_emphasis))

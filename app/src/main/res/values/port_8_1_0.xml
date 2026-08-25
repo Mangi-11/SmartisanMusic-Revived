@@ -244,6 +244,7 @@
     <dimen name="listview_items_padding_left_left1">17.5dp</dimen>
     <dimen name="listview_items_padding_left_top">0.0dp</dimen>
     <dimen name="listview_items_textview_width">270.0dp</dimen>
+    <dimen name="album_listview_items_textview_width">270.0dp</dimen>
     <dimen name="list_item_left_right_margin">12.0dp</dimen>
     <dimen name="list_item_min_height">60.0dp</dimen>
     <dimen name="list_item_vertical_gap">14.0dp</dimen>

@@ -56,11 +56,23 @@ class StretchTextView @JvmOverloads constructor(
         val drawableWidth = drawable.intrinsicWidth
         val drawableHeight = drawable.intrinsicHeight
         val textWidth = paint.measureText(text.toString())
-        val availableRight = width - paddingRight
         val preferredLeft = (compoundPaddingLeft + textWidth + drawableGap).toInt()
-        val left = min(preferredLeft, (availableRight - drawableWidth).coerceAtLeast(0))
+        val left = trailingPlayIndicatorLeft(
+            preferredLeft = preferredLeft,
+            viewWidth = width,
+            drawableWidth = drawableWidth,
+        )
         val top = ((height - drawableHeight) / 2).coerceAtLeast(0)
         drawable.setBounds(left, top, left + drawableWidth, top + drawableHeight)
         drawable.draw(canvas)
     }
 }
+
+internal fun trailingPlayIndicatorLeft(
+    preferredLeft: Int,
+    viewWidth: Int,
+    drawableWidth: Int,
+): Int = min(
+    preferredLeft,
+    (viewWidth - drawableWidth).coerceAtLeast(0),
+)
