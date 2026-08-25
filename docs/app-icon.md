@@ -2,7 +2,7 @@
 
 ## 设备侧证据
 
-查阅日期：2026-07-19。
+设备证据复查日期：2026-08-25。
 
 - 测试设备为 realme RMX5200，用户界面显示 realme UI `7.0` / Android 16，软件版本为 `RMX5200_16.0.8.301(CN01)`。设备属性 `ro.build.version.oplusrom=V16.1.0` 是底层 OPlus ROM 标识，不是 realme UI 的产品版本。
 - 设备内 `com.heytap.music` 版本为 `40.11.16.22.2`（versionCode `191116222`）。其 APK launcher 入口仍声明红色音符 PNG，并没有提供截图中的黄色黑胶 adaptive icon。
@@ -13,11 +13,13 @@
 
 ## 官方规范
 
-2026-07-19 查阅以下 Android 官方资料：
+2026-08-25 查阅以下 Android 官方资料：
 
 - [Adaptive icons](https://developer.android.com/develop/ui/compose/system/icon_design_adaptive)：彩色图标使用独立前景和背景，用户主题图标使用 monochrome 层；每层为 `108 × 108dp`，关键标志保持在中央 `66 × 66dp` 安全区内，四边各 `18dp` 留给系统蒙版和动效。
 - [`<activity-alias>`](https://developer.android.com/guide/topics/manifest/activity-alias-element)：alias 可拥有独立 launcher intent filter 和图标，且必须声明在目标 Activity 之后。
 - [`PackageManager`](https://developer.android.com/reference/android/content/pm/PackageManager#setComponentEnabledSettings(java.util.List%3Candroid.content.pm.PackageManager.ComponentEnabledSetting%3E))：API 33 起可批量、原子地切换多个组件；旧版本使用单组件 API。
+
+`activity-alias` 只为别名入口提供独立图标。Launcher 可以展示当前启用 alias 的图标，但系统设置、应用详情、权限管理等以 `ApplicationInfo.icon` 为准，读取的是 `<application android:icon>`，不会随 alias 启停而改变。Android 没有公开 API 在运行时替换应用级图标，因此本项目将真我黑胶图标设为应用级默认图标，原版图标切换仅作用于桌面入口。
 
 黄色背景保持全出血，不预先烘焙圆角、圆形或外框。Realme UXIcon 的唱片前景原始不透明边界约为 `206 × 216px`；在 `108dp` adaptive foreground 中增加 `18dp` 内缩后，唱片约为 `61.8 × 64.8dp`，完整落入中央 `66 × 66dp` 安全区。附带的 monochrome 图层有效边界为 `120 × 120px`，映射后为 `54 × 54dp`，也位于安全区内。因此圆形、圆角矩形、squircle 或其他 OEM 蒙版均由 launcher 正确裁切，而不会出现双重圆角。
 
@@ -26,7 +28,8 @@
 ## 运行时切换
 
 - `MainActivity` 继续持有 `APP_MUSIC` 和外部音频 `VIEW` intent filter，不会因桌面图标切换而被禁用。
-- `OriginalIconAlias` 默认启用并使用原版图标；`ModernIconAlias` 默认停用并使用 realme UI 7.0 黄色黑胶 adaptive icon。为兼容已经选择现代图标的安装，alias 类名保持不变。
+- `<application>` 默认使用 realme UI 7.0 黄色黑胶 adaptive icon，确保系统设置、应用详情和其他读取 `ApplicationInfo` 的界面保持一致。
+- `ModernIconAlias` 默认启用并使用真我黑胶图标；`OriginalIconAlias` 默认停用并保留原版图标选项。为兼容升级前已经显式选择任一图标的安装，alias 类名保持不变，PackageManager 已保存的显式组件状态继续优先于 Manifest 默认值。
 - `PackageManager` 的组件状态是唯一持久化事实，不另存 DataStore 值，避免恢复、升级或 launcher 修复后两份状态不一致。
 - API 33 及以上原子切换两个 alias；API 27–32 先启用目标 alias，再停用另一个 alias，避免短暂出现没有 launcher 入口的状态。
 - 使用 `DONT_KILL_APP`，切换图标不应中断正在播放的 Media3 会话。不同 launcher 的图标缓存刷新时间不一致，设置页会提示可能需要等待片刻。
@@ -38,3 +41,4 @@
 - Android 13 及以上启用 themed icons，确认 monochrome 唱片可被系统正确着色。
 - 切换时保持音乐播放，确认进程和后台播放未被中断。
 - 冷启动、升级安装和 launcher 重启后，确认当前选择仍与桌面图标一致。
+- 在系统设置的应用详情、权限管理和最近任务等非 Launcher 界面确认默认显示真我黑胶图标；切换原版桌面图标后，这些系统界面仍保持应用级默认图标。

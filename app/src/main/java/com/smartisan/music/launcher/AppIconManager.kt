@@ -12,11 +12,11 @@ internal enum class AppIcon(
 ) {
     Original(
         aliasClassName = "com.smartisan.music.launcher.OriginalIconAlias",
-        enabledByDefault = true,
+        enabledByDefault = false,
     ),
     Modern(
         aliasClassName = "com.smartisan.music.launcher.ModernIconAlias",
-        enabledByDefault = false,
+        enabledByDefault = true,
     ),
 }
 
@@ -103,5 +103,5 @@ internal class AppIconManager(context: Context) {
 }
 
 internal fun resolveAppIcon(enabledIcons: Set<AppIcon>): AppIcon {
-    return enabledIcons.singleOrNull() ?: AppIcon.Original
+    return enabledIcons.singleOrNull() ?: AppIcon.Modern
 }

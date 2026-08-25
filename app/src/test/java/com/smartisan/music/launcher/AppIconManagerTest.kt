@@ -15,8 +15,8 @@ class AppIconManagerTest {
     }
 
     @Test
-    fun `invalid alias combinations fall back to original icon`() {
-        assertEquals(AppIcon.Original, resolveAppIcon(emptySet()))
-        assertEquals(AppIcon.Original, resolveAppIcon(AppIcon.entries.toSet()))
+    fun `invalid alias combinations fall back to default modern icon`() {
+        assertEquals(AppIcon.Modern, resolveAppIcon(emptySet()))
+        assertEquals(AppIcon.Modern, resolveAppIcon(AppIcon.entries.toSet()))
     }
 }

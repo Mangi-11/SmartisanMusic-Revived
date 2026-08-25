@@ -123,7 +123,7 @@
     <string name="app_icon_original_summary">Original skeuomorphic Smartisan Music icon</string>
     <string name="app_icon_modern">Realme Vinyl Icon</string>
     <string name="app_icon_modern_summary">An adaptive icon for modern Android</string>
-    <string name="app_icon_refresh_hint">realme has paused its China business, and realme UI bows out with it. This realme UI 7.0 Music icon is preserved here as a tribute. Some launchers may take a moment to refresh the icon.</string>
+    <string name="app_icon_refresh_hint">realme has paused its China business, and realme UI bows out with it. This realme UI 7.0 Music icon is preserved here as a tribute. Home screen icon changes may take a moment to refresh; system surfaces such as Settings always show the default Realme vinyl icon.</string>
     <string name="app_icon_change_failed">Couldn’t change the app icon. Try again later.</string>
     <string name="app_icon_option_description">%1$s, %2$s</string>
     <string name="search_no_result">No results</string>
