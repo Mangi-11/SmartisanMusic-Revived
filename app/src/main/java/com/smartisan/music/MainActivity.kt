@@ -23,19 +23,31 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.smartisan.music.data.settings.ThemeSettingsStore
 import com.smartisan.music.ui.shell.LegacyPortMainShell
 import com.smartisan.music.ui.theme.MusicTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private var playbackLaunchRequest by mutableIntStateOf(0)
     private var externalAudioLaunchRequestId by mutableIntStateOf(0)
     private var externalAudioLaunchRequest by mutableStateOf<ExternalAudioLaunchRequest?>(null)
+    private var startupContentReady = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val themeSettingsStore = ThemeSettingsStore(this)
         AppCompatDelegate.setDefaultNightMode(themeSettingsStore.currentMode().appCompatNightMode)
+        val splashScreen = installSplashScreen()
+        // Android SplashScreen guidance checked 2026-08-25: the per-frame predicate only reads memory state.
+        splashScreen.setKeepOnScreenCondition { !startupContentReady }
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            delay(StartupSplashTimeoutMillis)
+            startupContentReady = true
+        }
         consumeLaunchIntent(intent)
         enableEdgeToEdge()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -48,6 +60,9 @@ class MainActivity : AppCompatActivity() {
                     playbackLaunchRequest = playbackLaunchRequest,
                     externalAudioLaunchRequest = externalAudioLaunchRequest,
                     onExternalAudioLaunchConsumed = ::clearExternalAudioLaunchRequest,
+                    onStartupReady = {
+                        startupContentReady = true
+                    },
                     onThemeModeChange = { mode ->
                         themeSettingsStore.setMode(mode)
                         AppCompatDelegate.setDefaultNightMode(mode.appCompatNightMode)
@@ -130,6 +145,7 @@ class MainActivity : AppCompatActivity() {
         private const val ExtraExternalAudioConsumed = "com.smartisan.music.extra.EXTERNAL_AUDIO_CONSUMED"
         private const val ContentScheme = "content"
         private const val FileScheme = "file"
+        private const val StartupSplashTimeoutMillis = 2_500L
         fun createOpenPlaybackIntent(context: Context): Intent {
             return Intent(context, MainActivity::class.java).apply {
                 action = ActionOpenPlayback

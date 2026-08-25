@@ -24,7 +24,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -105,6 +107,7 @@ fun LegacyPortMainShell(
     playbackLaunchRequest: Int = 0,
     externalAudioLaunchRequest: ExternalAudioLaunchRequest? = null,
     onExternalAudioLaunchConsumed: (Int) -> Unit = {},
+    onStartupReady: () -> Unit = {},
     onThemeModeChange: (ThemeMode) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -113,6 +116,7 @@ fun LegacyPortMainShell(
             playbackLaunchRequest = playbackLaunchRequest,
             externalAudioLaunchRequest = externalAudioLaunchRequest,
             onExternalAudioLaunchConsumed = onExternalAudioLaunchConsumed,
+            onStartupReady = onStartupReady,
             onThemeModeChange = onThemeModeChange,
             modifier = modifier,
         )
@@ -124,6 +128,7 @@ private fun LegacyPortMainShellContent(
     playbackLaunchRequest: Int,
     externalAudioLaunchRequest: ExternalAudioLaunchRequest?,
     onExternalAudioLaunchConsumed: (Int) -> Unit,
+    onStartupReady: () -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -220,7 +225,6 @@ private fun LegacyPortMainShellContent(
     var selectedArtistTarget by remember { mutableStateOf<LegacyArtistTarget?>(null) }
     var libraryRefreshVersion by remember { mutableStateOf(0) }
     var libraryRefreshing by remember { mutableStateOf(false) }
-    var libraryLoadRequested by remember { mutableStateOf(false) }
     var showSongDeleteConfirm by remember { mutableStateOf(false) }
     var pendingSongDeleteMediaIds by remember { mutableStateOf(emptySet<String>()) }
     var pendingSongDeleteDismissAction by remember { mutableStateOf<(() -> Unit)?>(null) }
@@ -236,11 +240,20 @@ private fun LegacyPortMainShellContent(
         mutableStateOf(snapshot)
     }
     val legacyLibrary = rememberLegacyLibraryMediaState(
-        loadRequested = libraryLoadRequested,
         libraryRefreshVersion = libraryRefreshVersion,
     )
     val legacyLibraryItems = remember(legacyLibrary.items, ratingOverrides) {
         legacyLibrary.items.withRatingOverrides(ratingOverrides)
+    }
+    val currentOnStartupReady by rememberUpdatedState(onStartupReady)
+    LaunchedEffect(navigationStateRestored, legacyLibrary.loaded, controller) {
+        if (!navigationStateRestored || !legacyLibrary.loaded || controller == null) {
+            return@LaunchedEffect
+        }
+        // 资料库状态发布后再隐藏两个布局帧，让标题 AndroidView、专辑网格和首屏封面开始绑定。
+        withFrameNanos { }
+        withFrameNanos { }
+        currentOnStartupReady()
     }
     val playbackBarMediaItem = playbackBarContentSnapshot.mediaItem
     val artworkRequestKey = playbackBarMediaItem?.artworkRequestKey()
@@ -264,7 +277,6 @@ private fun LegacyPortMainShellContent(
     val playbackBarHeight = 67.dp
     var playbackBarComposed by remember { mutableStateOf(false) }
     val openSearchOverlay = {
-        libraryLoadRequested = true
         searchQuery = ""
         searchDrilldownTarget = null
         searchVisible = true
@@ -496,9 +508,6 @@ private fun LegacyPortMainShellContent(
     }
 
     LaunchedEffect(currentDestination) {
-        if (currentDestination.requiresFullLibraryItems()) {
-            libraryLoadRequested = true
-        }
         if (currentDestination != MusicDestination.Songs) {
             songsEditMode = false
             selectedSongIds = emptySet()
@@ -830,9 +839,6 @@ private fun LegacyPortMainShellContent(
                         },
                         onPlaylistAddModeActiveChanged = { active ->
                             playlistAddModeActive = active
-                        },
-                        onLibraryNeeded = {
-                            libraryLoadRequested = true
                         },
                         onSearchClick = ::openCurrentSearch,
                         modifier = Modifier
@@ -1170,21 +1176,6 @@ private fun LegacyPortMainShellContent(
                 .fillMaxSize()
                 .zIndex(5f),
         )
-    }
-}
-
-private fun MusicDestination.requiresFullLibraryItems(): Boolean {
-    return when (this) {
-        MusicDestination.Songs,
-        MusicDestination.Album,
-        MusicDestination.Artist,
-        MusicDestination.Genre,
-        MusicDestination.LovedSongs,
-        -> true
-        MusicDestination.Playlist,
-        MusicDestination.Folder,
-        MusicDestination.More,
-        -> false
     }
 }
 

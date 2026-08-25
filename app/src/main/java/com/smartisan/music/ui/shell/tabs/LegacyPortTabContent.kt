@@ -93,7 +93,6 @@ internal fun LegacyPortTabContent(
     onAlbumSelected: (String, String) -> Unit,
     onArtistTargetChanged: (LegacyArtistTarget?) -> Unit,
     onPlaylistAddModeActiveChanged: (Boolean) -> Unit,
-    onLibraryNeeded: () -> Unit,
     onSearchClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -121,29 +120,32 @@ internal fun LegacyPortTabContent(
             )
         }
 
+        // 专辑页常驻在主壳底层，资料库预热完成后可提前创建网格并填充首屏封面缓存。
+        LegacyPortAlbumPage(
+            mediaItems = mediaItems,
+            active = destination == MusicDestination.Album,
+            viewMode = albumViewMode,
+            editMode = albumEditMode,
+            selectedAlbumId = selectedAlbumId,
+            selectedAlbumIds = selectedAlbumIds,
+            predictiveBackProgress = albumPredictiveBackProgress,
+            predictiveBackExitConsumed = albumPredictiveBackExitConsumed,
+            onPredictiveBackExitConsumedReset = onAlbumPredictiveBackExitConsumedReset,
+            hiddenMediaIds = hiddenMediaIds,
+            onAlbumSelected = onAlbumSelected,
+            onAlbumSelectionChange = onAlbumSelectionChange,
+            onRequestAddToPlaylist = onRequestAddToPlaylist,
+            onRequestAddToQueue = onRequestAddToQueue,
+            onTrackMoreClick = onLibraryTrackMoreClick,
+            artistSettings = artistSettings,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = playbackBarOverlayHeight),
+        )
+
         when (destination) {
             MusicDestination.Songs -> Unit
-            MusicDestination.Album -> LegacyPortAlbumPage(
-                mediaItems = mediaItems,
-                active = true,
-                viewMode = albumViewMode,
-                editMode = albumEditMode,
-                selectedAlbumId = selectedAlbumId,
-                selectedAlbumIds = selectedAlbumIds,
-                predictiveBackProgress = albumPredictiveBackProgress,
-                predictiveBackExitConsumed = albumPredictiveBackExitConsumed,
-                onPredictiveBackExitConsumedReset = onAlbumPredictiveBackExitConsumedReset,
-                hiddenMediaIds = hiddenMediaIds,
-                onAlbumSelected = onAlbumSelected,
-                onAlbumSelectionChange = onAlbumSelectionChange,
-                onRequestAddToPlaylist = onRequestAddToPlaylist,
-                onRequestAddToQueue = onRequestAddToQueue,
-                onTrackMoreClick = onLibraryTrackMoreClick,
-                artistSettings = artistSettings,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = playbackBarOverlayHeight),
-            )
+            MusicDestination.Album -> Unit
             MusicDestination.Artist -> LegacyPortArtistPage(
                 mediaItems = mediaItems,
                 active = true,
@@ -172,7 +174,6 @@ internal fun LegacyPortTabContent(
                 hiddenMediaIds = hiddenMediaIds,
                 onTrackMoreClick = onPlaylistTrackMoreClick,
                 onAddModeActiveChanged = onPlaylistAddModeActiveChanged,
-                onLibraryNeeded = onLibraryNeeded,
                 onSearchClick = onSearchClick,
                 onClose = onReturnToMore.takeIf { presentedFromMore },
                 closePredictiveBackState = moreDestinationPredictiveBackState.takeIf { presentedFromMore },
@@ -211,7 +212,6 @@ internal fun LegacyPortTabContent(
                 onClose = onReturnToMore.takeIf { presentedFromMore },
                 closePredictiveBackState = moreDestinationPredictiveBackState.takeIf { presentedFromMore },
                 onTrackMoreClick = onLibraryTrackMoreClick,
-                onLibraryNeeded = onLibraryNeeded,
                 onSearchClick = onSearchClick,
                 modifier = Modifier
                     .fillMaxSize()

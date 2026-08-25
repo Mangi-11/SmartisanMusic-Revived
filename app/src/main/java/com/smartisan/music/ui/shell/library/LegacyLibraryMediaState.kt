@@ -15,7 +15,6 @@ import com.smartisan.music.ui.components.hasAudioPermission
 
 @Composable
 internal fun rememberLegacyLibraryMediaState(
-    loadRequested: Boolean,
     libraryRefreshVersion: Int = 0,
 ): LegacyLibraryMediaState {
     val context = LocalContext.current
@@ -24,10 +23,8 @@ internal fun rememberLegacyLibraryMediaState(
     val hasPermission = hasAudioPermission(context)
     var state by remember(browser) { mutableStateOf(LegacyLibraryMediaState()) }
 
-    LaunchedEffect(browser, hasPermission, loadRequested, libraryRefreshVersion, libraryChildrenVersion) {
-        if (!loadRequested) {
-            return@LaunchedEffect
-        }
+    // 主壳建立后立即预热完整资料库，避免首次进入专辑等页面时先绘制空数据帧。
+    LaunchedEffect(browser, hasPermission, libraryRefreshVersion, libraryChildrenVersion) {
         val playbackBrowser = browser ?: run {
             state = LegacyLibraryMediaState(loaded = true)
             return@LaunchedEffect

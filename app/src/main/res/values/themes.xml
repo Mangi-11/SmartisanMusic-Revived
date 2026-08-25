@@ -6,6 +6,12 @@
         <item name="android:windowLightNavigationBar">@bool/light_system_bars</item>
     </style>
 
+    <style name="Theme.Music.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/page_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_modern</item>
+        <item name="postSplashScreenTheme">@style/Theme.Music</item>
+    </style>
+
     <style name="MmsDialogTheme" parent="@android:style/Theme.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowFrame">@null</item>

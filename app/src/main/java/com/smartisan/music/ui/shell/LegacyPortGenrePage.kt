@@ -59,7 +59,6 @@ internal fun LegacyPortGenrePage(
     onClose: (() -> Unit)?,
     closePredictiveBackState: LegacyPortPredictiveBackState?,
     onTrackMoreClick: (MediaItem) -> Unit,
-    onLibraryNeeded: () -> Unit,
     onSearchClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -90,11 +89,6 @@ internal fun LegacyPortGenrePage(
     val selectedGenre = genres.firstOrNull { it.id == selectedGenreId }
     val detailPredictiveBackState = rememberLegacyPortPredictiveBackState()
 
-    LaunchedEffect(active) {
-        if (active) {
-            onLibraryNeeded()
-        }
-    }
     LaunchedEffect(active, libraryLoaded, visibleItems) {
         if (!active) {
             return@LaunchedEffect

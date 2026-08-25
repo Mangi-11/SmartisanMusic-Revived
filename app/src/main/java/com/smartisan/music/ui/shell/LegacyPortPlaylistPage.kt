@@ -144,7 +144,6 @@ internal fun LegacyPortPlaylistPage(
     hiddenMediaIds: Set<String>,
     onTrackMoreClick: (MediaItem) -> Unit,
     onAddModeActiveChanged: (Boolean) -> Unit,
-    onLibraryNeeded: () -> Unit,
     onSearchClick: () -> Unit,
     onClose: (() -> Unit)?,
     closePredictiveBackState: LegacyPortPredictiveBackState?,
@@ -236,11 +235,6 @@ internal fun LegacyPortPlaylistPage(
     }
     LaunchedEffect(addModeVisible) {
         onAddModeActiveChanged(addModeVisible)
-    }
-    LaunchedEffect(active, target, addMode) {
-        if (active && (target != null || addMode)) {
-            onLibraryNeeded()
-        }
     }
     DisposableEffect(Unit) {
         onDispose {
@@ -367,7 +361,6 @@ internal fun LegacyPortPlaylistPage(
                                 if (rootEditMode) {
                                     selectedPlaylistIds = selectedPlaylistIds.togglePlaylistSelection(playlist.id)
                                 } else {
-                                    onLibraryNeeded()
                                     target = LegacyPlaylistTarget(
                                         playlistId = playlist.id,
                                         title = playlist.name,
@@ -424,7 +417,6 @@ internal fun LegacyPortPlaylistPage(
                             },
                             onAddOrRemoveClick = {
                                 if (selectedTrackIds.isEmpty()) {
-                                    onLibraryNeeded()
                                     addModeTarget = target
                                     addModeReturnsToRoot = false
                                     addMode = true
@@ -557,7 +549,6 @@ internal fun LegacyPortPlaylistPage(
                                 detailEditMode = false
                                 selectedTrackIds = emptySet()
                                 if (visibleSongs.isNotEmpty() || !libraryLoaded) {
-                                    onLibraryNeeded()
                                     addModeTarget = createdTarget
                                     addModeReturnsToRoot = true
                                     target = null

@@ -31,7 +31,7 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.Music">
+            android:theme="@style/Theme.Music.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
