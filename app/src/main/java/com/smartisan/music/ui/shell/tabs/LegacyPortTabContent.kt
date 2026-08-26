@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.media3.common.MediaItem
 import com.smartisan.music.data.favorite.FavoriteSongRecord
 import com.smartisan.music.data.settings.ArtistSettings
@@ -102,6 +103,10 @@ internal fun LegacyPortTabContent(
             songsPageMounted = true
         }
     }
+    val activePageModifier = Modifier
+        .fillMaxSize()
+        .padding(bottom = playbackBarOverlayHeight)
+        .legacyPortPageLayer(active = true)
 
     Box(modifier = modifier) {
         if (songsPageMounted) {
@@ -116,7 +121,9 @@ internal fun LegacyPortTabContent(
                 onTrackMoreClick = onLibraryTrackMoreClick,
                 onRequestSongDeleteConfirmation = onRequestSongDeleteConfirmation,
                 playbackBarOverlayHeight = playbackBarOverlayHeight,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .legacyPortPageLayer(active = destination == MusicDestination.Songs),
             )
         }
 
@@ -140,7 +147,8 @@ internal fun LegacyPortTabContent(
             artistSettings = artistSettings,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = playbackBarOverlayHeight),
+                .padding(bottom = playbackBarOverlayHeight)
+                .legacyPortPageLayer(active = destination == MusicDestination.Album),
         )
 
         when (destination) {
@@ -163,9 +171,7 @@ internal fun LegacyPortTabContent(
                 onRequestAddToQueue = onRequestAddToQueue,
                 onTrackMoreClick = onLibraryTrackMoreClick,
                 artistSettings = artistSettings,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = playbackBarOverlayHeight),
+                modifier = activePageModifier,
             )
             MusicDestination.Playlist -> LegacyPortPlaylistPage(
                 mediaItems = mediaItems,
@@ -177,9 +183,7 @@ internal fun LegacyPortTabContent(
                 onSearchClick = onSearchClick,
                 onClose = onReturnToMore.takeIf { presentedFromMore },
                 closePredictiveBackState = moreDestinationPredictiveBackState.takeIf { presentedFromMore },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = playbackBarOverlayHeight),
+                modifier = activePageModifier,
             )
             MusicDestination.More -> LegacyPortMorePage(
                 active = true,
@@ -200,9 +204,7 @@ internal fun LegacyPortTabContent(
                 onThemeModeChange = onThemeModeChange,
                 onSettingsPageActiveChanged = onMoreSettingsPageActiveChanged,
                 onSearchClick = onSearchClick,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = playbackBarOverlayHeight),
+                modifier = activePageModifier,
             )
             MusicDestination.Genre -> LegacyPortGenrePage(
                 active = true,
@@ -213,9 +215,7 @@ internal fun LegacyPortTabContent(
                 closePredictiveBackState = moreDestinationPredictiveBackState.takeIf { presentedFromMore },
                 onTrackMoreClick = onLibraryTrackMoreClick,
                 onSearchClick = onSearchClick,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = playbackBarOverlayHeight),
+                modifier = activePageModifier,
             )
             MusicDestination.LovedSongs -> LegacyPortLovedSongsPage(
                 active = true,
@@ -227,9 +227,7 @@ internal fun LegacyPortTabContent(
                 closePredictiveBackState = moreDestinationPredictiveBackState.takeIf { presentedFromMore },
                 onTrackMoreClick = onLovedSongsTrackMoreClick,
                 onRemoveFavoriteMediaIds = onRemoveFavoriteMediaIds,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = playbackBarOverlayHeight),
+                modifier = activePageModifier,
             )
             MusicDestination.Folder -> LegacyPortFolderPage(
                 active = true,
@@ -241,10 +239,19 @@ internal fun LegacyPortTabContent(
                 onMediaIdsHidden = onMediaIdsHidden,
                 onRequestDeleteMediaIds = onRequestDeleteMediaIds,
                 onTrackMoreClick = onLibraryTrackMoreClick,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = playbackBarOverlayHeight),
+                modifier = activePageModifier,
             )
         }
     }
 }
+
+/**
+ * 常驻页面仍可在后台完成布局和封面预热，但只有当前页面进入交互层。
+ * 不依赖 [Box] 子项的声明顺序，避免隐藏的 AndroidView 宿主拦截活动页触摸。
+ */
+private fun Modifier.legacyPortPageLayer(active: Boolean): Modifier {
+    return zIndex(if (active) LegacyPortActivePageZIndex else LegacyPortCachedPageZIndex)
+}
+
+private const val LegacyPortCachedPageZIndex = 0f
+private const val LegacyPortActivePageZIndex = 1f
