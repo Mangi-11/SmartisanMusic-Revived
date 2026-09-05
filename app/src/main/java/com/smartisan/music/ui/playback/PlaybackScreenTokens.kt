@@ -103,7 +103,7 @@ internal const val PlaybackVisualPageExitDurationMillis = 180
 internal const val PlaybackVisualPageEnterDelayMillis = 40
 internal const val PlaybackLyricsActionEnterDelayMillis = 70
 
-internal val PlaybackLegacyDecelerateEasing = Easing { fraction ->
+internal val PlaybackControlEasing = Easing { fraction ->
     val inverse = 1f - fraction.coerceIn(0f, 1f)
     1f - inverse * inverse * inverse
 }
@@ -116,26 +116,31 @@ internal fun playbackEntranceProgress(
     if (durationMillis <= 0) {
         return 1f
     }
-    val linear = ((timeMillis - delayMillis.toFloat()) / durationMillis.toFloat())
-        .coerceIn(0f, 1f)
+    val linear = ((timeMillis - delayMillis.toFloat()) / durationMillis.toFloat()).coerceIn(0f, 1f)
     val inverse = 1f - linear
     return 1f - inverse * inverse * inverse
 }
 
 internal val PlaybackTitleStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 18.sp,
-        fontWeight = FontWeight.SemiBold,
-        color = PlaybackTitleColor,
-    )
+    @Composable
+    get() =
+        TextStyle(
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = PlaybackTitleColor,
+        )
 internal val PlaybackArtistStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 11.sp,
-        color = PlaybackSubtitleColor,
-    )
+    @Composable
+    get() =
+        TextStyle(
+            fontSize = 11.sp,
+            color = PlaybackSubtitleColor,
+        )
 internal val PlaybackTimeStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Normal,
-        color = PlaybackTimeColor,
-    )
+    @Composable
+    get() =
+        TextStyle(
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal,
+            color = PlaybackTimeColor,
+        )

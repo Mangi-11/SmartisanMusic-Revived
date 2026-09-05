@@ -6,7 +6,7 @@ import org.junit.Test
 class PlaybackScreenUtilsTest {
 
     @Test
-    fun `format playback time matches the legacy player labels`() {
+    fun `format playback time matches the player labels`() {
         assertEquals("0:00", formatPlaybackTime(-1L))
         assertEquals("1:05", formatPlaybackTime(65_000L))
         assertEquals("1:01:05", formatPlaybackTime(3_665_000L))

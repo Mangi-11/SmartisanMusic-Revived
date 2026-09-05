@@ -30,7 +30,7 @@ internal fun PlaybackMoreActionOverlays(
     onSleepTimerDismiss: () -> Unit,
     onSleepTimerDurationSelected: (Long) -> Unit,
 ) {
-    LegacyPlaybackMoreActionsOverlay(
+    PlaybackMoreActionsOverlay(
         visible = showMorePanel,
         favoriteEnabled = favoriteEnabled,
         visualPage = currentVisualPage,
@@ -38,30 +38,27 @@ internal fun PlaybackMoreActionOverlays(
         sleepTimerActive = sleepTimerActive,
         addToPlaylistEnabled = addToPlaylistEnabled,
         shareEnabled = shareEnabled,
-        callbacks = LegacyPlaybackMoreActionCallbacks(
-            onAddToPlaylistClick = onAddToPlaylistClick,
-            onAddToQueueClick = onAddToQueueClick,
-            onFavoriteToggle = onFavoriteToggle,
-            onShareClick = onShareClick,
-            onLyricsToggle = onLyricsToggle,
-            onSleepTimerClick = onSleepTimerClick,
-            onScratchToggle = onScratchToggle,
-            onDeleteClick = onDeleteClick,
-            onDismissRequest = onDismissMorePanel,
-        ),
-        modifier = Modifier
-            .fillMaxSize()
-            .zIndex(8f),
+        callbacks =
+            PlaybackMoreActionCallbacks(
+                onAddToPlaylistClick = onAddToPlaylistClick,
+                onAddToQueueClick = onAddToQueueClick,
+                onFavoriteToggle = onFavoriteToggle,
+                onShareClick = onShareClick,
+                onLyricsToggle = onLyricsToggle,
+                onSleepTimerClick = onSleepTimerClick,
+                onScratchToggle = onScratchToggle,
+                onDeleteClick = onDeleteClick,
+                onDismissRequest = onDismissMorePanel,
+            ),
+        modifier = Modifier.fillMaxSize().zIndex(8f),
     )
 
-    LegacyPlaybackSleepTimerDialog(
+    PlaybackSleepTimerDialog(
         visible = showSleepTimerDialog,
         state = sleepTimerState,
         bottomInsetPx = bottomInsetPx,
         onDismissRequest = onSleepTimerDismiss,
         onDurationSelected = onSleepTimerDurationSelected,
-        modifier = Modifier
-            .fillMaxSize()
-            .zIndex(9f),
+        modifier = Modifier.fillMaxSize().zIndex(9f),
     )
 }

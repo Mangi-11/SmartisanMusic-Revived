@@ -1,611 +1,194 @@
 package com.smartisan.music.ui.playlist
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
 import com.smartisan.music.R
-import com.smartisan.music.data.playlist.UserPlaylistSummary
-import com.smartisan.music.ui.components.SmartisanDialogCard
-import com.smartisan.music.ui.components.SmartisanDialogInsetDivider
-import com.smartisan.music.ui.components.SmartisanDialogTitleStyle
-
-private val ActionSheetShape = RectangleShape
-private val DialogTextFieldBorder: Color
-    @Composable get() = colorResource(R.color.input_border)
-private val DialogTextFieldBackground: Color
-    @Composable get() = colorResource(R.color.surface_raised)
-private val DialogPlaceholder: Color
-    @Composable get() = colorResource(R.color.text_tertiary)
-private val DialogPrimaryButtonColor: Color
-    @Composable get() = colorResource(R.color.accent_blue)
-private val DialogPrimaryPressedButton = Color(0xFF4F77D5)
-private val DialogPrimaryBorder = Color(0xFF4C73CF)
-private val DialogSecondaryBorder: Color
-    @Composable get() = colorResource(R.color.dialog_secondary_border)
-private val DialogSecondaryPressedBackground: Color
-    @Composable get() = colorResource(R.color.dialog_secondary_pressed)
-private val DialogButtonText: Color
-    @Composable get() = colorResource(R.color.text_button)
-private val ActionSheetScrim = Color(0x73000000)
-private val ActionSheetDivider: Color
-    @Composable get() = colorResource(R.color.action_sheet_divider)
-
-private val PlaylistActionSheetTitleStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 15.sp,
-        fontWeight = FontWeight.SemiBold,
-        color = colorResource(R.color.text_secondary),
-    )
-private val DialogTextFieldStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 16.sp,
-        color = colorResource(R.color.text_primary_strong),
-    )
-private val PlaylistPickerTitleStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Medium,
-        color = colorResource(R.color.text_primary),
-    )
-private val PlaylistPickerSubtitleStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 13.sp,
-        color = colorResource(R.color.text_subtitle_dim),
-    )
-private val PlaylistActionLabelStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 11.sp,
-        color = colorResource(R.color.text_secondary),
-    )
+import com.smartisan.music.ui.components.*
+import kotlinx.coroutines.delay
 
 @Composable
-internal fun PlaylistNameDialog(
-    title: String,
-    initialValue: String,
-    modifier: Modifier = Modifier,
-    confirmText: String = stringResource(R.string.continue_action),
-    selectAllOnOpen: Boolean = false,
+internal fun PlaylistNameDialogOverlay(
+    request: PlaylistNameDialogRequest?,
     onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit,
+    onConfirm: (PlaylistNameDialogRequest, String) -> Unit,
 ) {
-    var value by remember(initialValue, selectAllOnOpen) {
-        mutableStateOf(
-            TextFieldValue(
-                text = initialValue,
-                selection = if (selectAllOnOpen && initialValue.isNotEmpty()) {
-                    TextRange(0, initialValue.length)
-                } else {
-                    TextRange(initialValue.length)
-                },
-            ),
+    if (request == null) return
+    val title =
+        stringResource(
+            if (request is PlaylistNameDialogRequest.Create) request.titleRes
+            else R.string.playlist_rename_title
         )
-    }
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboardController?.show()
-    }
-
-    SmartisanDialogCard(
-        onDismiss = onDismiss,
-        modifier = modifier,
-        width = 308.dp,
-    ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 14.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                androidx.compose.material3.Text(
-                    text = title,
-                    style = SmartisanDialogTitleStyle,
+    val confirmText =
+        stringResource(
+            if (request is PlaylistNameDialogRequest.Create) R.string.rename_continue
+            else R.string.save
+        )
+    key(request) {
+        var value by
+            rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                mutableStateOf(
+                    TextFieldValue(request.initialName, TextRange(0, request.initialName.length))
                 )
             }
-            SmartisanDialogInsetDivider()
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 18.dp)
-                    .background(DialogTextFieldBackground, RoundedCornerShape(6.dp))
-                    .border(1.dp, DialogTextFieldBorder, RoundedCornerShape(6.dp))
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-            ) {
-                BasicTextField(
-                    value = value,
-                    onValueChange = { value = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    textStyle = DialogTextFieldStyle,
-                    singleLine = true,
-                    decorationBox = { innerTextField ->
-                        if (value.text.isEmpty()) {
-                            androidx.compose.material3.Text(
-                                text = initialValue,
-                                style = DialogTextFieldStyle,
-                                color = DialogPlaceholder,
-                            )
-                        }
-                        innerTextField()
-                    },
-                )
+        val focus = remember { FocusRequester() }
+        val enabled = value.text.isNotBlank()
+        SmartisanModal(
+            onDismiss,
+            Modifier.widthIn(max = dimensionResource(R.dimen.revone_global_dialog_content_width))
+                .fillMaxWidth(),
+        ) {
+            val keyboard = LocalSoftwareKeyboardController.current
+            LaunchedEffect(Unit) {
+                delay(300)
+                focus.requestFocus()
+                keyboard?.show()
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 0.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                DialogTextButton(
-                    text = stringResource(R.string.cancel),
-                    modifier = Modifier.weight(1f),
-                    onClick = onDismiss,
-                )
-                DialogPrimaryButton(
-                    text = confirmText,
-                    modifier = Modifier.weight(1f),
-                    onClick = { onConfirm(value.text) },
-                )
-            }
-            Spacer(modifier = Modifier.height(14.dp))
-        }
-    }
-}
-
-@Composable
-internal fun PlaylistPickerDialog(
-    playlists: List<UserPlaylistSummary>,
-    modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    onCreateNewPlaylist: () -> Unit,
-    onPlaylistSelected: (String) -> Unit,
-) {
-    SmartisanDialogCard(
-        onDismiss = onDismiss,
-        modifier = modifier,
-        width = 320.dp,
-    ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 14.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                androidx.compose.material3.Text(
-                    text = stringResource(R.string.playlist_picker_title),
-                    style = SmartisanDialogTitleStyle,
-                )
-            }
-            SmartisanDialogInsetDivider()
-            PlaylistPickerCreateRow(onClick = onCreateNewPlaylist)
-            SmartisanDialogInsetDivider()
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 320.dp),
-            ) {
-                itemsIndexed(
-                    items = playlists,
-                    key = { _, playlist -> playlist.id },
-                ) { index, playlist ->
-                    PlaylistPickerRow(
-                        playlist = playlist,
-                        onClick = { onPlaylistSelected(playlist.id) },
+            Column(
+                Modifier.fillMaxWidth()
+                    .smartisanPainterBackground(
+                        rememberSmartisanDrawablePainter(
+                            R.drawable.revone_global_dialog_shape_background
+                        )
                     )
-                    if (index < playlists.lastIndex) {
-                        SmartisanDialogInsetDivider()
+            ) {
+                Box(
+                    Modifier.fillMaxWidth()
+                        .height(dimensionResource(R.dimen.revone_dialog_button_height)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    BasicText(
+                        title,
+                        style =
+                            TextStyle(
+                                color = colorResource(R.color.status_bar_color_dialog),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                platformStyle = PlatformTextStyle(includeFontPadding = true),
+                            ),
+                    )
+                }
+                Box(
+                    Modifier.fillMaxWidth()
+                        .smartisanPainterBackground(
+                            rememberSmartisanDrawablePainter(
+                                R.drawable.revone_global_dialog_message_background
+                            )
+                        )
+                        .padding(18.dp)
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .height(40.dp)
+                            .smartisanPainterBackground(
+                                rememberSmartisanDrawablePainter(R.drawable.edit_text_bg)
+                            ),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        BasicTextField(
+                            value,
+                            { value = it },
+                            Modifier.weight(1f)
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                                .focusRequester(focus),
+                            singleLine = true,
+                            textStyle =
+                                TextStyle(
+                                    color = colorResource(R.color.editor_text_color),
+                                    fontSize = 15.sp,
+                                    platformStyle = PlatformTextStyle(includeFontPadding = true),
+                                ),
+                            cursorBrush = SolidColor(colorResource(R.color.editor_text_color)),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions =
+                                KeyboardActions(
+                                    onDone = { if (enabled) onConfirm(request, value.text) }
+                                ),
+                        )
+                        Image(
+                            rememberSmartisanDrawablePainter(R.drawable.quick_icon_delete),
+                            stringResource(R.string.delete),
+                            Modifier.size(32.dp).clickable(
+                                remember { MutableInteractionSource() },
+                                null,
+                            ) {
+                                value = TextFieldValue()
+                            },
+                            contentScale = ContentScale.Inside,
+                        )
                     }
+                }
+                Row(
+                    Modifier.fillMaxWidth()
+                        .height(dimensionResource(R.dimen.revone_dialog_button_height))
+                ) {
+                    SmartisanDialogButton(
+                        stringResource(android.R.string.cancel),
+                        onDismiss,
+                        Modifier.weight(1f).fillMaxHeight(),
+                        backgroundRes = R.drawable.revone_dialog_button_left_bg_selector,
+                        textColorRes = R.drawable.btn_text_color_selector,
+                    )
+                    Spacer(
+                        Modifier.width(1.dp)
+                            .fillMaxHeight()
+                            .smartisanPainterBackground(
+                                rememberSmartisanDrawablePainter(
+                                    R.drawable.revone_button_dialog_vertical_divider
+                                )
+                            )
+                    )
+                    SmartisanDialogButton(
+                        confirmText,
+                        { onConfirm(request, value.text) },
+                        Modifier.weight(1f).fillMaxHeight(),
+                        enabled,
+                        R.drawable.revone_dialog_button_right_bg_selector,
+                        R.color.blue_btn_text_color_selector,
+                    )
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun PlaylistTrackActionDialog(
-    modifier: Modifier = Modifier,
-    thirdActionText: String,
-    thirdActionIconRes: Int,
-    thirdActionPressedIconRes: Int,
+internal fun PlaylistDeleteDialog(
+    request: PlaylistDeleteRequest?,
     onDismiss: () -> Unit,
-    onAddToPlaylistClick: () -> Unit,
-    onAddToQueueClick: () -> Unit,
-    onThirdActionClick: () -> Unit,
+    onConfirm: (PlaylistDeleteRequest) -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-    )
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        modifier = modifier,
-        sheetState = sheetState,
-        sheetMaxWidth = Dp.Unspecified,
-        shape = ActionSheetShape,
-        containerColor = colorResource(R.color.surface_card),
-        tonalElevation = 0.dp,
-        scrimColor = ActionSheetScrim,
-        dragHandle = null,
-    ) {
-        PlaylistTrackActionSheetContent(
-            thirdActionText = thirdActionText,
-            thirdActionIconRes = thirdActionIconRes,
-            thirdActionPressedIconRes = thirdActionPressedIconRes,
-            onDismiss = onDismiss,
-            onAddToPlaylistClick = onAddToPlaylistClick,
-            onAddToQueueClick = onAddToQueueClick,
-            onThirdActionClick = onThirdActionClick,
-        )
-    }
-}
-
-@Composable
-private fun PlaylistTrackActionSheetContent(
-    thirdActionText: String,
-    thirdActionIconRes: Int,
-    thirdActionPressedIconRes: Int,
-    onDismiss: () -> Unit,
-    onAddToPlaylistClick: () -> Unit,
-    onAddToQueueClick: () -> Unit,
-    onThirdActionClick: () -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(51.dp),
-        ) {
-            Image(
-                painter = painterResource(R.drawable.more_select_titlebar_bg),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier.matchParentSize(),
-            )
-            androidx.compose.material3.Text(
-                text = stringResource(R.string.select_action),
-                style = PlaylistActionSheetTitleStyle,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.align(Alignment.Center),
-            )
-            PlaylistActionSheetCancelButton(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 8.dp),
-                onClick = onDismiss,
-            )
+    if (request == null) return
+    val title =
+        when (request) {
+            PlaylistDeleteRequest.RootSelected -> R.string.playlist_delete_confirm
+            PlaylistDeleteRequest.DetailPlaylist -> R.string.playlist_delete_single_confirm
+            PlaylistDeleteRequest.DetailTracks -> R.string.playlist_remove_song_confirm
         }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(ActionSheetDivider),
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(72.dp),
-        ) {
-            Image(
-                painter = painterResource(R.drawable.local_more_select_btn_bg),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier.matchParentSize(),
-            )
-            Image(
-                painter = painterResource(R.drawable.more_select_titlebar_bg_shadow),
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.TopStart),
-            )
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                PlaylistTrackActionButton(
-                    iconRes = R.drawable.more_select_icon_addlist,
-                    pressedIconRes = R.drawable.more_select_icon_addlist_down,
-                    text = stringResource(R.string.add_to_playlist),
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize(),
-                    onClick = onAddToPlaylistClick,
-                )
-                PlaylistTrackActionDivider()
-                PlaylistTrackActionButton(
-                    iconRes = R.drawable.more_select_icon_addplay,
-                    pressedIconRes = R.drawable.more_select_icon_addplay_down,
-                    text = stringResource(R.string.add_to_queue),
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize(),
-                    onClick = onAddToQueueClick,
-                )
-                PlaylistTrackActionDivider()
-                PlaylistTrackActionButton(
-                    iconRes = thirdActionIconRes,
-                    pressedIconRes = thirdActionPressedIconRes,
-                    text = thirdActionText,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize(),
-                    onClick = onThirdActionClick,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PlaylistPickerCreateRow(
-    onClick: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .background(if (pressed) colorResource(R.color.surface_pressed) else colorResource(R.color.surface_card))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-            )
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        androidx.compose.material3.Text(
-            text = stringResource(R.string.new_playlist),
-            style = PlaylistPickerTitleStyle,
-        )
-    }
-}
-
-@Composable
-private fun PlaylistTrackActionButton(
-    iconRes: Int,
-    pressedIconRes: Int,
-    text: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-
-    Column(
-        modifier = modifier
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-            )
-            .padding(top = 11.dp, bottom = 9.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Image(
-            painter = painterResource(if (pressed) pressedIconRes else iconRes),
-            contentDescription = null,
-            modifier = Modifier.height(24.dp),
-        )
-        Spacer(modifier = Modifier.height(5.dp))
-        androidx.compose.material3.Text(
-            text = text,
-            style = PlaylistActionLabelStyle,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
-}
-
-@Composable
-private fun PlaylistTrackActionDivider() {
-    Box(
-        modifier = Modifier
-            .width(1.dp)
-            .height(44.dp)
-            .background(ActionSheetDivider),
-    )
-}
-
-@Composable
-private fun PlaylistActionSheetCancelButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-
-    Box(
-        modifier = modifier
-            .width(67.dp)
-            .height(34.dp)
-            .background(
-                if (pressed) DialogSecondaryPressedBackground else colorResource(R.color.surface_card),
-                RoundedCornerShape(8.dp),
-            )
-            .border(1.dp, DialogSecondaryBorder, RoundedCornerShape(8.dp))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        androidx.compose.material3.Text(
-            text = stringResource(R.string.cancel),
-            style = DialogTextFieldStyle.copy(
-                fontSize = 14.sp,
-                color = DialogButtonText,
-                fontWeight = FontWeight.Medium,
-            ),
-        )
-    }
-}
-
-@Composable
-private fun PlaylistPickerRow(
-    playlist: UserPlaylistSummary,
-    onClick: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(if (pressed) colorResource(R.color.surface_pressed) else colorResource(R.color.surface_card))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-            )
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-    ) {
-        androidx.compose.material3.Text(
-            text = playlist.name,
-            style = PlaylistPickerTitleStyle,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        androidx.compose.material3.Text(
-            text = pluralStringResource(
-                R.plurals.playlist_song_count,
-                playlist.songCount,
-                playlist.songCount,
-            ),
-            style = PlaylistPickerSubtitleStyle,
-            modifier = Modifier.padding(top = 2.dp),
-        )
-    }
-}
-
-@Composable
-private fun DialogTextButton(
-    text: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-
-    Box(
-        modifier = modifier
-            .height(38.dp)
-            .background(
-                if (pressed) DialogSecondaryPressedBackground else colorResource(R.color.surface_card),
-                RoundedCornerShape(6.dp),
-            )
-            .border(1.dp, DialogSecondaryBorder, RoundedCornerShape(6.dp))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        androidx.compose.material3.Text(
-            text = text,
-            style = DialogTextFieldStyle.copy(
-                color = DialogButtonText,
-                fontWeight = FontWeight.Medium,
-            ),
-        )
-    }
-}
-
-@Composable
-private fun DialogPrimaryButton(
-    text: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-
-    Box(
-        modifier = modifier
-            .height(38.dp)
-            .background(
-                if (pressed) DialogPrimaryPressedButton else DialogPrimaryButtonColor,
-                RoundedCornerShape(6.dp),
-            )
-            .border(1.dp, DialogPrimaryBorder, RoundedCornerShape(6.dp))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        androidx.compose.material3.Text(
-            text = text,
-            style = DialogTextFieldStyle.copy(
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
-            ),
-        )
-    }
+    SmartisanDeleteConfirmation(stringResource(title), onDismiss, { onConfirm(request) })
 }

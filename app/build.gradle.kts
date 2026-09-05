@@ -26,7 +26,7 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -36,12 +36,6 @@ android {
     }
     buildFeatures {
         compose = true
-    }
-
-    lint {
-        // The legacy shell intentionally keeps platform View subclasses for 8.1.0 visual parity.
-        // AppCompat is used for DayNight theme switching, not as a replacement for those views.
-        disable += "AppCompatCustomView"
     }
 }
 
@@ -77,12 +71,17 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.dynamicanimation)
+    constraints {
+        implementation(libs.androidx.dynamicanimation) {
+            because("Align the transitive transition runtime with the title-bar reference test")
+        }
+    }
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.org.json)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.dynamicanimation)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

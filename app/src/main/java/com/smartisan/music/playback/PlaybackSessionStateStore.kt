@@ -19,9 +19,8 @@ private const val MediaIdSeparator = "\n"
 private const val QueueItemSeparator = "\n"
 private const val QueueItemFieldSeparator = "\t"
 
-private val Context.playbackSessionStateDataStore by preferencesDataStore(
-    name = PlaybackSessionStateStoreName,
-)
+private val Context.playbackSessionStateDataStore by
+    preferencesDataStore(name = PlaybackSessionStateStoreName)
 
 internal data class PlaybackSessionSnapshot(
     val mediaIds: List<String> = emptyList(),
@@ -40,19 +39,18 @@ internal data class PlaybackQueueSnapshotItem(
     val stableKey: String = "",
 )
 
-internal class PlaybackSessionStateStore(
-    private val context: Context,
-) {
+internal class PlaybackSessionStateStore(private val context: Context) {
 
-    val snapshot: Flow<PlaybackSessionSnapshot> = context.playbackSessionStateDataStore.data
-        .map { preferences ->
+    val snapshot: Flow<PlaybackSessionSnapshot> =
+        context.playbackSessionStateDataStore.data.map { preferences ->
             val mediaIds = preferences[MediaIdsKey].orEmpty().decodeMediaIds()
             PlaybackSessionSnapshot(
                 mediaIds = mediaIds,
-                queueItems = preferences[QueueItemsKey]
-                    ?.decodeQueueItemsFromStore()
-                    ?.takeIf(List<PlaybackQueueSnapshotItem>::isNotEmpty)
-                    ?: mediaIds.map { mediaId -> PlaybackQueueSnapshotItem(mediaId = mediaId) },
+                queueItems =
+                    preferences[QueueItemsKey]
+                        ?.decodeQueueItemsFromStore()
+                        ?.takeIf(List<PlaybackQueueSnapshotItem>::isNotEmpty)
+                        ?: mediaIds.map { mediaId -> PlaybackQueueSnapshotItem(mediaId = mediaId) },
                 currentMediaId = preferences[CurrentMediaIdKey]?.takeIf(String::isNotBlank),
                 currentIndex = preferences[CurrentIndexKey] ?: 0,
                 positionMs = preferences[PositionMsKey] ?: 0L,
@@ -79,17 +77,11 @@ internal class PlaybackSessionStateStore(
 }
 
 private fun List<String>.encodeMediaIds(): String {
-    return asSequence()
-        .map(String::trim)
-        .filter(String::isNotEmpty)
-        .joinToString(MediaIdSeparator)
+    return asSequence().map(String::trim).filter(String::isNotEmpty).joinToString(MediaIdSeparator)
 }
 
 private fun String.decodeMediaIds(): List<String> {
-    return lineSequence()
-        .map(String::trim)
-        .filter(String::isNotEmpty)
-        .toList()
+    return lineSequence().map(String::trim).filter(String::isNotEmpty).toList()
 }
 
 internal fun List<PlaybackQueueSnapshotItem>.encodeQueueItemsForStore(): String {
@@ -100,7 +92,7 @@ internal fun List<PlaybackQueueSnapshotItem>.encodeQueueItemsForStore(): String 
             array.put(
                 JSONObject()
                     .put(QueueItemMediaIdKey, item.mediaId.trim())
-                    .put(QueueItemStableKeyKey, item.stableKey.trim()),
+                    .put(QueueItemStableKeyKey, item.stableKey.trim())
             )
         }
     return array.toString()
@@ -114,10 +106,10 @@ internal fun String.decodeQueueItemsFromStore(): List<PlaybackQueueSnapshotItem>
     if (rawValue.startsWith("[")) {
         return decodeJsonQueueItems(rawValue)
     }
-    return decodeLegacyQueueItems()
+    return decodeVersionOneQueueItems()
 }
 
-private fun String.decodeLegacyQueueItems(): List<PlaybackQueueSnapshotItem> {
+private fun String.decodeVersionOneQueueItems(): List<PlaybackQueueSnapshotItem> {
     return lineSequence()
         .mapNotNull { line ->
             val parts = line.split(QueueItemFieldSeparator, limit = 2)
@@ -147,7 +139,7 @@ private fun decodeJsonQueueItems(rawValue: String): List<PlaybackQueueSnapshotIt
                 PlaybackQueueSnapshotItem(
                     mediaId = mediaId,
                     stableKey = root.optString(QueueItemStableKeyKey).trim(),
-                ),
+                )
             )
         }
     }

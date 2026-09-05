@@ -16,7 +16,9 @@ class GenreTagRepository(
     private val embeddedGenreReader: (MediaItem) -> String?,
 ) {
 
-    constructor(context: Context) : this(
+    constructor(
+        context: Context
+    ) : this(
         mediaStoreVersionProvider = {
             MediaStore.getVersion(context)
         },
@@ -28,24 +30,27 @@ class GenreTagRepository(
         },
     )
 
-    suspend fun loadGenres(mediaItems: List<MediaItem>): Map<String, String?> = withContext(Dispatchers.IO) {
-        val mediaStoreVersion = mediaStoreVersionProvider()
-        ensureCacheVersion(mediaStoreVersion)
-        primeCacheFromMediaStore(mediaStoreVersion)
+    suspend fun loadGenres(mediaItems: List<MediaItem>): Map<String, String?> =
+        withContext(Dispatchers.IO) {
+            val mediaStoreVersion = mediaStoreVersionProvider()
+            ensureCacheVersion(mediaStoreVersion)
+            primeCacheFromMediaStore(mediaStoreVersion)
 
-        buildMap(mediaItems.size) {
-            mediaItems.forEach { item ->
-                put(item.mediaId, loadGenre(mediaStoreVersion, item))
+            buildMap(mediaItems.size) {
+                mediaItems.forEach { item ->
+                    put(item.mediaId, loadGenre(mediaStoreVersion, item))
+                }
             }
         }
-    }
 
     private fun loadGenre(
         mediaStoreVersion: String,
         mediaItem: MediaItem,
     ): String? {
         synchronized(CacheLock) {
-            if (genreCache[mediaItem.mediaId] != null || mediaItem.mediaId in retrieverResolvedIds) {
+            if (
+                genreCache[mediaItem.mediaId] != null || mediaItem.mediaId in retrieverResolvedIds
+            ) {
                 return genreCache[mediaItem.mediaId]
             }
         }
@@ -67,9 +72,11 @@ class GenreTagRepository(
             }
         }
 
-        val resolvedGenres = runCatching {
-            mediaStoreGenreReader()
-        }.getOrNull() ?: return
+        val resolvedGenres =
+            runCatching {
+                mediaStoreGenreReader()
+            }
+                .getOrNull() ?: return
 
         synchronized(CacheLock) {
             ensureCacheVersion(mediaStoreVersion)
@@ -112,29 +119,31 @@ private fun queryMediaStoreGenres(context: Context): Map<String, String?> {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         Api30.queryGenres(context)
     } else {
-        queryLegacyMediaStoreGenres(context)
+        queryMediaStoreGenreMemberships(context)
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
 private object Api30 {
     fun queryGenres(context: Context): Map<String, String?> {
-        val projection = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.AudioColumns.GENRE,
-        )
+        val projection =
+            arrayOf(
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.AudioColumns.GENRE,
+            )
         val selection = buildString {
             append("${MediaStore.Audio.Media.IS_MUSIC} != 0")
             append(" AND ${MediaStore.Audio.Media.DURATION} > 0")
         }
 
-        val cursor = context.contentResolver.query(
-            audioMediaCollectionUri(),
-            projection,
-            selection,
-            null,
-            null,
-        ) ?: throw IllegalStateException("MediaStore genre query returned null cursor")
+        val cursor =
+            context.contentResolver.query(
+                audioMediaCollectionUri(),
+                projection,
+                selection,
+                null,
+                null,
+            ) ?: throw IllegalStateException("MediaStore genre query returned null cursor")
 
         cursor.use {
             val idColumn = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
@@ -154,17 +163,18 @@ private object Api30 {
     }
 }
 
-private fun queryLegacyMediaStoreGenres(context: Context): Map<String, String?> {
-    val genres = context.contentResolver.query(
-        MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,
-        arrayOf(
-            MediaStore.Audio.Genres._ID,
-            MediaStore.Audio.Genres.NAME,
-        ),
-        null,
-        null,
-        null,
-    ) ?: throw IllegalStateException("MediaStore genre query returned null cursor")
+private fun queryMediaStoreGenreMemberships(context: Context): Map<String, String?> {
+    val genres =
+        context.contentResolver.query(
+            MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,
+            arrayOf(
+                MediaStore.Audio.Genres._ID,
+                MediaStore.Audio.Genres.NAME,
+            ),
+            null,
+            null,
+            null,
+        ) ?: throw IllegalStateException("MediaStore genre query returned null cursor")
     val resolvedGenres = linkedMapOf<String, String?>()
 
     genres.use { genreCursor ->
@@ -177,15 +187,17 @@ private fun queryLegacyMediaStoreGenres(context: Context): Map<String, String?> 
         while (genreCursor.moveToNext()) {
             val genreId = genreCursor.getLong(genreIdColumn)
             val genreName = extractPrimaryGenre(genreCursor.getString(genreNameColumn))
-            val members = context.contentResolver.query(
-                MediaStore.Audio.Genres.Members.getContentUri(LegacyExternalVolume, genreId),
-                arrayOf(MediaStore.Audio.Genres.Members.AUDIO_ID),
-                null,
-                null,
-                null,
-            ) ?: continue
+            val members =
+                context.contentResolver.query(
+                    MediaStore.Audio.Genres.Members.getContentUri(ExternalVolume, genreId),
+                    arrayOf(MediaStore.Audio.Genres.Members.AUDIO_ID),
+                    null,
+                    null,
+                    null,
+                ) ?: continue
             members.use { memberCursor ->
-                val audioIdColumn = memberCursor.getColumnIndex(MediaStore.Audio.Genres.Members.AUDIO_ID)
+                val audioIdColumn =
+                    memberCursor.getColumnIndex(MediaStore.Audio.Genres.Members.AUDIO_ID)
                 if (audioIdColumn != -1) {
                     while (memberCursor.moveToNext()) {
                         resolvedGenres.putIfAbsent(
@@ -201,7 +213,7 @@ private fun queryLegacyMediaStoreGenres(context: Context): Map<String, String?> 
     return resolvedGenres
 }
 
-private const val LegacyExternalVolume = "external"
+private const val ExternalVolume = "external"
 
 private fun readEmbeddedGenre(
     context: Context,
@@ -213,12 +225,13 @@ private fun readEmbeddedGenre(
             try {
                 retriever.setDataSource(context, mediaUri)
                 extractPrimaryGenre(
-                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE),
+                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
                 )
             } finally {
                 retriever.release()
             }
-        }.getOrNull()
+        }
+            .getOrNull()
     }
 }
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AAPT supplies sorted framework attributes and stable TypedArray indices. -->
+    <declare-styleable name="SmartisanScrollbar">
+        <attr name="android:scrollbarThumbVertical" />
+        <attr name="android:scrollbarTrackVertical" />
+        <attr name="android:scrollbarSize" />
+        <attr name="android:scrollbarDefaultDelayBeforeFade" />
+        <attr name="android:scrollbarFadeDuration" />
+        <attr name="android:fadeScrollbars" />
+        <attr name="android:scrollbarAlwaysDrawVerticalTrack" />
+    </declare-styleable>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quickbar_description">Alphabet shortcuts</string>
+    <string name="quickbar_expand">Expand alphabet grid</string>
+    <string name="quickbar_collapse">Collapse alphabet grid</string>
+</resources>

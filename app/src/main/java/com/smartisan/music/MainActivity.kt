@@ -26,7 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.smartisan.music.data.settings.ThemeSettingsStore
-import com.smartisan.music.ui.shell.LegacyPortMainShell
+import com.smartisan.music.ui.shell.MusicAppShell
 import com.smartisan.music.ui.theme.MusicTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -41,7 +41,8 @@ class MainActivity : AppCompatActivity() {
         val themeSettingsStore = ThemeSettingsStore(this)
         AppCompatDelegate.setDefaultNightMode(themeSettingsStore.currentMode().appCompatNightMode)
         val splashScreen = installSplashScreen()
-        // Android SplashScreen guidance checked 2026-08-25: the per-frame predicate only reads memory state.
+        // Android SplashScreen guidance checked 2026-08-25: the per-frame predicate only reads
+        // memory state.
         splashScreen.setKeepOnScreenCondition { !startupContentReady }
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
@@ -56,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             MusicTheme(dynamicColor = false) {
                 RequestAudioPermissionOnLaunch()
-                LegacyPortMainShell(
+                MusicAppShell(
                     playbackLaunchRequest = playbackLaunchRequest,
                     externalAudioLaunchRequest = externalAudioLaunchRequest,
                     onExternalAudioLaunchConsumed = ::clearExternalAudioLaunchRequest,
@@ -94,15 +95,16 @@ class MainActivity : AppCompatActivity() {
         val externalAudioMimeType = launchIntent.resolveType(contentResolver)
         if (
             isExternalAudioLaunchIntent(launchIntent, externalAudioMimeType) &&
-            !isConsumedExternalAudioLaunchIntent(launchIntent)
+                !isConsumedExternalAudioLaunchIntent(launchIntent)
         ) {
             externalAudioLaunchRequestId += 1
-            externalAudioLaunchRequest = ExternalAudioLaunchRequest(
-                requestId = externalAudioLaunchRequestId,
-                uri = requireNotNull(launchIntent.data),
-                mimeType = externalAudioMimeType,
-                displayName = resolveExternalAudioDisplayName(launchIntent.data),
-            )
+            externalAudioLaunchRequest =
+                ExternalAudioLaunchRequest(
+                    requestId = externalAudioLaunchRequestId,
+                    uri = requireNotNull(launchIntent.data),
+                    mimeType = externalAudioMimeType,
+                    displayName = resolveExternalAudioDisplayName(launchIntent.data),
+                )
             launchIntent.putExtra(ExtraExternalAudioConsumed, true)
         }
     }
@@ -124,28 +126,31 @@ class MainActivity : AppCompatActivity() {
                     null,
                     null,
                 )
-            }.getOrNull()?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val column = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (column >= 0) {
-                        return cursor.getString(column)?.takeIf(String::isNotBlank)
+            }
+                .getOrNull()
+                ?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val column = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        if (column >= 0) {
+                            return cursor.getString(column)?.takeIf(String::isNotBlank)
+                        }
                     }
                 }
-            }
         }
-        return uri.lastPathSegment
-            ?.substringAfterLast('/')
-            ?.takeIf(String::isNotBlank)
+        return uri.lastPathSegment?.substringAfterLast('/')?.takeIf(String::isNotBlank)
     }
 
     companion object {
         private const val ActionOpenPlayback = "com.smartisan.music.action.OPEN_PLAYBACK"
         private const val ExtraOpenPlayback = "com.smartisan.music.extra.OPEN_PLAYBACK"
-        private const val ExtraOpenPlaybackConsumed = "com.smartisan.music.extra.OPEN_PLAYBACK_CONSUMED"
-        private const val ExtraExternalAudioConsumed = "com.smartisan.music.extra.EXTERNAL_AUDIO_CONSUMED"
+        private const val ExtraOpenPlaybackConsumed =
+            "com.smartisan.music.extra.OPEN_PLAYBACK_CONSUMED"
+        private const val ExtraExternalAudioConsumed =
+            "com.smartisan.music.extra.EXTERNAL_AUDIO_CONSUMED"
         private const val ContentScheme = "content"
         private const val FileScheme = "file"
         private const val StartupSplashTimeoutMillis = 2_500L
+
         fun createOpenPlaybackIntent(context: Context): Intent {
             return Intent(context, MainActivity::class.java).apply {
                 action = ActionOpenPlayback
@@ -168,12 +173,10 @@ class MainActivity : AppCompatActivity() {
             val normalizedMimeType = mimeType?.lowercase() ?: return false
             return intent.action == Intent.ACTION_VIEW &&
                 uri.scheme in setOf(ContentScheme, FileScheme) &&
-                (
-                    normalizedMimeType.startsWith("audio/") ||
-                        normalizedMimeType == "application/ogg" ||
-                        normalizedMimeType == "application/x-ogg" ||
-                        normalizedMimeType == "application/itunes"
-                    )
+                (normalizedMimeType.startsWith("audio/") ||
+                    normalizedMimeType == "application/ogg" ||
+                    normalizedMimeType == "application/x-ogg" ||
+                    normalizedMimeType == "application/itunes")
         }
 
         private fun isConsumedExternalAudioLaunchIntent(intent: Intent?): Boolean {
@@ -185,17 +188,20 @@ class MainActivity : AppCompatActivity() {
 @Composable
 private fun RequestAudioPermissionOnLaunch() {
     val context = LocalContext.current
-    val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Manifest.permission.READ_MEDIA_AUDIO
-    } else {
-        Manifest.permission.READ_EXTERNAL_STORAGE
-    }
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-    ) { }
+    val permission =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_AUDIO
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+    val permissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {}
 
     LaunchedEffect(permission) {
-        if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+        if (
+            ContextCompat.checkSelfPermission(context, permission) !=
+                PackageManager.PERMISSION_GRANTED
+        ) {
             permissionLauncher.launch(permission)
         }
     }

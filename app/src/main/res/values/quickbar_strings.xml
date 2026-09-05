@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quickbar_description">字母快捷栏</string>
+    <string name="quickbar_expand">展开字母网格</string>
+    <string name="quickbar_collapse">收起字母网格</string>
+</resources>

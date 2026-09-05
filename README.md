@@ -19,7 +19,7 @@
 
 锤子音乐是这种理念很完整的一次表达。黑胶唱盘、唱针、搓碟和爆豆音让数字音乐重新变成可以触碰的东西，歌曲、专辑和资料库又始终保持清楚、克制。它有拟物的趣味，却不该为了表演牺牲播放和管理；真正值得保留的，正是质感、秩序与实用性之间的平衡。
 
-Smartisan OS 已经退出历史舞台，本项目因此以锤子音乐 8.1.0 为视觉与交互基准，使用现代 Android 技术栈重新实现这款本地音乐播放器。界面尽可能保留原版 XML、Drawable、NinePatch、Selector、动画节奏与控件层级，媒体扫描、后台播放、队列、收藏、播放列表和数据持久化则全部基于公开 Android API 重写。应用只读取和播放设备上的音频文件，不内置内容曲库、账号体系或媒体分发服务。
+Smartisan OS 已经退出历史舞台，本项目因此以锤子音乐 8.1.0 为视觉与交互基准，使用现代 Android 技术栈重新实现这款本地音乐播放器。界面已完整迁移到 Jetpack Compose，以迁移前经过校准的实现为基线，继续保留 Drawable、NinePatch、Selector、动画节奏和布局比例；媒体扫描、后台播放、队列、收藏、播放列表和数据持久化则全部基于公开 Android API 重写。应用只读取和播放设备上的音频文件，不内置内容曲库、账号体系或媒体分发服务。
 
 ## 相较原版的改进
 
@@ -33,7 +33,7 @@ Smartisan OS 已经退出历史舞台，本项目因此以锤子音乐 8.1.0 为
 - **适配 Android 8.1 及以上版本**：为新旧存储模型、系统栏、手势导航、刘海、WindowInsets 和预测性返回分别提供兼容路径，同时保持原版页面比例与视觉语言。
 - **现代数据架构**：使用 Room、DataStore、Coroutines 和 StateFlow 管理资料库、收藏、播放列表、设置及播放状态，不依赖 Smartisan OS 私有服务或系统签名能力。
 - **清理历史包袱**：业务源码全部使用 Kotlin，只保留当前实现需要的资源和公开 API，不携带原版后台服务、旧数据库或旧设置迁移代码。
-- **新增主题选择**：支持跟随系统、浅色模式和深色模式，主题页复用音效设置的单选列表。视觉仍由 `values-night` 与 `drawable-night` 同名变体驱动；原版 8.1.0 没有深色模式，夜间视觉属于本项目的自创设计：炭灰色板取自同为复刻项目的锤子天气（页底 `#25282D`、标题栏 `#292C31`、卡片 `#34373C`），夜间位图由 `tools/generate_night_drawables.py` 从原版位图等比压暗或反白生成（保留 alpha 与 nine-patch 标记，可重复执行），红蓝品牌强调色深浅主题通用。
+- **新增主题选择**：支持跟随系统、浅色模式和深色模式，主题页以 Compose 复现现有设置单选列表。视觉仍由 `values-night` 与 `drawable-night` 同名变体驱动；原版 8.1.0 没有深色模式，夜间视觉属于本项目的自创设计：炭灰色板取自同为复刻项目的锤子天气（页底 `#25282D`、标题栏 `#292C31`、卡片 `#34373C`），夜间位图由 `tools/generate_night_drawables.py` 从原版位图等比压暗或反白生成（保留 alpha 与 nine-patch 标记，可重复执行），红蓝品牌强调色深浅主题通用。
 
 ## 当前功能
 
@@ -52,6 +52,12 @@ Smartisan OS 已经退出历史舞台，本项目因此以锤子音乐 8.1.0 为
 - 外部音频打开、音频文件分享和 MediaStore 媒体删除
 - 自定义艺术家分隔符、底部导航顺序与固定项，以及应用图标
 
+## Compose 迁移
+
+主壳、资料库、搜索、收藏、播放列表、设置、播放队列和播放页控件均已使用 Compose。旧 XML 布局、View 控件和 adapter 已移除，页面按功能组织，公共组件承载 Smartisan 的资源绘制、标题栏和交互规则。Media3、Room、DataStore、资料库及播放会话继续沿用现有实现。
+
+代码迁移已完成，已根据真机反馈修复底栏遮挡页面的布局回归。自动测试与设备检查结果见 [迁移记录](docs/compose-migration.md#交付记录)；完整视觉、触觉和关键交互仍需逐项验收。当前包边界与状态归属见 [UI 架构](docs/ui-architecture.md)。
+
 ## 本地媒体与权限
 
 应用的最终 Manifest 不包含 `INTERNET` 权限，运行时不依赖网络，也不会上传歌曲、封面、歌词或资料库信息。
@@ -63,6 +69,8 @@ Smartisan OS 已经退出历史舞台，本项目因此以锤子音乐 8.1.0 为
 - 应用不申请修改系统设置、定位、相机、麦克风、通讯录、短信、悬浮窗或无障碍权限。
 
 ## 真机截图
+
+以下为迁移前已校准版本的真机截图，用作视觉基线；Compose 版本的设备对照仍待验收。
 
 <p align="center">
   <img src="docs/images/screenshot-playback.jpg" width="200" alt="锤子音乐播放页面" />
@@ -78,7 +86,7 @@ Smartisan OS 已经退出历史舞台，本项目因此以锤子音乐 8.1.0 为
 | --- | --- |
 | 构建 | Android Gradle Plugin `9.2.1`、Gradle `9.4.1`、JDK 21（Java 11 字节码） |
 | 语言 | Kotlin `2.4.0` |
-| UI | XML Layout、Android View、自定义 View、Jetpack Compose |
+| UI | Jetpack Compose、自定义 Smartisan 组件、Drawable / NinePatch 资源绘制 |
 | 播放 | Media3 `1.10.1`、ExoPlayer、MediaLibraryService、MediaSession |
 | 状态 | Lifecycle、StateFlow、Coroutines |
 | 存储 | Room `2.8.4`、DataStore `1.2.1`、MediaStore |
@@ -100,7 +108,9 @@ Debug APK 位于 `app/build/outputs/apk/debug/`。
 ./gradlew assembleRelease
 ```
 
-Release APK 位于 `app/build/outputs/apk/release/SmartisanMusic-Revived-0.2.0.apk`。
+Release APK 位于 `app/build/outputs/apk/release/`，文件名为 `SmartisanMusic-Revived-<versionName>.apk`，版本由 [app/build.gradle.kts](app/build.gradle.kts) 定义。
+
+Compose UI 测试可通过 `./gradlew assembleDebugAndroidTest` 构建；这条命令不执行设备测试。完整验证命令和真机回归清单见 [Compose 迁移记录](docs/compose-migration.md)。
 
 ## 致谢
 

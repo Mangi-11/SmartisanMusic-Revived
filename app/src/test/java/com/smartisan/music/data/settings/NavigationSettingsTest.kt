@@ -9,7 +9,7 @@ import com.smartisan.music.ui.navigation.MaxBottomDestinationCount
 import com.smartisan.music.ui.navigation.MinBottomDestinationCount
 import com.smartisan.music.ui.navigation.MusicDestination
 import com.smartisan.music.ui.navigation.NavigationLayout
-import com.smartisan.music.ui.navigation.navigationLayoutFromLegacyHiddenTabs
+import com.smartisan.music.ui.navigation.navigationLayoutFromHiddenTabs
 import com.smartisan.music.ui.navigation.normalizedNavigationLayout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -45,10 +45,12 @@ class NavigationSettingsTest {
 
     @Test
     fun swapAcrossBoundaryKeepsZoneSizes() {
-        val swapped = NavigationLayout().swap(
-            MusicDestination.Playlist,
-            MusicDestination.Genre,
-        )
+        val swapped =
+            NavigationLayout()
+                .swap(
+                    MusicDestination.Playlist,
+                    MusicDestination.Genre,
+                )
 
         assertEquals(MusicDestination.Genre, swapped.bottomDestinations.first())
         assertEquals(MusicDestination.Playlist, swapped.overflowDestinations.first())
@@ -57,10 +59,12 @@ class NavigationSettingsTest {
 
     @Test
     fun swappingWithinZoneChangesOnlyOrder() {
-        val swapped = NavigationLayout().swap(
-            MusicDestination.Artist,
-            MusicDestination.Songs,
-        )
+        val swapped =
+            NavigationLayout()
+                .swap(
+                    MusicDestination.Artist,
+                    MusicDestination.Songs,
+                )
 
         assertEquals(
             listOf(
@@ -145,10 +149,11 @@ class NavigationSettingsTest {
 
     @Test
     fun normalizationDropsUnknownsAndDuplicatesAndAppendsMissingRoutes() {
-        val normalized = normalizedNavigationLayout(
-            routes = listOf("folder", "unknown", "folder", "songs"),
-            bottomCount = 99,
-        )
+        val normalized =
+            normalizedNavigationLayout(
+                routes = listOf("folder", "unknown", "folder", "songs"),
+                bottomCount = 99,
+            )
 
         assertEquals(MusicDestination.Folder, normalized.orderedDestinations[0])
         assertEquals(MusicDestination.Songs, normalized.orderedDestinations[1])
@@ -157,10 +162,9 @@ class NavigationSettingsTest {
     }
 
     @Test
-    fun legacyHiddenTabsBecomeOverflowInsteadOfUnreachableDestinations() {
-        val migrated = navigationLayoutFromLegacyHiddenTabs(
-            hiddenRoutes = setOf(MusicDestination.Album.route),
-        )
+    fun hiddenTabsBecomeOverflowInsteadOfUnreachableDestinations() {
+        val migrated =
+            navigationLayoutFromHiddenTabs(hiddenRoutes = setOf(MusicDestination.Album.route))
 
         assertFalse(migrated.isPinned(MusicDestination.Album))
         assertTrue(MusicDestination.Album in migrated.overflowDestinations)
@@ -168,20 +172,22 @@ class NavigationSettingsTest {
     }
 
     @Test
-    fun legacyMigrationRestoresMinimumTwoContentDestinations() {
-        val migrated = navigationLayoutFromLegacyHiddenTabs(
-            hiddenRoutes = DefaultDestinationOrder.map(MusicDestination::route).toSet(),
-        )
+    fun migrationRestoresMinimumTwoContentDestinations() {
+        val migrated =
+            navigationLayoutFromHiddenTabs(
+                hiddenRoutes = DefaultDestinationOrder.map(MusicDestination::route).toSet()
+            )
 
         assertEquals(MinBottomDestinationCount, migrated.bottomCount)
         assertEquals(3, migrated.bottomDestinations.size)
     }
 
     @Test
-    fun storedLegacyHiddenTabsUseTheCompatibilityMigration() {
-        val preferences = mutablePreferencesOf(
-            stringSetPreferencesKey("hidden_tabs") to setOf(MusicDestination.Album.route),
-        )
+    fun storedHiddenTabsUseTheCompatibilityMigration() {
+        val preferences =
+            mutablePreferencesOf(
+                stringSetPreferencesKey("hidden_tabs") to setOf(MusicDestination.Album.route)
+            )
 
         val layout = preferences.toNavigationSettings().layout
 
@@ -190,20 +196,23 @@ class NavigationSettingsTest {
     }
 
     @Test
-    fun versionTwoLayoutTakesPrecedenceOverLegacyHiddenTabs() {
-        val preferences = mutablePreferencesOf(
-            stringPreferencesKey("ordered_routes_v2") to listOf(
-                MusicDestination.Folder,
-                MusicDestination.Songs,
-                MusicDestination.Playlist,
-                MusicDestination.Artist,
-                MusicDestination.Album,
-                MusicDestination.Genre,
-                MusicDestination.LovedSongs,
-            ).joinToString("|") { it.route },
-            intPreferencesKey("bottom_count_v2") to MinBottomDestinationCount,
-            stringSetPreferencesKey("hidden_tabs") to setOf(MusicDestination.Folder.route),
-        )
+    fun versionTwoLayoutTakesPrecedenceOverHiddenTabs() {
+        val preferences =
+            mutablePreferencesOf(
+                stringPreferencesKey("ordered_routes_v2") to
+                    listOf(
+                            MusicDestination.Folder,
+                            MusicDestination.Songs,
+                            MusicDestination.Playlist,
+                            MusicDestination.Artist,
+                            MusicDestination.Album,
+                            MusicDestination.Genre,
+                            MusicDestination.LovedSongs,
+                        )
+                        .joinToString("|") { it.route },
+                intPreferencesKey("bottom_count_v2") to MinBottomDestinationCount,
+                stringSetPreferencesKey("hidden_tabs") to setOf(MusicDestination.Folder.route),
+            )
 
         val layout = preferences.toNavigationSettings().layout
 
@@ -213,21 +222,23 @@ class NavigationSettingsTest {
 
     @Test
     fun rememberedPinnedDestinationRestoresAsBottomDestination() {
-        val settings = NavigationSettings(
-            layout = NavigationLayout(),
-            lastDestination = MusicDestination.Songs,
-            lastPresentedFromMore = true,
-        )
+        val settings =
+            NavigationSettings(
+                layout = NavigationLayout(),
+                lastDestination = MusicDestination.Songs,
+                lastPresentedFromMore = true,
+            )
 
         assertEquals(MusicDestination.Songs to false, settings.restoredDestination())
     }
 
     @Test
     fun rememberedOverflowDestinationRestoresFromMore() {
-        val settings = NavigationSettings(
-            layout = NavigationLayout(),
-            lastDestination = MusicDestination.Genre,
-        )
+        val settings =
+            NavigationSettings(
+                layout = NavigationLayout(),
+                lastDestination = MusicDestination.Genre,
+            )
 
         assertEquals(MusicDestination.Genre to true, settings.restoredDestination())
     }

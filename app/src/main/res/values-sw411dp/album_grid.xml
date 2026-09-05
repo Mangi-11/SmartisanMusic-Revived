@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="gridview_item_ccontainer_height">132.0dp</dimen>
+</resources>

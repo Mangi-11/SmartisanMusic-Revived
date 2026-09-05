@@ -2,29 +2,21 @@ package com.smartisan.music.ui.playback
 
 import android.os.SystemClock
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -64,7 +55,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.media3.common.Player
 import com.smartisan.music.R
 import com.smartisan.music.playback.EmbeddedLyrics
 import com.smartisan.music.playback.EmbeddedLyricsLine
@@ -78,39 +68,22 @@ import kotlinx.coroutines.flow.first
 // - lrc_item_layout.xml: text_size_lryric=15sp and lineSpacingExtra=6dp
 // - values-xxhdpi-v4/dimens.xml: lrc_horizontal_padding=53.599976dp
 private val PlaybackLyricsPrimaryStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 15.sp,
-        fontWeight = FontWeight.Medium,
-        color = colorResource(R.color.panel_action_text),
-        textAlign = TextAlign.Center,
-    )
+    @Composable
+    get() =
+        TextStyle(
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            color = colorResource(R.color.panel_action_text),
+            textAlign = TextAlign.Center,
+        )
 private val PlaybackLyricsSecondaryStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 15.sp,
-        color = colorResource(R.color.panel_item_text),
-        textAlign = TextAlign.Center,
-    )
-private val PlaybackMoreActionTitleStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 15.sp,
-        color = colorResource(R.color.text_secondary),
-        textAlign = TextAlign.Center,
-    )
-private val PlaybackMoreActionButtonStyle: TextStyle
-    @Composable get() = TextStyle(
-        fontSize = 11.sp,
-        color = colorResource(R.color.text_secondary),
-        textAlign = TextAlign.Center,
-    )
-private val PlaybackMoreActionSelectedColor: Color
-    @Composable get() = colorResource(R.color.accent_blue_selected)
-private val PlaybackMoreActionDividerColor: Color
-    @Composable get() = colorResource(R.color.divider_panel)
-private val PlaybackMoreActionTitleHeight = 51.dp
-private val PlaybackMoreActionRowHeight = 72.dp
-private val PlaybackMoreActionIconSize = 24.dp
-private val PlaybackMoreActionCancelWidth = 54.dp
-private val PlaybackMoreActionCancelHeight = 32.dp
+    @Composable
+    get() =
+        TextStyle(
+            fontSize = 15.sp,
+            color = colorResource(R.color.panel_item_text),
+            textAlign = TextAlign.Center,
+        )
 private val PlaybackLyricsHorizontalPadding = 53.6.dp
 private val PlaybackLyricsLineSpacing = 4.dp
 private val PlaybackLyricsRowHeight = 24.dp
@@ -134,23 +107,24 @@ internal fun PlaybackBottomControls(
 ) {
     val density = LocalDensity.current
     val bottomSpacing = playbackBottomControlsBottomSpacing(bottomInset)
-    val volumeEntranceProgress = playbackEntranceProgress(
-        timeMillis = entranceTimeMillis,
-        delayMillis = PlaybackVolumeEntranceDelayMillis,
-        durationMillis = PlaybackControlEntranceDurationMillis,
-    )
-    val controlEntranceOffsetPx = with(density) {
-        PlaybackControlEntranceOffset.roundToPx().toFloat()
-    }
+    val volumeEntranceProgress =
+        playbackEntranceProgress(
+            timeMillis = entranceTimeMillis,
+            delayMillis = PlaybackVolumeEntranceDelayMillis,
+            durationMillis = PlaybackControlEntranceDurationMillis,
+        )
+    val controlEntranceOffsetPx =
+        with(density) {
+            PlaybackControlEntranceOffset.roundToPx().toFloat()
+        }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Column(
-            modifier = Modifier
-                .width(width)
-                .padding(bottom = PlaybackBottomControlsContentBottomPadding),
+            modifier =
+                Modifier.width(width).padding(bottom = PlaybackBottomControlsContentBottomPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             PlaybackControlButtons(
@@ -166,9 +140,8 @@ internal fun PlaybackBottomControls(
                 onShuffleClick = onShuffleClick,
             )
             PlaybackVolumeBar(
-                modifier = Modifier
-                    .padding(top = PlaybackBottomControlsVolumeTopPadding)
-                    .graphicsLayer {
+                modifier =
+                    Modifier.padding(top = PlaybackBottomControlsVolumeTopPadding).graphicsLayer {
                         translationY = (1f - volumeEntranceProgress) * controlEntranceOffsetPx
                     },
                 width = width,
@@ -181,8 +154,9 @@ internal fun PlaybackBottomControls(
 }
 
 private fun playbackBottomControlsBottomSpacing(bottomInset: Dp): Dp {
-    return (PlaybackBottomControlsBottomSpacing + bottomInset)
-        .coerceAtLeast(PlaybackBottomControlsMinimumBottomSpacing)
+    return (PlaybackBottomControlsBottomSpacing + bottomInset).coerceAtLeast(
+        PlaybackBottomControlsMinimumBottomSpacing
+    )
 }
 
 @Composable
@@ -194,59 +168,65 @@ internal fun PlaybackLyricsOverlay(
     modifier: Modifier = Modifier,
 ) {
     val lyricsTimingKey = if (lyrics?.isTimeSynced == true) currentPositionMs else Long.MIN_VALUE
-    val renderModel = remember(lyrics, fallbackLines, lyricsTimingKey) {
-        buildPlaybackLyricsRenderModel(
-            lyrics = lyrics,
-            fallbackLines = fallbackLines,
-            currentPositionMs = currentPositionMs,
-        )
-    }
+    val renderModel =
+        remember(lyrics, fallbackLines, lyricsTimingKey) {
+            buildPlaybackLyricsRenderModel(
+                lyrics = lyrics,
+                fallbackLines = fallbackLines,
+                currentPositionMs = currentPositionMs,
+            )
+        }
 
     key(mediaId, lyrics, fallbackLines) {
         val listState = rememberLazyListState()
         val autoFollowState = remember { PlaybackLyricsAutoFollowState() }
-        val manualScrollConnection = remember(renderModel.mode, autoFollowState) {
-            object : NestedScrollConnection {
-                override fun onPreScroll(
-                    available: Offset,
-                    source: NestedScrollSource,
-                ): Offset {
-                    if (
-                        renderModel.mode == PlaybackLyricsMode.Timed &&
-                        source == NestedScrollSource.UserInput &&
-                        available.y != 0f
-                    ) {
-                        autoFollowState.suspendForManualScroll()
+        val manualScrollConnection =
+            remember(renderModel.mode, autoFollowState) {
+                object : NestedScrollConnection {
+                    override fun onPreScroll(
+                        available: Offset,
+                        source: NestedScrollSource,
+                    ): Offset {
+                        if (
+                            renderModel.mode == PlaybackLyricsMode.Timed &&
+                                source == NestedScrollSource.UserInput &&
+                                available.y != 0f
+                        ) {
+                            autoFollowState.suspendForManualScroll()
+                        }
+                        return Offset.Zero
                     }
-                    return Offset.Zero
-                }
 
-                override suspend fun onPreFling(available: Velocity): Velocity {
-                    if (renderModel.mode == PlaybackLyricsMode.Timed && available.y != 0f) {
-                        autoFollowState.suspendForManualScroll()
+                    override suspend fun onPreFling(available: Velocity): Velocity {
+                        if (renderModel.mode == PlaybackLyricsMode.Timed && available.y != 0f) {
+                            autoFollowState.suspendForManualScroll()
+                        }
+                        return Velocity.Zero
                     }
-                    return Velocity.Zero
                 }
             }
-        }
 
         BoxWithConstraints(modifier = modifier) {
-            val centerPadding = remember(maxHeight, renderModel) {
-                val focusRowHeight = renderModel.lines
-                    .getOrNull(renderModel.focusIndex)
-                    ?.rowHeight()
-                    ?: PlaybackLyricsRowHeight
-                ((maxHeight - focusRowHeight) / 2f).coerceAtLeast(0.dp)
-            }
-            val visualCenterIndex by remember(listState, renderModel) {
-                derivedStateOf {
-                    if (renderModel.mode != PlaybackLyricsMode.Static && !autoFollowState.suspended) {
-                        renderModel.alphaAnchorIndex
-                    } else {
-                        listState.centeredVisibleItemIndex(renderModel.alphaAnchorIndex)
+            val centerPadding =
+                remember(maxHeight, renderModel) {
+                    val focusRowHeight =
+                        renderModel.lines.getOrNull(renderModel.focusIndex)?.rowHeight()
+                            ?: PlaybackLyricsRowHeight
+                    ((maxHeight - focusRowHeight) / 2f).coerceAtLeast(0.dp)
+                }
+            val visualCenterIndex by
+                remember(listState, renderModel) {
+                    derivedStateOf {
+                        if (
+                            renderModel.mode != PlaybackLyricsMode.Static &&
+                                !autoFollowState.suspended
+                        ) {
+                            renderModel.alphaAnchorIndex
+                        } else {
+                            listState.centeredVisibleItemIndex(renderModel.alphaAnchorIndex)
+                        }
                     }
                 }
-            }
 
             LaunchedEffect(
                 autoFollowState.suspended,
@@ -286,11 +266,7 @@ internal fun PlaybackLyricsOverlay(
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(CircleShape),
-            ) {
+            Box(modifier = Modifier.matchParentSize().clip(CircleShape)) {
                 Image(
                     painter = painterResource(R.drawable.mask_playing_lyric),
                     contentDescription = stringResource(R.string.lyrics),
@@ -299,10 +275,10 @@ internal fun PlaybackLyricsOverlay(
                 )
             }
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(manualScrollConnection)
-                    .padding(horizontal = PlaybackLyricsHorizontalPadding),
+                modifier =
+                    Modifier.fillMaxSize()
+                        .nestedScroll(manualScrollConnection)
+                        .padding(horizontal = PlaybackLyricsHorizontalPadding),
                 state = listState,
                 userScrollEnabled = renderModel.mode != PlaybackLyricsMode.Fallback,
                 contentPadding = PaddingValues(vertical = centerPadding),
@@ -314,27 +290,27 @@ internal fun PlaybackLyricsOverlay(
                     key = { index, line -> "${renderModel.mode}-$index-${line.text}" },
                 ) { index, line ->
                     val highlighted = renderModel.highlightedIndex == index
-                    val style = if (highlighted) {
-                        PlaybackLyricsPrimaryStyle
-                    } else {
-                        PlaybackLyricsSecondaryStyle
-                    }
+                    val style =
+                        if (highlighted) {
+                            PlaybackLyricsPrimaryStyle
+                        } else {
+                            PlaybackLyricsSecondaryStyle
+                        }
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(
-                                line.rowHeight(),
-                            ),
+                        modifier = Modifier.fillMaxWidth().height(line.rowHeight()),
                         contentAlignment = Alignment.Center,
                     ) {
                         if (line.text.isNotBlank()) {
                             PlaybackLyricsLineText(
                                 line = line,
-                                style = style.copy(
-                                    color = style.color.copy(
-                                        alpha = alphaForDistance(abs(index - visualCenterIndex)),
+                                style =
+                                    style.copy(
+                                        color =
+                                            style.color.copy(
+                                                alpha =
+                                                    alphaForDistance(abs(index - visualCenterIndex))
+                                            )
                                     ),
-                                ),
                                 highlighted = highlighted,
                             )
                         }
@@ -355,14 +331,16 @@ private fun PlaybackLyricsLineText(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val text = if (highlighted && line.tokens.isNotEmpty()) {
-            line.toAnnotatedString(
-                activeColor = PlaybackLyricsPrimaryStyle.color.copy(alpha = style.color.alpha),
-                pendingColor = PlaybackLyricsSecondaryStyle.color.copy(alpha = style.color.alpha),
-            )
-        } else {
-            AnnotatedString(line.text)
-        }
+        val text =
+            if (highlighted && line.tokens.isNotEmpty()) {
+                line.toAnnotatedString(
+                    activeColor = PlaybackLyricsPrimaryStyle.color.copy(alpha = style.color.alpha),
+                    pendingColor =
+                        PlaybackLyricsSecondaryStyle.color.copy(alpha = style.color.alpha),
+                )
+            } else {
+                AnnotatedString(line.text)
+            }
         Text(
             text = text,
             style = style,
@@ -468,11 +446,9 @@ internal fun buildPlaybackLyricsRenderModel(
 }
 
 private fun buildFallbackPlaybackLyricsRenderModel(
-    fallbackLines: List<String>,
+    fallbackLines: List<String>
 ): PlaybackLyricsRenderModel {
-    val focusIndex = fallbackLines.lastIndex
-        .coerceAtLeast(0)
-        .coerceAtMost(2)
+    val focusIndex = fallbackLines.lastIndex.coerceAtLeast(0).coerceAtMost(2)
     return PlaybackLyricsRenderModel(
         mode = PlaybackLyricsMode.Fallback,
         lines = fallbackLines.map { line -> PlaybackLyricsLineRenderModel(text = line) },
@@ -486,17 +462,18 @@ private fun buildTimedPlaybackLyricsRenderModel(
     lyrics: EmbeddedLyrics,
     currentPositionMs: Long,
 ): PlaybackLyricsRenderModel {
-    val activeIndex = lyrics.lines
-        .indexOfLast { (it.timestampMs ?: Long.MAX_VALUE) <= currentPositionMs }
+    val activeIndex =
+        lyrics.lines.indexOfLast { (it.timestampMs ?: Long.MAX_VALUE) <= currentPositionMs }
     val focusIndex = activeIndex.takeIf { it >= 0 } ?: 0
     return PlaybackLyricsRenderModel(
         mode = PlaybackLyricsMode.Timed,
-        lines = lyrics.lines.mapIndexed { index, line ->
-            line.toRenderModel(
-                currentPositionMs = currentPositionMs,
-                includeTokenProgress = index == activeIndex,
-            )
-        },
+        lines =
+            lyrics.lines.mapIndexed { index, line ->
+                line.toRenderModel(
+                    currentPositionMs = currentPositionMs,
+                    includeTokenProgress = index == activeIndex,
+                )
+            },
         focusIndex = focusIndex,
         alphaAnchorIndex = focusIndex,
         highlightedIndex = activeIndex.takeIf { it >= 0 },
@@ -504,35 +481,40 @@ private fun buildTimedPlaybackLyricsRenderModel(
 }
 
 private fun buildStaticPlaybackLyricsRenderModel(
-    lyrics: EmbeddedLyrics,
-): PlaybackLyricsRenderModel = PlaybackLyricsRenderModel(
-    mode = PlaybackLyricsMode.Static,
-    lines = lyrics.lines.map { line ->
-        line.toRenderModel(currentPositionMs = 0L, includeTokenProgress = false)
-    },
-    focusIndex = 0,
-    alphaAnchorIndex = 0,
-    highlightedIndex = null,
-)
+    lyrics: EmbeddedLyrics
+): PlaybackLyricsRenderModel =
+    PlaybackLyricsRenderModel(
+        mode = PlaybackLyricsMode.Static,
+        lines =
+            lyrics.lines.map { line ->
+                line.toRenderModel(currentPositionMs = 0L, includeTokenProgress = false)
+            },
+        focusIndex = 0,
+        alphaAnchorIndex = 0,
+        highlightedIndex = null,
+    )
 
 private fun EmbeddedLyricsLine.toRenderModel(
     currentPositionMs: Long,
     includeTokenProgress: Boolean,
 ): PlaybackLyricsLineRenderModel {
-    val activeTokenIndex = if (includeTokenProgress && tokens.isNotEmpty()) {
-        tokens.indexOfLast { token -> token.timestampMs <= currentPositionMs }
-            .takeIf { index -> index >= 0 }
-    } else {
-        null
-    }
+    val activeTokenIndex =
+        if (includeTokenProgress && tokens.isNotEmpty()) {
+            tokens
+                .indexOfLast { token -> token.timestampMs <= currentPositionMs }
+                .takeIf { index -> index >= 0 }
+        } else {
+            null
+        }
     return PlaybackLyricsLineRenderModel(
         text = text,
-        tokens = tokens.mapIndexed { index, token ->
-            PlaybackLyricsTokenRenderModel(
-                text = token.text,
-                active = activeTokenIndex != null && index <= activeTokenIndex,
-            )
-        },
+        tokens =
+            tokens.mapIndexed { index, token ->
+                PlaybackLyricsTokenRenderModel(
+                    text = token.text,
+                    active = activeTokenIndex != null && index <= activeTokenIndex,
+                )
+            },
         activeTokenIndex = activeTokenIndex,
     )
 }
@@ -554,289 +536,9 @@ private fun LazyListState.centeredVisibleItemIndex(fallbackIndex: Int): Int {
         return fallbackIndex
     }
     val viewportCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
-    return visibleItems.minByOrNull { item ->
-        abs((item.offset + (item.size / 2)) - viewportCenter)
-    }?.index ?: fallbackIndex
-}
-
-@Composable
-internal fun PlaybackMoreActionPanel(
-    favoriteEnabled: Boolean,
-    visualPage: PlaybackVisualPage,
-    scratchEnabled: Boolean,
-    sleepTimerActive: Boolean,
-    bottomInset: Dp,
-    addToPlaylistEnabled: Boolean = true,
-    shareEnabled: Boolean = true,
-    onAddToPlaylistClick: () -> Unit,
-    onAddToQueueClick: () -> Unit,
-    onFavoriteToggle: () -> Unit,
-    onShareClick: () -> Unit,
-    onSleepTimerClick: () -> Unit,
-    onLyricsToggle: () -> Unit,
-    onScratchToggle: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier.background(colorResource(R.color.surface_card)),
-    ) {
-        PlaybackMoreActionTitleBar(onDismiss = onDismiss)
-        PlaybackMoreActionGrid(
-            favoriteEnabled = favoriteEnabled,
-            visualPage = visualPage,
-            scratchEnabled = scratchEnabled,
-            sleepTimerActive = sleepTimerActive,
-            addToPlaylistEnabled = addToPlaylistEnabled,
-            shareEnabled = shareEnabled,
-            onAddToPlaylistClick = onAddToPlaylistClick,
-            onAddToQueueClick = onAddToQueueClick,
-            onFavoriteToggle = onFavoriteToggle,
-            onShareClick = onShareClick,
-            onSleepTimerClick = onSleepTimerClick,
-            onLyricsToggle = onLyricsToggle,
-            onScratchToggle = onScratchToggle,
-            onDeleteClick = onDeleteClick,
-            onDismiss = onDismiss,
-        )
-        Spacer(modifier = Modifier.height(bottomInset))
-    }
-}
-
-@Composable
-private fun PlaybackMoreActionTitleBar(onDismiss: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(PlaybackMoreActionTitleHeight),
-        contentAlignment = Alignment.Center,
-    ) {
-        AndroidDrawableImage(
-            drawableRes = R.drawable.more_select_titlebar_bg,
-            modifier = Modifier.matchParentSize(),
-        )
-        Text(
-            text = stringResource(R.string.select_action),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = PlaybackMoreActionTitleStyle,
-        )
-        PlaybackCancelButton(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 8.dp)
-                .width(PlaybackMoreActionCancelWidth)
-                .height(PlaybackMoreActionCancelHeight),
-            onClick = onDismiss,
-        )
-    }
-}
-
-@Composable
-private fun PlaybackMoreActionGrid(
-    favoriteEnabled: Boolean,
-    visualPage: PlaybackVisualPage,
-    scratchEnabled: Boolean,
-    sleepTimerActive: Boolean,
-    addToPlaylistEnabled: Boolean,
-    shareEnabled: Boolean,
-    onAddToPlaylistClick: () -> Unit,
-    onAddToQueueClick: () -> Unit,
-    onFavoriteToggle: () -> Unit,
-    onShareClick: () -> Unit,
-    onSleepTimerClick: () -> Unit,
-    onLyricsToggle: () -> Unit,
-    onScratchToggle: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(PlaybackMoreActionRowHeight * 2),
-    ) {
-        AndroidDrawableImage(
-            drawableRes = R.drawable.more_select_btn_bg,
-            modifier = Modifier.matchParentSize(),
-        )
-        AndroidDrawableImage(
-            drawableRes = R.drawable.more_select_titlebar_bg_shadow,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
-                .align(Alignment.TopCenter),
-        )
-        Column(modifier = Modifier.fillMaxSize()) {
-            PlaybackMoreActionRow {
-                PlaybackMoreActionButton(
-                    label = stringResource(R.string.add_to_playlist),
-                    normalRes = R.drawable.more_select_icon_addlist,
-                    pressedRes = R.drawable.more_select_icon_addlist_down,
-                    enabled = addToPlaylistEnabled,
-                    onClick = onAddToPlaylistClick,
-                )
-                PlaybackMoreActionDivider(vertical = true)
-                PlaybackMoreActionButton(
-                    label = stringResource(R.string.add_to_queue),
-                    normalRes = R.drawable.more_select_icon_addplay,
-                    pressedRes = R.drawable.more_select_icon_addplay_down,
-                    onClick = onAddToQueueClick,
-                )
-                PlaybackMoreActionDivider(vertical = true)
-                PlaybackMoreActionButton(
-                    label = stringResource(R.string.love),
-                    normalRes = if (favoriteEnabled) R.drawable.more_select_icon_favorite_cancel else R.drawable.more_select_icon_favorite_add,
-                    pressedRes = if (favoriteEnabled) R.drawable.more_select_icon_favorite_cancel_down else R.drawable.more_select_icon_favorite_add_down,
-                    onClick = onFavoriteToggle,
-                )
-                PlaybackMoreActionDivider(vertical = true)
-                PlaybackMoreActionButton(
-                    label = stringResource(R.string.lyrics),
-                    normalRes = R.drawable.more_select_icon_lyric,
-                    pressedRes = R.drawable.more_select_icon_lyric,
-                    selected = visualPage == PlaybackVisualPage.Lyrics,
-                    onClick = onLyricsToggle,
-                )
-            }
-            PlaybackMoreActionDivider(vertical = false)
-            PlaybackMoreActionRow {
-                PlaybackMoreActionButton(
-                    label = stringResource(R.string.sleep_timer),
-                    normalRes = R.drawable.more_select_icon_timer,
-                    pressedRes = R.drawable.more_select_icon_timer,
-                    selected = sleepTimerActive,
-                    selectedTextColor = PlaybackMoreActionSelectedColor,
-                    onClick = onSleepTimerClick,
-                )
-                PlaybackMoreActionDivider(vertical = true)
-                PlaybackMoreActionButton(
-                    label = stringResource(R.string.djing),
-                    normalRes = if (scratchEnabled) R.drawable.more_select_icon_djing_on else R.drawable.more_select_icon_djing,
-                    pressedRes = if (scratchEnabled) R.drawable.more_select_icon_djing_on else R.drawable.more_select_icon_djing,
-                    selected = scratchEnabled,
-                    selectedTextColor = PlaybackMoreActionSelectedColor,
-                    onClick = onScratchToggle,
-                )
-                PlaybackMoreActionDivider(vertical = true)
-                PlaybackMoreActionButton(
-                    label = stringResource(R.string.delete),
-                    normalRes = R.drawable.more_select_icon_delete,
-                    pressedRes = R.drawable.more_select_icon_delete,
-                    onClick = onDeleteClick,
-                )
-                PlaybackMoreActionDivider(vertical = true)
-                PlaybackMoreActionButton(
-                    label = stringResource(R.string.share),
-                    normalRes = R.drawable.more_select_icon_share,
-                    pressedRes = R.drawable.more_select_icon_share_down,
-                    enabled = shareEnabled,
-                    onClick = onShareClick,
-                )
-            }
+    return visibleItems
+        .minByOrNull { item ->
+            abs((item.offset + (item.size / 2)) - viewportCenter)
         }
-    }
-}
-
-@Composable
-private fun PlaybackMoreActionRow(content: @Composable RowScope.() -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(PlaybackMoreActionRowHeight),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        content()
-    }
-}
-
-@Composable
-private fun PlaybackMoreActionDivider(vertical: Boolean) {
-    Box(
-        modifier = if (vertical) {
-            Modifier
-                .width(1.dp)
-                .fillMaxHeight()
-                .background(PlaybackMoreActionDividerColor)
-        } else {
-            Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(PlaybackMoreActionDividerColor)
-        },
-    )
-}
-
-@Composable
-private fun PlaybackCancelButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    Box(
-        modifier = modifier.clickable(
-            interactionSource = interactionSource,
-            indication = null,
-            onClick = onClick,
-        ),
-        contentAlignment = Alignment.Center,
-    ) {
-        AndroidDrawableImage(
-            drawableRes = if (pressed) R.drawable.btn_cancel_down else R.drawable.btn_cancel,
-            modifier = Modifier.matchParentSize(),
-        )
-        Text(
-            text = stringResource(R.string.cancel),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = PlaybackMoreActionButtonStyle,
-        )
-    }
-}
-
-@Composable
-private fun RowScope.PlaybackMoreActionButton(
-    label: String,
-    normalRes: Int,
-    pressedRes: Int,
-    selected: Boolean = false,
-    selectedTextColor: Color = PlaybackMoreActionButtonStyle.color,
-    enabled: Boolean = true,
-    onClick: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    Column(
-        modifier = Modifier
-            .weight(1f)
-            .fillMaxHeight()
-            .alpha(if (enabled) 1f else 0.38f)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                onClick = onClick,
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Image(
-            painter = painterResource(if (enabled && pressed) pressedRes else normalRes),
-            contentDescription = label,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.size(PlaybackMoreActionIconSize),
-        )
-        Text(
-            text = label,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = PlaybackMoreActionButtonStyle.copy(
-                color = if (selected) selectedTextColor else PlaybackMoreActionButtonStyle.color,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 2.dp, start = 4.dp, end = 4.dp),
-        )
-    }
+        ?.index ?: fallbackIndex
 }

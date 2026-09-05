@@ -31,9 +31,8 @@ internal data class MediaStoreDeleteItem(
     val uri: Uri,
 )
 
-internal class MediaStoreDeleteCoordinator internal constructor(
-    private val requestDelete: (List<MediaStoreDeleteItem>) -> Unit,
-) {
+internal class MediaStoreDeleteCoordinator
+internal constructor(private val requestDelete: (List<MediaStoreDeleteItem>) -> Unit) {
     fun delete(items: List<MediaStoreDeleteItem>) {
         requestDelete(items)
     }
@@ -57,38 +56,40 @@ internal fun rememberMediaStoreDeleteCoordinator(
         if (request.deletedIds.isNotEmpty()) {
             currentOnDeleted(request.deletedIds)
         }
-        val notDeletedIds = request.items.mapTo(linkedSetOf(), MediaStoreDeleteItem::mediaId) + failedIds
+        val notDeletedIds =
+            request.items.mapTo(linkedSetOf(), MediaStoreDeleteItem::mediaId) + failedIds
         if (notDeletedIds.isNotEmpty()) {
             currentOnNotDeleted(notDeletedIds)
         }
     }
 
-    val writePermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-    ) { granted ->
-        val request = pendingRequest ?: return@rememberLauncherForActivityResult
-        if (granted) {
-            retryToken += 1
-        } else {
-            finishPendingRequest(request)
-        }
-    }
-    val confirmationLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult(),
-    ) { result ->
-        val request = pendingRequest ?: return@rememberLauncherForActivityResult
-        when {
-            result.resultCode != Activity.RESULT_OK -> finishPendingRequest(request)
-            confirmationMode == DeleteConfirmationMode.SystemDeletesBatch -> {
-                pendingRequest = null
-                confirmationMode = null
-                currentOnDeleted(
-                    request.deletedIds + request.items.map(MediaStoreDeleteItem::mediaId),
-                )
+    val writePermissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
+            granted ->
+            val request = pendingRequest ?: return@rememberLauncherForActivityResult
+            if (granted) {
+                retryToken += 1
+            } else {
+                finishPendingRequest(request)
             }
-            else -> retryToken += 1
         }
-    }
+    val confirmationLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartIntentSenderForResult()
+        ) { result ->
+            val request = pendingRequest ?: return@rememberLauncherForActivityResult
+            when {
+                result.resultCode != Activity.RESULT_OK -> finishPendingRequest(request)
+                confirmationMode == DeleteConfirmationMode.SystemDeletesBatch -> {
+                    pendingRequest = null
+                    confirmationMode = null
+                    currentOnDeleted(
+                        request.deletedIds + request.items.map(MediaStoreDeleteItem::mediaId)
+                    )
+                }
+                else -> retryToken += 1
+            }
+        }
 
     LaunchedEffect(retryToken) {
         val request = pendingRequest ?: return@LaunchedEffect
@@ -104,31 +105,34 @@ internal fun rememberMediaStoreDeleteCoordinator(
                     currentOnNotDeleted(step.failedIds)
                 }
             }
-            DeleteStep.RequestLegacyWritePermission -> {
+            DeleteStep.RequestStorageWritePermission -> {
                 writePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
             is DeleteStep.RequestConfirmation -> {
-                pendingRequest = request.copy(
-                    items = step.remainingItems,
-                    deletedIds = request.deletedIds + step.deletedIds,
-                )
+                pendingRequest =
+                    request.copy(
+                        items = step.remainingItems,
+                        deletedIds = request.deletedIds + step.deletedIds,
+                    )
                 confirmationMode = step.mode
                 runCatching {
                     confirmationLauncher.launch(
-                        IntentSenderRequest.Builder(step.intentSender).build(),
+                        IntentSenderRequest.Builder(step.intentSender).build()
                     )
-                }.onFailure {
-                    pendingRequest?.let(::finishPendingRequest)
                 }
+                    .onFailure {
+                        pendingRequest?.let(::finishPendingRequest)
+                    }
             }
         }
     }
 
     return remember {
         MediaStoreDeleteCoordinator { items ->
-            val normalizedItems = items
-                .filter { item -> item.mediaId.isNotBlank() }
-                .distinctBy(MediaStoreDeleteItem::mediaId)
+            val normalizedItems =
+                items
+                    .filter { item -> item.mediaId.isNotBlank() }
+                    .distinctBy(MediaStoreDeleteItem::mediaId)
             if (normalizedItems.isNotEmpty()) {
                 pendingRequest = PendingDeleteRequest(items = normalizedItems)
                 retryToken += 1
@@ -148,7 +152,7 @@ private sealed interface DeleteStep {
         val failedIds: Set<String>,
     ) : DeleteStep
 
-    data object RequestLegacyWritePermission : DeleteStep
+    data object RequestStorageWritePermission : DeleteStep
 
     data class RequestConfirmation(
         val intentSender: IntentSender,
@@ -165,12 +169,14 @@ private enum class DeleteConfirmationMode {
 
 private fun Context.nextDeleteStep(request: PendingDeleteRequest): DeleteStep {
     return when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> Api30.createDeleteRequest(this, request.items)
-        Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> Api29.deleteOrRequestAccess(this, request.items)
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+            Api30.createDeleteRequest(this, request.items)
+        Build.VERSION.SDK_INT == Build.VERSION_CODES.Q ->
+            Api29.deleteOrRequestAccess(this, request.items)
         ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        ) != PackageManager.PERMISSION_GRANTED -> DeleteStep.RequestLegacyWritePermission
+        ) != PackageManager.PERMISSION_GRANTED -> DeleteStep.RequestStorageWritePermission
         else -> deleteDirectly(request.items)
     }
 }
@@ -181,11 +187,13 @@ private fun Context.deleteDirectly(items: List<MediaStoreDeleteItem>): DeleteSte
     items.forEach { item ->
         runCatching {
             contentResolver.delete(item.uri, null, null)
-        }.onSuccess {
-            deletedIds += item.mediaId
-        }.onFailure {
-            failedIds += item.mediaId
         }
+            .onSuccess {
+                deletedIds += item.mediaId
+            }
+            .onFailure {
+                failedIds += item.mediaId
+            }
     }
     return DeleteStep.Completed(deletedIds, failedIds)
 }
@@ -208,7 +216,8 @@ private object Api29 {
             } catch (_: SecurityException) {
                 return DeleteStep.Completed(
                     deletedIds = deletedIds,
-                    failedIds = items.drop(index).mapTo(linkedSetOf(), MediaStoreDeleteItem::mediaId),
+                    failedIds =
+                        items.drop(index).mapTo(linkedSetOf(), MediaStoreDeleteItem::mediaId),
                 )
             }
         }
@@ -220,25 +229,26 @@ private object Api29 {
 private object Api30 {
     fun createDeleteRequest(context: Context, items: List<MediaStoreDeleteItem>): DeleteStep {
         return runCatching {
-            MediaStore.createDeleteRequest(
-                context.contentResolver,
-                items.map(MediaStoreDeleteItem::uri),
+                MediaStore.createDeleteRequest(
+                    context.contentResolver,
+                    items.map(MediaStoreDeleteItem::uri),
+                )
+            }
+            .fold(
+                onSuccess = { pendingIntent ->
+                    DeleteStep.RequestConfirmation(
+                        intentSender = pendingIntent.intentSender,
+                        remainingItems = items,
+                        deletedIds = emptySet(),
+                        mode = DeleteConfirmationMode.SystemDeletesBatch,
+                    )
+                },
+                onFailure = {
+                    DeleteStep.Completed(
+                        deletedIds = emptySet(),
+                        failedIds = items.mapTo(linkedSetOf(), MediaStoreDeleteItem::mediaId),
+                    )
+                },
             )
-        }.fold(
-            onSuccess = { pendingIntent ->
-                DeleteStep.RequestConfirmation(
-                    intentSender = pendingIntent.intentSender,
-                    remainingItems = items,
-                    deletedIds = emptySet(),
-                    mode = DeleteConfirmationMode.SystemDeletesBatch,
-                )
-            },
-            onFailure = {
-                DeleteStep.Completed(
-                    deletedIds = emptySet(),
-                    failedIds = items.mapTo(linkedSetOf(), MediaStoreDeleteItem::mediaId),
-                )
-            },
-        )
     }
 }

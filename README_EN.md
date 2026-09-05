@@ -19,7 +19,7 @@ Smartisan never saw itself as a company concerned with visuals alone. A beautifu
 
 Smartisan Music is one of the clearest expressions of that idea. Its turntable, tonearm, scratching, and vinyl crackle make digital music feel tangible, while songs, albums, and the library remain calm and legible. The physical playfulness should never come at the expense of playback or organization; what deserves to be preserved is the balance between texture, order, and utility.
 
-Smartisan OS has left the stage, so this project uses Smartisan Music 8.1.0 as its visual and interaction reference and rebuilds it with a modern Android stack. The interface retains the original XML layouts, drawables, NinePatch assets, selectors, animation timing, and view hierarchy wherever practical. Media scanning, background playback, queues, favorites, playlists, and persistence are rebuilt entirely on public Android APIs. The app reads and plays audio stored on the device and contains no built-in content catalog, account system, or media distribution service.
+Smartisan OS has left the stage, so this project uses Smartisan Music 8.1.0 as its visual and interaction reference and rebuilds it with a modern Android stack. The interface has been fully migrated to Jetpack Compose, using the previously calibrated implementation as its baseline for drawables, NinePatch assets, selectors, animation timing, and layout proportions. Media scanning, background playback, queues, favorites, playlists, and persistence are rebuilt entirely on public Android APIs. The app reads and plays audio stored on the device and contains no built-in content catalog, account system, or media distribution service.
 
 ## Improvements over the original
 
@@ -33,7 +33,7 @@ Smartisan OS has left the stage, so this project uses Smartisan Music 8.1.0 as i
 - **Android 8.1 and later support**: Separate compatibility paths cover legacy and scoped storage, system bars, gesture navigation, display cutouts, WindowInsets, and predictive back without replacing the original visual language.
 - **Modern data architecture**: Room, DataStore, Coroutines, and StateFlow manage the library, favorites, playlists, settings, and playback state without private Smartisan OS services or system-signature capabilities.
 - **Removed legacy baggage**: Business code is written in Kotlin and retains only the resources and public APIs required by the current implementation. The original background services, databases, and settings migrations are not carried forward.
-- **Theme selection**: Supports system-following, light, and dark modes through a radio-style settings page reused from the audio-effects UI. Visuals remain resource-driven through `values-night` and same-name `drawable-night` variants. The original 8.1.0 had no dark mode, so the night visuals are this project's own design: the charcoal palette comes from the sibling Smartisan Weather revival (page `#25282D`, title bar `#292C31`, cards `#34373C`), and the night bitmaps are generated from the original assets by `tools/generate_night_drawables.py` (proportional darkening or white-out with alpha and nine-patch markers preserved; safe to re-run). The red and blue brand accents are shared by both themes.
+- **Theme selection**: Supports system-following, light, and dark modes through a Compose page that reproduces the existing radio-style settings layout. Visuals remain resource-driven through `values-night` and same-name `drawable-night` variants. The original 8.1.0 had no dark mode, so the night visuals are this project's own design: the charcoal palette comes from the sibling Smartisan Weather revival (page `#25282D`, title bar `#292C31`, cards `#34373C`), and the night bitmaps are generated from the original assets by `tools/generate_night_drawables.py` (proportional darkening or white-out with alpha and nine-patch markers preserved; safe to re-run). The red and blue brand accents are shared by both themes.
 
 ## Current features
 
@@ -52,6 +52,12 @@ Smartisan OS has left the stage, so this project uses Smartisan Music 8.1.0 as i
 - External audio opening, audio-file sharing, and MediaStore-backed media deletion
 - Custom artist separators, bottom-navigation order and pinned items, and switchable app icons
 
+## Compose migration
+
+The app shell, library, search, favorites, playlists, settings, playback queue, and playback controls now use Compose. XML layouts, View widgets, and adapters have been removed. Screens are organized by feature, and shared Smartisan components handle resource drawing, title bars, and interaction rules. The existing Media3, Room, DataStore, library, and playback-session implementations remain in use.
+
+The code migration is complete, and a bottom-bar layout regression that obscured page content has been fixed following physical-device feedback. Automated tests and device checks are recorded in the [migration record](docs/compose-migration.md#交付记录); full visual, haptic, and interaction acceptance still requires the detailed checklist. See [UI architecture](docs/ui-architecture.md) for package boundaries and state ownership.
+
 ## Local media and permissions
 
 The final app manifest does not contain the `INTERNET` permission. The app does not depend on a network connection and does not upload songs, artwork, lyrics, or library metadata.
@@ -63,6 +69,8 @@ The final app manifest does not contain the `INTERNET` permission. The app does 
 - The app does not request modify-system-settings, location, camera, microphone, contacts, SMS, overlay, or accessibility permissions.
 
 ## Screenshots
+
+These screenshots show the calibrated version before the Compose migration and serve as visual references. Device comparisons of the Compose implementation remain pending.
 
 <p align="center">
   <img src="docs/images/screenshot-playback.jpg" width="200" alt="Smartisan Music playback screen" />
@@ -78,7 +86,7 @@ Album artwork, artist information, and music content visible in screenshots rema
 | --- | --- |
 | Build | Android Gradle Plugin `9.2.1`, Gradle `9.4.1`, JDK 21 (Java 11 bytecode) |
 | Language | Kotlin `2.4.0` |
-| UI | XML layouts, Android View, custom View, Jetpack Compose |
+| UI | Jetpack Compose, custom Smartisan components, Drawable / NinePatch rendering |
 | Playback | Media3 `1.10.1`, ExoPlayer, MediaLibraryService, MediaSession |
 | State | Lifecycle, StateFlow, Coroutines |
 | Storage | Room `2.8.4`, DataStore `1.2.1`, MediaStore |
@@ -100,7 +108,9 @@ To verify the minified release build, run:
 ./gradlew assembleRelease
 ```
 
-The release APK is written to `app/build/outputs/apk/release/SmartisanMusic-Revived-0.2.0.apk`.
+The release APK is written to `app/build/outputs/apk/release/` as `SmartisanMusic-Revived-<versionName>.apk`. The version is defined in [app/build.gradle.kts](app/build.gradle.kts).
+
+Build Compose UI tests with `./gradlew assembleDebugAndroidTest`; this does not run them on a device. See the [migration record](docs/compose-migration.md) for the complete validation commands and device regression checklist.
 
 ## Acknowledgments
 

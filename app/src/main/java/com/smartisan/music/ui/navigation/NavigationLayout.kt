@@ -3,9 +3,8 @@ package com.smartisan.music.ui.navigation
 /**
  * 用户可定制的主导航布局。
  *
- * [orderedDestinations] 是七个可移动内容目的地的完整排列；[bottomCount] 是排列中固定到
- * 底栏的前缀长度。`More` 不进入排列，始终作为底栏最后一项。这个表示法既没有重复状态，
- * 也能直接映射原版“下方底栏 / 上方更多”两个交换区域。
+ * [orderedDestinations] 是七个可移动内容目的地的完整排列；[bottomCount] 是排列中固定到 底栏的前缀长度。`More`
+ * 不进入排列，始终作为底栏最后一项。这个表示法既没有重复状态， 也能直接映射原版“下方底栏 / 上方更多”两个交换区域。
  */
 data class NavigationLayout(
     val orderedDestinations: List<MusicDestination> = DefaultDestinationOrder,
@@ -24,7 +23,8 @@ data class NavigationLayout(
         get() = orderedDestinations.drop(bottomCount)
 
     fun isPinned(destination: MusicDestination): Boolean {
-        return destination == MusicDestination.More || destination in orderedDestinations.take(bottomCount)
+        return destination == MusicDestination.More ||
+            destination in orderedDestinations.take(bottomCount)
     }
 
     /** 在不修改持久化布局的前提下，临时确保某目的地出现在底栏。 */
@@ -53,13 +53,18 @@ data class NavigationLayout(
     }
 
     fun promote(destination: MusicDestination): NavigationLayout {
-        if (!destination.movable || isPinned(destination) || bottomCount >= MaxBottomDestinationCount) {
+        if (
+            !destination.movable ||
+                isPinned(destination) ||
+                bottomCount >= MaxBottomDestinationCount
+        ) {
             return this
         }
-        val reordered = orderedDestinations.toMutableList().apply {
-            remove(destination)
-            add(bottomCount, destination)
-        }
+        val reordered =
+            orderedDestinations.toMutableList().apply {
+                remove(destination)
+                add(bottomCount, destination)
+            }
         return copy(
             orderedDestinations = reordered,
             bottomCount = bottomCount + 1,
@@ -67,14 +72,19 @@ data class NavigationLayout(
     }
 
     fun demote(destination: MusicDestination): NavigationLayout {
-        if (!destination.movable || !isPinned(destination) || bottomCount <= MinBottomDestinationCount) {
+        if (
+            !destination.movable ||
+                !isPinned(destination) ||
+                bottomCount <= MinBottomDestinationCount
+        ) {
             return this
         }
         val nextBottomCount = bottomCount - 1
-        val reordered = orderedDestinations.toMutableList().apply {
-            remove(destination)
-            add(nextBottomCount, destination)
-        }
+        val reordered =
+            orderedDestinations.toMutableList().apply {
+                remove(destination)
+                add(nextBottomCount, destination)
+            }
         return copy(
             orderedDestinations = reordered,
             bottomCount = nextBottomCount,
@@ -89,28 +99,32 @@ data class NavigationLayout(
         if (sourceIndex < 0) {
             return this
         }
-        val zone = if (sourceIndex < bottomCount) 0 until bottomCount else bottomCount until orderedDestinations.size
+        val zone =
+            if (sourceIndex < bottomCount) 0 until bottomCount
+            else bottomCount until orderedDestinations.size
         val targetIndex = (sourceIndex + offset).coerceIn(zone.first, zone.last)
         if (sourceIndex == targetIndex) {
             return this
         }
-        val reordered = orderedDestinations.toMutableList().apply {
-            removeAt(sourceIndex)
-            add(targetIndex, destination)
-        }
+        val reordered =
+            orderedDestinations.toMutableList().apply {
+                removeAt(sourceIndex)
+                add(targetIndex, destination)
+            }
         return copy(orderedDestinations = reordered)
     }
 }
 
-internal val DefaultDestinationOrder = listOf(
-    MusicDestination.Playlist,
-    MusicDestination.Artist,
-    MusicDestination.Album,
-    MusicDestination.Songs,
-    MusicDestination.Genre,
-    MusicDestination.LovedSongs,
-    MusicDestination.Folder,
-)
+internal val DefaultDestinationOrder =
+    listOf(
+        MusicDestination.Playlist,
+        MusicDestination.Artist,
+        MusicDestination.Album,
+        MusicDestination.Songs,
+        MusicDestination.Genre,
+        MusicDestination.LovedSongs,
+        MusicDestination.Folder,
+    )
 
 internal const val MinBottomDestinationCount = 2
 internal const val MaxBottomDestinationCount = 4
@@ -140,7 +154,7 @@ internal fun normalizedNavigationLayout(
 }
 
 /** 将旧版“隐藏底栏项”设置迁移为“底栏前缀 + 更多后缀”。 */
-internal fun navigationLayoutFromLegacyHiddenTabs(hiddenRoutes: Set<String>): NavigationLayout {
+internal fun navigationLayoutFromHiddenTabs(hiddenRoutes: Set<String>): NavigationLayout {
     val defaultPinned = DefaultDestinationOrder.take(DefaultBottomDestinationCount)
     val requestedPinned = defaultPinned.filter { it.route !in hiddenRoutes }.toMutableList()
     defaultPinned.forEach { destination ->

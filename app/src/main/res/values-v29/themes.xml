@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-
     <style name="Theme.Music" parent="@style/Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:forceDarkAllowed">false</item>
         <item name="android:windowLightStatusBar">@bool/light_system_bars</item>
         <item name="android:windowLightNavigationBar">@bool/light_system_bars</item>
         <item name="android:enforceNavigationBarContrast">false</item>
     </style>
-
 </resources>

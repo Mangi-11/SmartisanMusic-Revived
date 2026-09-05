@@ -9,9 +9,6 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.annotation.DrawableRes
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.smartisan.music.R
@@ -40,22 +37,22 @@ internal fun MediaItem.resolveDeleteTarget(): PlaybackDeleteTargetResult {
     if (targetMediaId.isEmpty()) {
         return PlaybackDeleteTargetResult.Unavailable
     }
-    val audioQualityBadge = mediaMetadata.extras
-        ?.getString(LocalAudioLibrary.AudioQualityBadgeExtraKey)
+    val audioQualityBadge =
+        mediaMetadata.extras?.getString(LocalAudioLibrary.AudioQualityBadgeExtraKey)
     if (audioQualityBadge == LocalAudioLibrary.AudioQualityBadgeCue) {
         return PlaybackDeleteTargetResult.CueFile
     }
-    val deleteUri = localConfiguration?.uri
-        ?.takeIf(Uri::isMediaStoreUri)
-        ?: targetMediaId.toLongOrNull()?.let { id ->
-            audioMediaItemUri(id)
-        }
-        ?: return PlaybackDeleteTargetResult.Unavailable
+    val deleteUri =
+        localConfiguration?.uri?.takeIf(Uri::isMediaStoreUri)
+            ?: targetMediaId.toLongOrNull()?.let { id ->
+                audioMediaItemUri(id)
+            }
+            ?: return PlaybackDeleteTargetResult.Unavailable
     return PlaybackDeleteTargetResult.Available(
         PlaybackDeleteTarget(
             mediaId = targetMediaId,
             uri = deleteUri,
-        ),
+        )
     )
 }
 
@@ -64,35 +61,37 @@ internal fun MediaItem.canShareAudio(): Boolean {
 }
 
 internal fun Context.tryShareAudio(mediaItem: MediaItem): Boolean {
-    val shareUri = mediaItem.localConfiguration?.uri
-        ?.takeIf { it.scheme == ContentResolver.SCHEME_CONTENT }
-        ?: return false
-    val title = mediaItem.mediaMetadata.title
-        ?.toString()
-        ?.takeIf(String::isNotBlank)
-        ?: getString(R.string.unknown_song_title)
-    val mimeType = sequenceOf(
-        mediaItem.localConfiguration?.mimeType,
-        runCatching { contentResolver.getType(shareUri) }.getOrNull(),
-    ).mapNotNull { candidate ->
-        candidate
-            ?.trim()
-            ?.lowercase(Locale.ROOT)
-            ?.takeIf(String::isShareableAudioMimeType)
-    }.firstOrNull() ?: DefaultAudioShareMimeType
-    val sendIntent = Intent(Intent.ACTION_SEND).apply {
-        type = mimeType
-        clipData = ClipData.newRawUri(title, shareUri)
-        putExtra(Intent.EXTRA_STREAM, shareUri)
-        putExtra(Intent.EXTRA_TITLE, title)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
-    val chooserIntent = Intent.createChooser(sendIntent, getString(R.string.share)).apply {
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
+    val shareUri =
+        mediaItem.localConfiguration?.uri?.takeIf { it.scheme == ContentResolver.SCHEME_CONTENT }
+            ?: return false
+    val title =
+        mediaItem.mediaMetadata.title?.toString()?.takeIf(String::isNotBlank)
+            ?: getString(R.string.unknown_song_title)
+    val mimeType =
+        sequenceOf(
+                mediaItem.localConfiguration?.mimeType,
+                runCatching { contentResolver.getType(shareUri) }.getOrNull(),
+            )
+            .mapNotNull { candidate ->
+                candidate?.trim()?.lowercase(Locale.ROOT)?.takeIf(String::isShareableAudioMimeType)
+            }
+            .firstOrNull() ?: DefaultAudioShareMimeType
+    val sendIntent =
+        Intent(Intent.ACTION_SEND).apply {
+            type = mimeType
+            clipData = ClipData.newRawUri(title, shareUri)
+            putExtra(Intent.EXTRA_STREAM, shareUri)
+            putExtra(Intent.EXTRA_TITLE, title)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+    val chooserIntent =
+        Intent.createChooser(sendIntent, getString(R.string.share)).apply {
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
     return runCatching {
         startActivity(chooserIntent)
-    }.isSuccess
+    }
+        .isSuccess
 }
 
 private fun Uri.isMediaStoreUri(): Boolean {
@@ -138,20 +137,6 @@ internal fun shuffleToastRes(shuffleEnabled: Boolean): Int {
     }
 }
 
-internal fun Modifier.consumePlaybackTouchFallthrough(): Modifier = pointerInput(Unit) {
-    // 播放页叠在 legacy 主壳上，空白区域也要消费触摸，避免点到后方歌曲列表。
-    awaitPointerEventScope {
-        while (true) {
-            val event = awaitPointerEvent(PointerEventPass.Final)
-            event.changes.forEach { change ->
-                if (change.pressed || change.previousPressed) {
-                    change.consume()
-                }
-            }
-        }
-    }
-}
-
 internal fun Context.musicStreamVolumeFraction(): Float {
     val audioManager = getSystemService(AudioManager::class.java) ?: return 1f
     val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
@@ -162,9 +147,8 @@ internal fun Context.musicStreamVolumeFraction(): Float {
 internal fun Context.setMusicStreamVolumeFraction(value: Float) {
     val audioManager = getSystemService(AudioManager::class.java) ?: return
     val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
-    val targetVolume = (value.coerceIn(0f, 1f) * maxVolume.toFloat())
-        .roundToInt()
-        .coerceIn(0, maxVolume)
+    val targetVolume =
+        (value.coerceIn(0f, 1f) * maxVolume.toFloat()).roundToInt().coerceIn(0, maxVolume)
     audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
 }
 
@@ -193,8 +177,9 @@ internal fun fractionFromPosition(positionX: Float, trackWidthPx: Int): Float {
 
 private const val DefaultAudioShareMimeType = "audio/*"
 
-private val ShareableApplicationAudioMimeTypes = setOf(
-    "application/ogg",
-    "application/x-ogg",
-    "application/itunes",
-)
+private val ShareableApplicationAudioMimeTypes =
+    setOf(
+        "application/ogg",
+        "application/x-ogg",
+        "application/itunes",
+    )

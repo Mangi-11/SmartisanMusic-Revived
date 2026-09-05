@@ -25,18 +25,19 @@ class LocalAudioLibraryTest {
     }
 
     @Test
-    fun `fixLegacyMetadataEncoding repairs utf8 text decoded as latin1`() {
-        val mojibake = String("周杰伦".toByteArray(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1)
+    fun `repairMetadataEncoding repairs utf8 text decoded as latin1`() {
+        val mojibake =
+            String("周杰伦".toByteArray(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1)
 
-        assertEquals("周杰伦", mojibake.fixLegacyMetadataEncoding())
+        assertEquals("周杰伦", mojibake.repairMetadataEncoding())
     }
 
     @Test
-    fun `fixLegacyMetadataEncoding keeps normal metadata`() {
-        assertEquals("Björk", "Björk".fixLegacyMetadataEncoding())
-        assertEquals("São Paulo", "São Paulo".fixLegacyMetadataEncoding())
-        assertEquals("naïve", "naïve".fixLegacyMetadataEncoding())
-        assertEquals("周杰伦", "周杰伦".fixLegacyMetadataEncoding())
+    fun `repairMetadataEncoding keeps normal metadata`() {
+        assertEquals("Björk", "Björk".repairMetadataEncoding())
+        assertEquals("São Paulo", "São Paulo".repairMetadataEncoding())
+        assertEquals("naïve", "naïve".repairMetadataEncoding())
+        assertEquals("周杰伦", "周杰伦".repairMetadataEncoding())
     }
 
     @Test

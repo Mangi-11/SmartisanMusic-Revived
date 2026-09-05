@@ -1,0 +1,264 @@
+package com.smartisan.music.ui.shell.tabs
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.media3.common.MediaItem
+import com.smartisan.music.data.favorite.FavoriteSongRecord
+import com.smartisan.music.data.settings.ArtistSettings
+import com.smartisan.music.data.settings.AudioFxPreset
+import com.smartisan.music.data.settings.NavigationSettings
+import com.smartisan.music.data.settings.PlaybackSettings
+import com.smartisan.music.data.settings.ThemeMode
+import com.smartisan.music.ui.album.AlbumPage
+import com.smartisan.music.ui.album.AlbumViewMode
+import com.smartisan.music.ui.artist.ArtistPage
+import com.smartisan.music.ui.artist.ArtistTarget
+import com.smartisan.music.ui.folder.FolderPage
+import com.smartisan.music.ui.genre.GenrePage
+import com.smartisan.music.ui.loved.LovedSongsPage
+import com.smartisan.music.ui.more.MorePage
+import com.smartisan.music.ui.navigation.MusicDestination
+import com.smartisan.music.ui.playlist.PlaylistPage
+import com.smartisan.music.ui.shell.PredictiveBackState
+import com.smartisan.music.ui.songs.SongsPage
+
+@Composable
+internal fun MusicTabContent(
+    destination: MusicDestination,
+    presentedFromMore: Boolean,
+    overflowDestinations: List<MusicDestination>,
+    mediaItems: List<MediaItem>,
+    favoriteRecords: List<FavoriteSongRecord>,
+    libraryLoaded: Boolean,
+    songsEditMode: Boolean,
+    selectedSongIds: Set<String>,
+    albumViewMode: AlbumViewMode,
+    albumEditMode: Boolean,
+    selectedAlbumId: String?,
+    selectedAlbumIds: Set<String>,
+    albumPredictiveBackProgress: Float?,
+    albumPredictiveBackExitConsumed: Boolean,
+    onAlbumPredictiveBackExitConsumedReset: () -> Unit,
+    artistAlbumViewMode: AlbumViewMode,
+    selectedArtistTarget: ArtistTarget?,
+    artistRootPredictiveBackProgress: Float?,
+    artistRootPredictiveBackExitConsumed: Boolean,
+    onArtistRootPredictiveBackExitConsumedReset: () -> Unit,
+    artistNestedPredictiveBackProgress: Float?,
+    artistNestedPredictiveBackExitConsumed: Boolean,
+    onArtistNestedPredictiveBackExitConsumedReset: () -> Unit,
+    moreDestinationPredictiveBackState: PredictiveBackState,
+    modifier: Modifier = Modifier,
+    playbackBarOverlayHeight: Dp = 0.dp,
+    hiddenMediaIds: Set<String>,
+    libraryRefreshVersion: Int,
+    libraryRefreshing: Boolean,
+    playbackSettings: PlaybackSettings,
+    artistSettings: ArtistSettings,
+    onRefreshLibrary: () -> Unit,
+    onRequestAddToPlaylist: (List<MediaItem>) -> Unit,
+    onRequestAddToQueue: (List<MediaItem>) -> Unit,
+    onScratchEnabledChange: (Boolean) -> Unit,
+    onHidePlayerAxisEnabledChange: (Boolean) -> Unit,
+    onPopcornSoundEnabledChange: (Boolean) -> Unit,
+    onAudioFxEnabledChange: (Boolean) -> Unit,
+    onAudioFxPresetChange: (AudioFxPreset) -> Unit,
+    onAudioFxCustomGainDbPointsChange: (List<Float>) -> Unit,
+    onArtistSeparatorsChange: (Set<String>) -> Unit,
+    navigationSettings: NavigationSettings,
+    themeMode: ThemeMode,
+    onTabPinnedChange: (String, Boolean) -> Unit,
+    onThemeModeChange: (ThemeMode) -> Unit,
+    onOverflowDestinationSelected: (MusicDestination) -> Unit,
+    onReturnToMore: () -> Unit,
+    onMediaIdsHidden: (Set<String>) -> Unit,
+    onRequestDeleteMediaIds: (Set<String>) -> Unit,
+    onRequestSongDeleteConfirmation: (Set<String>, (() -> Unit)?) -> Unit,
+    onLibraryTrackMoreClick: (MediaItem) -> Unit,
+    onLovedSongsTrackMoreClick: (MediaItem) -> Unit,
+    onPlaylistTrackMoreClick: (MediaItem) -> Unit,
+    onRemoveFavoriteMediaIds: (Set<String>) -> Unit,
+    onMoreSettingsPageActiveChanged: (Boolean) -> Unit,
+    onSongSelectionChange: (String, Boolean) -> Unit,
+    onAlbumSelectionChange: (String, Boolean) -> Unit,
+    onAlbumSelected: (String, String) -> Unit,
+    onArtistTargetChanged: (ArtistTarget?) -> Unit,
+    onPlaylistAddModeActiveChanged: (Boolean) -> Unit,
+    onSearchClick: () -> Unit,
+) {
+    var songsPageMounted by remember { mutableStateOf(destination == MusicDestination.Songs) }
+    LaunchedEffect(destination) {
+        if (destination == MusicDestination.Songs) {
+            songsPageMounted = true
+        }
+    }
+    val activePageModifier =
+        Modifier.fillMaxSize().padding(bottom = playbackBarOverlayHeight).pageLayer(active = true)
+
+    Box(modifier = modifier) {
+        if (songsPageMounted) {
+            SongsPage(
+                mediaItems = mediaItems,
+                libraryLoaded = libraryLoaded,
+                active = destination == MusicDestination.Songs,
+                editMode = songsEditMode,
+                selectedSongIds = selectedSongIds,
+                hiddenMediaIds = hiddenMediaIds,
+                onSongSelectionChange = onSongSelectionChange,
+                onTrackMoreClick = onLibraryTrackMoreClick,
+                onRequestSongDeleteConfirmation = onRequestSongDeleteConfirmation,
+                playbackBarOverlayHeight = playbackBarOverlayHeight,
+                modifier =
+                    Modifier.fillMaxSize()
+                        .pageLayer(active = destination == MusicDestination.Songs),
+            )
+        }
+
+        // 专辑页常驻在主壳底层，资料库预热完成后可提前创建网格并填充首屏封面缓存。
+        AlbumPage(
+            mediaItems = mediaItems,
+            active = destination == MusicDestination.Album,
+            viewMode = albumViewMode,
+            editMode = albumEditMode,
+            selectedAlbumId = selectedAlbumId,
+            selectedAlbumIds = selectedAlbumIds,
+            predictiveBackProgress = albumPredictiveBackProgress,
+            predictiveBackExitConsumed = albumPredictiveBackExitConsumed,
+            onPredictiveBackExitConsumedReset = onAlbumPredictiveBackExitConsumedReset,
+            hiddenMediaIds = hiddenMediaIds,
+            onAlbumSelected = onAlbumSelected,
+            onAlbumSelectionChange = onAlbumSelectionChange,
+            onRequestAddToPlaylist = onRequestAddToPlaylist,
+            onRequestAddToQueue = onRequestAddToQueue,
+            onTrackMoreClick = onLibraryTrackMoreClick,
+            artistSettings = artistSettings,
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(bottom = playbackBarOverlayHeight)
+                    .pageLayer(active = destination == MusicDestination.Album),
+        )
+
+        when (destination) {
+            MusicDestination.Songs -> Unit
+            MusicDestination.Album -> Unit
+            MusicDestination.Artist ->
+                ArtistPage(
+                    mediaItems = mediaItems,
+                    active = true,
+                    selectedTarget = selectedArtistTarget,
+                    albumViewMode = artistAlbumViewMode,
+                    rootPredictiveBackProgress = artistRootPredictiveBackProgress,
+                    rootPredictiveBackExitConsumed = artistRootPredictiveBackExitConsumed,
+                    onRootPredictiveBackExitConsumedReset =
+                        onArtistRootPredictiveBackExitConsumedReset,
+                    nestedPredictiveBackProgress = artistNestedPredictiveBackProgress,
+                    nestedPredictiveBackExitConsumed = artistNestedPredictiveBackExitConsumed,
+                    onNestedPredictiveBackExitConsumedReset =
+                        onArtistNestedPredictiveBackExitConsumedReset,
+                    hiddenMediaIds = hiddenMediaIds,
+                    onTargetChanged = onArtistTargetChanged,
+                    onRequestAddToPlaylist = onRequestAddToPlaylist,
+                    onRequestAddToQueue = onRequestAddToQueue,
+                    onTrackMoreClick = onLibraryTrackMoreClick,
+                    artistSettings = artistSettings,
+                    modifier = activePageModifier,
+                )
+            MusicDestination.Playlist ->
+                PlaylistPage(
+                    mediaItems = mediaItems,
+                    libraryLoaded = libraryLoaded,
+                    active = true,
+                    hiddenMediaIds = hiddenMediaIds,
+                    onTrackMoreClick = onPlaylistTrackMoreClick,
+                    onAddModeActiveChanged = onPlaylistAddModeActiveChanged,
+                    onSearchClick = onSearchClick,
+                    onClose = onReturnToMore.takeIf { presentedFromMore },
+                    closePredictiveBackState =
+                        moreDestinationPredictiveBackState.takeIf { presentedFromMore },
+                    modifier = activePageModifier,
+                )
+            MusicDestination.More ->
+                MorePage(
+                    active = true,
+                    overflowDestinations = overflowDestinations,
+                    playbackSettings = playbackSettings,
+                    artistSettings = artistSettings,
+                    navigationSettings = navigationSettings,
+                    themeMode = themeMode,
+                    onDestinationSelected = onOverflowDestinationSelected,
+                    onScratchEnabledChange = onScratchEnabledChange,
+                    onHidePlayerAxisEnabledChange = onHidePlayerAxisEnabledChange,
+                    onPopcornSoundEnabledChange = onPopcornSoundEnabledChange,
+                    onAudioFxEnabledChange = onAudioFxEnabledChange,
+                    onAudioFxPresetChange = onAudioFxPresetChange,
+                    onAudioFxCustomGainDbPointsChange = onAudioFxCustomGainDbPointsChange,
+                    onArtistSeparatorsChange = onArtistSeparatorsChange,
+                    onTabPinnedChange = onTabPinnedChange,
+                    onThemeModeChange = onThemeModeChange,
+                    onSettingsPageActiveChanged = onMoreSettingsPageActiveChanged,
+                    onSearchClick = onSearchClick,
+                    modifier = activePageModifier,
+                )
+            MusicDestination.Genre ->
+                GenrePage(
+                    active = true,
+                    mediaItems = mediaItems,
+                    hiddenMediaIds = hiddenMediaIds,
+                    libraryLoaded = libraryLoaded,
+                    onClose = onReturnToMore.takeIf { presentedFromMore },
+                    closePredictiveBackState =
+                        moreDestinationPredictiveBackState.takeIf { presentedFromMore },
+                    onTrackMoreClick = onLibraryTrackMoreClick,
+                    onSearchClick = onSearchClick,
+                    modifier = activePageModifier,
+                )
+            MusicDestination.LovedSongs ->
+                LovedSongsPage(
+                    active = true,
+                    mediaItems = mediaItems,
+                    favoriteRecords = favoriteRecords,
+                    hiddenMediaIds = hiddenMediaIds,
+                    libraryLoaded = libraryLoaded,
+                    onClose = onReturnToMore.takeIf { presentedFromMore },
+                    closePredictiveBackState =
+                        moreDestinationPredictiveBackState.takeIf { presentedFromMore },
+                    onTrackMoreClick = onLovedSongsTrackMoreClick,
+                    onRemoveFavoriteMediaIds = onRemoveFavoriteMediaIds,
+                    modifier = activePageModifier,
+                )
+            MusicDestination.Folder ->
+                FolderPage(
+                    active = true,
+                    libraryRefreshVersion = libraryRefreshVersion,
+                    libraryRefreshing = libraryRefreshing,
+                    onClose = onReturnToMore.takeIf { presentedFromMore },
+                    closePredictiveBackState =
+                        moreDestinationPredictiveBackState.takeIf { presentedFromMore },
+                    onRefreshLibrary = onRefreshLibrary,
+                    onMediaIdsHidden = onMediaIdsHidden,
+                    onRequestDeleteMediaIds = onRequestDeleteMediaIds,
+                    onTrackMoreClick = onLibraryTrackMoreClick,
+                    modifier = activePageModifier,
+                )
+        }
+    }
+}
+
+/** 常驻页面仍可在后台完成布局和封面预热，但只有当前页面进入交互层。 不依赖 [Box] 子项的声明顺序，确保活动页面接收触摸。 */
+private fun Modifier.pageLayer(active: Boolean): Modifier {
+    return zIndex(if (active) ActivePageZIndex else CachedPageZIndex)
+}
+
+private const val CachedPageZIndex = 0f
+private const val ActivePageZIndex = 1f

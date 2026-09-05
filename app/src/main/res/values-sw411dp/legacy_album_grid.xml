@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="gridview_item_ccontainer_height">132.0dp</dimen>
-    <dimen name="album_listview_items_textview_width">308.0dp</dimen>
-</resources>

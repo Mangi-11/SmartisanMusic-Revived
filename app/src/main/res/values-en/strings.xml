@@ -2,7 +2,6 @@
     <string name="app_name">Music</string>
     <string name="back">Back</string>
     <string name="done">Done</string>
-    <string name="continue_action">Continue</string>
     <string name="save">Save</string>
     <string name="rename_continue">Continue</string>
     <string name="edit">Edit</string>
@@ -26,28 +25,14 @@
     <string name="playlist_create_failed">Failed to create playlist</string>
     <string name="playlist_added">Added to playlist</string>
     <string name="playlist_song_exists">This song is already in the playlist</string>
-    <string name="playlist_song_title">Songs</string>
-    <string name="playlist_add_songs_prefix">Add songs to</string>
-    <string name="playlist_add_songs_title">Add songs to "%1$s"</string>
     <string name="add_track_to">Add songs to</string>
     <string name="name_tracks">Songs</string>
-    <string name="playlist_selected_song_count">Selected songs (%1$d/%2$d)</string>
     <string name="selected_item_format">Selected songs (%1$d/%2$d)</string>
-    <string name="playlist_sort_song_name">Song title</string>
-    <string name="playlist_sort_score">Rating</string>
-    <string name="playlist_sort_play_count">Play count</string>
-    <string name="playlist_sort_added_time">Date added</string>
-    <string name="time">Time</string>
-    <string name="song_name">Song title</string>
     <string name="playlist_delete_confirm">Delete selected playlists?</string>
     <string name="playlist_delete_single_confirm">Delete this playlist?</string>
     <string name="playlist_remove_song_confirm">Remove selected songs?</string>
     <string name="delete_song_title_text">Delete selected songs?</string>
     <string name="dialog_delete_conform">Confirm delete</string>
-    <plurals name="playlist_song_count">
-        <item quantity="one">%1$d song</item>
-        <item quantity="other">%1$d songs</item>
-    </plurals>
     <plurals name="playlists_count">
         <item quantity="one">%1$d playlist</item>
         <item quantity="other">%1$d playlists</item>
@@ -56,14 +41,9 @@
     <string name="s_random_play">Shuffle</string>
     <string name="s_remove_track_list">Delete list</string>
     <string name="s_edit_track_list">Edit list</string>
-    <string name="no_artist">No artists</string>
-    <string name="show_artist">Artists from local songs appear here</string>
-    <string name="no_album">No albums</string>
-    <string name="show_album">Albums from local songs appear here</string>
     <string name="no_song">No songs</string>
     <string name="show_song">Local songs appear here</string>
     <string name="no_saved_song">No liked songs</string>
-    <string name="show_saved_song">Liked songs appear here</string>
     <string name="no_folder">No folders</string>
     <string name="show_folder">Folders containing local songs appear here</string>
     <string name="no_style">No genres</string>
@@ -75,39 +55,27 @@
         <item quantity="one">%1$d song</item>
         <item quantity="other">%1$d songs</item>
     </plurals>
-    <plurals name="legacy_album_count">
+    <plurals name="library_album_count">
         <item quantity="one">%1$d album</item>
         <item quantity="other">%1$d albums</item>
     </plurals>
-    <plurals name="legacy_artist_count">
+    <plurals name="library_artist_count">
         <item quantity="one">%1$d artist</item>
         <item quantity="other">%1$d artists</item>
     </plurals>
     <string name="artist_all_songs">All Songs</string>
-    <string name="artist_album_song_count">%1$s, %2$s</string>
-    <string name="listview_header_list">List</string>
-    <string name="listview_header_tile">Grid</string>
     <string name="tab_local_search">Search</string>
-    <string name="library_refresh">Rescan</string>
     <string name="library_rescan_full">Rescan media library</string>
-    <string name="library_refreshing">Scanning</string>
     <string name="library_refresh_success">Media library refreshed</string>
     <string name="library_refresh_failed">Failed to refresh media library</string>
-    <plurals name="folder_count">
-        <item quantity="one">%1$d folder</item>
-        <item quantity="other">%1$d folders</item>
-    </plurals>
     <string name="dialog_remove_song_by_dor">Delete selected folders?</string>
     <string name="hiden_dir">Hidden</string>
     <string name="shown_dir">Shown</string>
     <string name="hide_dir_content_description">Hide or show</string>
-    <string name="search_hint">Search keywords</string>
     <string name="clear_search_text">Clear search text</string>
     <string name="search_history">Search history</string>
     <string name="suggestion">Suggested results</string>
     <string name="clear_history">Clear history</string>
-    <string name="search_tab_all">All</string>
-    <string name="search_tab_songs">Songs</string>
     <string name="search_tab_albums">Albums</string>
     <string name="search_tab_artists">Artists</string>
     <string name="settings_section_playback">Playback</string>
@@ -127,7 +95,6 @@
     <string name="app_icon_change_failed">Couldn’t change the app icon. Try again later.</string>
     <string name="app_icon_option_description">%1$s, %2$s</string>
     <string name="search_no_result">No results</string>
-    <string name="search_no_result_subtitle">No matching songs, albums, or artists found</string>
     <string name="library_root">Local Music</string>
     <string name="unknown_song_title">Unknown song</string>
     <string name="unknown_artist">Unknown artist</string>
@@ -150,9 +117,7 @@
     <string name="uncollect_song_dialog_title">Remove selected songs from Liked Songs?</string>
     <string name="uncollect_song_confirm">Remove from Liked</string>
     <string name="pause">Pause</string>
-    <string name="favorite">Favorite</string>
     <string name="volume">Volume</string>
-    <string name="repeat">Repeat</string>
     <string name="repeat_all">Repeat all is on</string>
     <string name="repeat_single">Repeat one is on</string>
     <string name="repeat_none">Repeat is off</string>
@@ -160,17 +125,11 @@
     <string name="shuffle_on">Shuffle is on</string>
     <string name="shuffle_off">Shuffle is off</string>
     <string name="collapse_player">Collapse player</string>
-    <string name="playback_queue">Playback Queue</string>
     <string name="playlist_title">Playback Queue</string>
     <string name="history_title">History</string>
     <string name="playing_title">Now Playing</string>
-    <string name="insert_title">Play Next</string>
     <string name="orginal_title">Continue Playing</string>
-    <string name="playback_queue_history">History</string>
-    <string name="playback_queue_current">Now Playing</string>
-    <string name="playback_queue_continue">Continue Playing</string>
     <string name="playback_left_btn_content_description">Leave playback screen</string>
-    <string name="playback_queue_return_to_player">Return to full-screen player</string>
     <string name="playqueue_btn_show_content_description">Show playback queue</string>
     <string name="playqueue_btn_hide_content_description">Hide playback queue</string>
     <string name="str_clear_play_task">Clear playback queue</string>
@@ -192,7 +151,6 @@
     <string name="playback_delete_failed">Failed to delete song</string>
     <string name="can_not_delete_song">This song cannot be deleted</string>
     <string name="can_not_delete_cue_file">Cannot delete a single song from a CUE track</string>
-    <string name="scratch">Scratch</string>
     <string name="share">Share</string>
     <string name="can_not_share_song">This song cannot be shared</string>
     <string name="sleep_timer">Sleep timer</string>
@@ -221,7 +179,6 @@
     <string name="artist_separators">Artist separators</string>
     <string name="artist_separators_hint">Multiple separators are supported</string>
     <string name="artist_custom_separator_hint">Custom</string>
-    <string name="popcorn_sound_tips">Simulates worn vinyl during playback with rain-like crackle noise</string>
     <string name="playback_more_primary_line">No lyrics</string>
     <string name="playback_buffering">Buffering</string>
     <string name="setting_stop_time">Set sleep timer</string>
@@ -234,17 +191,8 @@
     <string name="time_countdown">Countdown running</string>
     <string name="remain_time">Remaining time</string>
     <string name="sleep_timer_stopped">Sleep timer turned off</string>
-    <string name="audio_permission_title">Audio permission required</string>
-    <string name="audio_permission_subtitle">Grant permission to scan local music and show your songs</string>
-    <string name="audio_permission_action">Grant permission</string>
-    <string name="audio_permission_settings">Open settings</string>
-    <string name="toggle_directory_visibility">Hide or show</string>
-    <string name="legacy_artist_summary">%1$s, %2$s</string>
-    <plurals name="legacy_album_song_count">
-        <item quantity="one">%1$d song, %2$s</item>
-        <item quantity="other">%1$d songs, %2$s</item>
-    </plurals>
-    <plurals name="legacy_playlist_song_count">
+    <string name="library_artist_summary">%1$s, %2$s</string>
+    <plurals name="library_playlist_song_count">
         <item quantity="one">%1$d song</item>
         <item quantity="other">%1$d songs</item>
     </plurals>

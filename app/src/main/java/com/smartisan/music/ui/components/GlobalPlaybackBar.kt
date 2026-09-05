@@ -20,10 +20,10 @@ import com.smartisan.music.data.favorite.FavoriteSongsRepository
 import com.smartisan.music.isExternalAudioLaunchItem
 import com.smartisan.music.playback.LocalPlaybackController
 import com.smartisan.music.playback.artworkRequestKey
-import com.smartisan.music.ui.shell.playback.LegacyPortPlaybackBar
-import com.smartisan.music.ui.shell.playback.legacyPlaybackBarSnapshot
-import com.smartisan.music.ui.shell.playback.loadLegacyArtworkBitmap
-import com.smartisan.music.ui.shell.playback.peekLegacyArtworkBitmap
+import com.smartisan.music.ui.shell.playback.PlaybackBar
+import com.smartisan.music.ui.shell.playback.loadArtworkBitmap
+import com.smartisan.music.ui.shell.playback.peekArtworkBitmap
+import com.smartisan.music.ui.shell.playback.playbackBarSnapshot
 import kotlinx.coroutines.launch
 
 @Composable
@@ -33,21 +33,24 @@ fun GlobalPlaybackBar(
 ) {
     val context = LocalContext.current
     val controller = LocalPlaybackController.current ?: return
-    val favoriteRepository = remember(context.applicationContext) {
-        FavoriteSongsRepository.getInstance(context.applicationContext)
-    }
+    val favoriteRepository =
+        remember(context.applicationContext) {
+            FavoriteSongsRepository.getInstance(context.applicationContext)
+        }
     val favoriteIds by favoriteRepository.observeFavoriteIds().collectAsState(initial = emptySet())
     val scope = rememberCoroutineScope()
-    var snapshot by remember(controller) {
-        mutableStateOf(controller.legacyPlaybackBarSnapshot())
-    }
+    var snapshot by
+        remember(controller) {
+            mutableStateOf(controller.playbackBarSnapshot())
+        }
 
     DisposableEffect(controller) {
-        val listener = object : Player.Listener {
-            override fun onEvents(player: Player, events: Player.Events) {
-                snapshot = player.legacyPlaybackBarSnapshot()
+        val listener =
+            object : Player.Listener {
+                override fun onEvents(player: Player, events: Player.Events) {
+                    snapshot = player.playbackBarSnapshot()
+                }
             }
-        }
         controller.addListener(listener)
         onDispose {
             controller.removeListener(listener)
@@ -56,15 +59,16 @@ fun GlobalPlaybackBar(
 
     val mediaItem = snapshot.mediaItem ?: return
     val artworkRequestKey = mediaItem.artworkRequestKey()
-    val artworkBitmap by produceState<Bitmap?>(
-        initialValue = peekLegacyArtworkBitmap(mediaItem),
-        artworkRequestKey,
-    ) {
-        value = peekLegacyArtworkBitmap(mediaItem) ?: value
-        value = loadLegacyArtworkBitmap(context.applicationContext, mediaItem)
-    }
+    val artworkBitmap by
+        produceState<Bitmap?>(
+            initialValue = peekArtworkBitmap(mediaItem),
+            artworkRequestKey,
+        ) {
+            value = peekArtworkBitmap(mediaItem) ?: value
+            value = loadArtworkBitmap(context.applicationContext, mediaItem)
+        }
 
-    LegacyPortPlaybackBar(
+    PlaybackBar(
         snapshot = snapshot,
         shown = true,
         favoriteIds = favoriteIds,
@@ -73,9 +77,9 @@ fun GlobalPlaybackBar(
         onOpenPlayback = onOpenPlayback,
         onToggleFavorite = { item ->
             if (item.isExternalAudioLaunchItem()) {
-                return@LegacyPortPlaybackBar
+                return@PlaybackBar
             }
-            val mediaId = item.mediaId.takeIf(String::isNotBlank) ?: return@LegacyPortPlaybackBar
+            val mediaId = item.mediaId.takeIf(String::isNotBlank) ?: return@PlaybackBar
             scope.launch {
                 favoriteRepository.toggle(mediaId)
             }
@@ -93,9 +97,7 @@ fun GlobalPlaybackBar(
         onNext = {
             controller.seekToNext()
         },
-        modifier = modifier
-            .fillMaxWidth()
-            .height(GlobalPlaybackBarHeight),
+        modifier = modifier.fillMaxWidth().height(GlobalPlaybackBarHeight),
     )
 }
 
