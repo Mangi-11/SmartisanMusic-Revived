@@ -222,11 +222,6 @@ internal fun PlaybackTimeSeekBar(
                 modifier = Modifier.width(PlaybackSeekBarHorizontalPadding),
             )
         }
-        AndroidDrawableImage(
-            drawableRes = R.drawable.playing_progress_bar_line,
-            contentDescription = null,
-            modifier = Modifier.fillMaxWidth().height(PlaybackSeekBarDividerHeight),
-        )
     }
 }
 
@@ -239,6 +234,8 @@ internal fun PlaybackControlButtons(
     shuffleEnabled: Boolean,
     controlWidth: Dp,
     entranceTimeMillis: Float,
+    chapterNavigation: Boolean = false,
+    showPlaybackModes: Boolean = true,
     onRepeatClick: () -> Unit,
     onPreviousClick: () -> Unit,
     onPlayPauseClick: () -> Unit,
@@ -252,28 +249,34 @@ internal fun PlaybackControlButtons(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val repeatIconRes = playbackRepeatButtonRes(repeatMode)
-        PressedDrawableButton(
-            normalRes = repeatIconRes,
-            pressedRes = repeatIconRes,
-            contentDescription = stringResource(repeatContentDescriptionRes(repeatMode)),
-            modifier =
-                Modifier.width(buttonMetrics.outerWidth)
-                    .height(buttonMetrics.height)
-                    .then(
-                        Modifier.playbackControlEntrance(
-                            timeMillis = entranceTimeMillis,
-                            delayMillis = PlaybackOuterButtonAlphaDelayMillis,
-                            durationMillis = PlaybackOuterButtonAlphaDurationMillis,
-                            offsetY = PlaybackControlEntranceOffset,
-                            animateY = false,
-                        )
-                    ),
-            onClick = onRepeatClick,
-        )
+        if (showPlaybackModes) {
+            PressedDrawableButton(
+                normalRes = repeatIconRes,
+                pressedRes = repeatIconRes,
+                contentDescription = stringResource(repeatContentDescriptionRes(repeatMode)),
+                modifier =
+                    Modifier.width(buttonMetrics.outerWidth)
+                        .height(buttonMetrics.height)
+                        .then(
+                            Modifier.playbackControlEntrance(
+                                timeMillis = entranceTimeMillis,
+                                delayMillis = PlaybackOuterButtonAlphaDelayMillis,
+                                durationMillis = PlaybackOuterButtonAlphaDurationMillis,
+                                offsetY = PlaybackControlEntranceOffset,
+                                animateY = false,
+                            )
+                        ),
+                onClick = onRepeatClick,
+            )
+        }
         PressedDrawableButton(
             normalRes = R.drawable.btn_playing_prev,
             pressedRes = R.drawable.btn_playing_prev_down,
-            contentDescription = stringResource(R.string.previous_song),
+            contentDescription =
+                stringResource(
+                    if (chapterNavigation) R.string.previous_chapter
+                    else R.string.previous_song
+                ),
             modifier =
                 Modifier.width(buttonMetrics.sideWidth)
                     .height(buttonMetrics.height)
@@ -322,7 +325,11 @@ internal fun PlaybackControlButtons(
         PressedDrawableButton(
             normalRes = R.drawable.btn_playing_next,
             pressedRes = R.drawable.btn_playing_next_down,
-            contentDescription = stringResource(R.string.next_song),
+            contentDescription =
+                stringResource(
+                    if (chapterNavigation) R.string.next_chapter
+                    else R.string.next_song
+                ),
             modifier =
                 Modifier.width(buttonMetrics.sideWidth)
                     .height(buttonMetrics.height)
@@ -336,34 +343,36 @@ internal fun PlaybackControlButtons(
                     ),
             onClick = onNextClick,
         )
-        PressedDrawableButton(
-            normalRes =
-                if (shuffleEnabled) {
-                    R.drawable.btn_playing_shuffle_on
-                } else {
-                    R.drawable.btn_playing_shuffle_off
-                },
-            pressedRes =
-                if (shuffleEnabled) {
-                    R.drawable.btn_playing_shuffle_on
-                } else {
-                    R.drawable.btn_playing_shuffle_off
-                },
-            contentDescription = stringResource(R.string.shuffle),
-            modifier =
-                Modifier.width(buttonMetrics.outerWidth)
-                    .height(buttonMetrics.height)
-                    .then(
-                        Modifier.playbackControlEntrance(
-                            timeMillis = entranceTimeMillis,
-                            delayMillis = PlaybackOuterButtonAlphaDelayMillis,
-                            durationMillis = PlaybackOuterButtonAlphaDurationMillis,
-                            offsetY = PlaybackControlEntranceOffset,
-                            animateY = false,
-                        )
-                    ),
-            onClick = onShuffleClick,
-        )
+        if (showPlaybackModes) {
+            PressedDrawableButton(
+                normalRes =
+                    if (shuffleEnabled) {
+                        R.drawable.btn_playing_shuffle_on
+                    } else {
+                        R.drawable.btn_playing_shuffle_off
+                    },
+                pressedRes =
+                    if (shuffleEnabled) {
+                        R.drawable.btn_playing_shuffle_on
+                    } else {
+                        R.drawable.btn_playing_shuffle_off
+                    },
+                contentDescription = stringResource(R.string.shuffle),
+                modifier =
+                    Modifier.width(buttonMetrics.outerWidth)
+                        .height(buttonMetrics.height)
+                        .then(
+                            Modifier.playbackControlEntrance(
+                                timeMillis = entranceTimeMillis,
+                                delayMillis = PlaybackOuterButtonAlphaDelayMillis,
+                                durationMillis = PlaybackOuterButtonAlphaDurationMillis,
+                                offsetY = PlaybackControlEntranceOffset,
+                                animateY = false,
+                            )
+                        ),
+                onClick = onShuffleClick,
+            )
+        }
     }
 }
 

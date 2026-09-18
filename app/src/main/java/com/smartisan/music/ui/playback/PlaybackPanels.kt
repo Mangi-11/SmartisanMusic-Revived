@@ -34,12 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -98,33 +96,23 @@ internal fun PlaybackBottomControls(
     bottomInset: Dp,
     state: PlaybackScreenState,
     entranceTimeMillis: Float,
+    chapterNavigation: Boolean = false,
+    showPlaybackModes: Boolean = true,
     onRepeatClick: () -> Unit,
     onPreviousClick: () -> Unit,
     onPlayPauseClick: () -> Unit,
     onNextClick: () -> Unit,
     onShuffleClick: () -> Unit,
-    onVolumeChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val density = LocalDensity.current
     val bottomSpacing = playbackBottomControlsBottomSpacing(bottomInset)
-    val volumeEntranceProgress =
-        playbackEntranceProgress(
-            timeMillis = entranceTimeMillis,
-            delayMillis = PlaybackVolumeEntranceDelayMillis,
-            durationMillis = PlaybackControlEntranceDurationMillis,
-        )
-    val controlEntranceOffsetPx =
-        with(density) {
-            PlaybackControlEntranceOffset.roundToPx().toFloat()
-        }
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Column(
-            modifier =
-                Modifier.width(width).padding(bottom = PlaybackBottomControlsContentBottomPadding),
+            modifier = Modifier.width(width),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             PlaybackControlButtons(
@@ -133,20 +121,13 @@ internal fun PlaybackBottomControls(
                 shuffleEnabled = state.shuffleEnabled,
                 controlWidth = width,
                 entranceTimeMillis = entranceTimeMillis,
+                chapterNavigation = chapterNavigation,
+                showPlaybackModes = showPlaybackModes,
                 onRepeatClick = onRepeatClick,
                 onPreviousClick = onPreviousClick,
                 onPlayPauseClick = onPlayPauseClick,
                 onNextClick = onNextClick,
                 onShuffleClick = onShuffleClick,
-            )
-            PlaybackVolumeBar(
-                modifier =
-                    Modifier.padding(top = PlaybackBottomControlsVolumeTopPadding).graphicsLayer {
-                        translationY = (1f - volumeEntranceProgress) * controlEntranceOffsetPx
-                    },
-                width = width,
-                value = state.volume.coerceIn(0f, 1f),
-                onValueChange = onVolumeChange,
             )
         }
         Spacer(modifier = Modifier.height(bottomSpacing))

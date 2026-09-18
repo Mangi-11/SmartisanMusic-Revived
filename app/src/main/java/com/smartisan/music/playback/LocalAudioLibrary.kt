@@ -515,6 +515,9 @@ internal class LocalAudioLibrary(
                 if (!qualityBadge.isNullOrBlank()) {
                     putString(AudioQualityBadgeExtraKey, qualityBadge)
                 }
+                if (isM4bFileName(displayName)) {
+                    putBoolean(AudiobookExtraKey, true)
+                }
                 if (playCount != null) {
                     putLong(PlayCountExtraKey, playCount)
                 }
@@ -590,6 +593,7 @@ internal class LocalAudioLibrary(
         const val TitleSortKeyExtraKey = "com.smartisan.music.extra.TITLE_SORT_KEY"
         const val TitleSectionExtraKey = "com.smartisan.music.extra.TITLE_SECTION"
         const val AudioQualityBadgeExtraKey = "com.smartisan.music.extra.AUDIO_QUALITY_BADGE"
+        const val AudiobookExtraKey = "com.smartisan.music.extra.AUDIOBOOK"
         const val PlayCountExtraKey = "com.smartisan.music.extra.PLAY_COUNT"
         const val RatingExtraKey = "com.smartisan.music.extra.RATING"
         const val AudioQualityBadgeFlac = "flac"

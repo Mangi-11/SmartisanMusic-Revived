@@ -56,6 +56,11 @@ internal class PlaybackMetadataPreloader(
                     mediaItem = mediaItem,
                     rememberMissing = false,
                 )
+                NowPlayingChaptersRepository.load(
+                    context = appContext,
+                    mediaItem = mediaItem,
+                    rememberMissing = false,
+                )
             }
         }
     }

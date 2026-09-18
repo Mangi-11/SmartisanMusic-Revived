@@ -96,6 +96,9 @@
     <string name="unknown_artist">未知艺术家</string>
     <string name="previous_song">上一首</string>
     <string name="next_song">下一首</string>
+    <string name="previous_chapter">上一章</string>
+    <string name="next_chapter">下一章</string>
+    <string name="chapter_default_title">第 %1$d 章</string>
     <string name="play">播放</string>
     <string name="play_all">全部播放</string>
     <string name="play_shuffle">随机播放</string>

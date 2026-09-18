@@ -41,6 +41,7 @@ import com.smartisan.music.R
 import com.smartisan.music.data.favorite.FavoriteSongsRepository
 import com.smartisan.music.data.library.LibraryExclusions
 import com.smartisan.music.data.library.LibraryExclusionsStore
+import com.smartisan.music.data.playback.PlaybackStatsRepository
 import com.smartisan.music.data.playlist.PlaylistCreateResult
 import com.smartisan.music.data.playlist.PlaylistRepository
 import com.smartisan.music.data.settings.ArtistSettings
@@ -62,6 +63,7 @@ import com.smartisan.music.playback.artworkRequestKey
 import com.smartisan.music.playback.await
 import com.smartisan.music.playback.deduplicateQueueCandidates
 import com.smartisan.music.playback.invalidateLibrary
+import com.smartisan.music.playback.isM4bAudiobook
 import com.smartisan.music.playback.refreshLibrary
 import com.smartisan.music.playback.removeMediaItemsByMediaIds
 import com.smartisan.music.playback.withPlaybackRating
@@ -78,6 +80,7 @@ import com.smartisan.music.ui.components.rememberMediaStoreDeleteCoordinator
 import com.smartisan.music.ui.components.withSelection
 import com.smartisan.music.ui.library.rememberLibraryMediaState
 import com.smartisan.music.ui.navigation.MusicDestination
+import com.smartisan.music.ui.playback.rememberPlaybackChapters
 import com.smartisan.music.ui.playlist.PlaybackPlaylistPickerOverlay
 import com.smartisan.music.ui.playlist.PlaylistNameDialogOverlay
 import com.smartisan.music.ui.playlist.PlaylistNameDialogRequest
@@ -146,6 +149,10 @@ private fun MusicAppShellContent(
     val playlistRepository =
         remember(context.applicationContext) {
             PlaylistRepository.getInstance(context.applicationContext)
+        }
+    val playbackStatsRepository =
+        remember(context.applicationContext) {
+            PlaybackStatsRepository.getInstance(context.applicationContext)
         }
     val libraryExclusionsStore =
         remember(context.applicationContext) {
@@ -278,6 +285,7 @@ private fun MusicAppShellContent(
         currentOnStartupReady()
     }
     val playbackBarMediaItem = playbackBarContentSnapshot.mediaItem
+    val playbackBarChapters = rememberPlaybackChapters(playbackBarMediaItem)
     val artworkRequestKey = playbackBarMediaItem?.artworkRequestKey()
     val artworkBitmap by
         produceState<Bitmap?>(
@@ -365,6 +373,9 @@ private fun MusicAppShellContent(
             }
             favoriteRepository.removeAll(mediaIds)
             playlistRepository.removeMediaIdsFromAll(mediaIds)
+            mediaIds.forEach { mediaId ->
+                runCatching { playbackStatsRepository.clearProgress(mediaId) }
+            }
             runCatching {
                 controller?.invalidateLibrary()?.await(context)
             }
@@ -930,6 +941,9 @@ private fun MusicAppShellContent(
                     },
                     modifier = Modifier.fillMaxWidth().height(playbackBarHeight),
                     bottomDividerVisible = true,
+                    chapterNavigation =
+                        playbackBarChapters.isNotEmpty() ||
+                            playbackBarMediaItem?.isM4bAudiobook() == true,
                 )
             }
             MusicBottomBar(

@@ -7,6 +7,7 @@ import com.smartisan.music.ExternalAudioExtraKey
 import com.smartisan.music.ExternalAudioLaunchRequest
 import com.smartisan.music.ExternalAudioMediaIdPrefix
 import com.smartisan.music.playback.LocalAudioLibrary
+import com.smartisan.music.playback.isM4bFileName
 
 internal fun ExternalAudioLaunchRequest.toExternalAudioMediaItem(
     fallbackTitle: String,
@@ -27,6 +28,9 @@ internal fun ExternalAudioLaunchRequest.toExternalAudioMediaItem(
     val extras =
         Bundle().apply {
             putBoolean(ExternalAudioExtraKey, true)
+            if (isM4bFileName(displayName)) {
+                putBoolean(LocalAudioLibrary.AudiobookExtraKey, true)
+            }
             if (albumId != null) {
                 putLong(LocalAudioLibrary.AlbumIdExtraKey, albumId)
             }

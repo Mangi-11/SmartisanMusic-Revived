@@ -8,7 +8,7 @@
   <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.4.0-7F52FF?logo=kotlin" alt="Kotlin 2.4.0" /></a>
   <a href="https://developer.android.com/build"><img src="https://img.shields.io/badge/AGP-9.2.1-3DDC84?logo=android" alt="AGP 9.2.1" /></a>
   <a href="https://developer.android.com/about/versions/oreo/android-8.1"><img src="https://img.shields.io/badge/minSdk-27-3DDC84?logo=android" alt="minSdk 27" /></a>
-  <a href="https://developer.android.com/media/media3"><img src="https://img.shields.io/badge/Media3-1.10.1-4285F4?logo=android" alt="Media3 1.10.1" /></a>
+  <a href="https://developer.android.com/media/media3"><img src="https://img.shields.io/badge/Media3-1.11.0-4285F4?logo=android" alt="Media3 1.11.0" /></a>
 </p>
 
 <p align="center">
@@ -47,6 +47,7 @@ Smartisan OS 已经退出历史舞台，本项目因此以锤子音乐 8.1.0 为
 - 后台播放、媒体通知、耳机与蓝牙媒体控制
 - 顺序、随机、单曲循环和列表循环播放
 - 播放队列展开、拖拽排序，以及队列和进度恢复
+- M4B 有声书章节解析与章节切换，并按单个文件记忆和恢复播放进度
 - 黑胶唱盘、唱针拖拽、搓碟与爆豆音
 - 音频文件内嵌的静态、逐行及逐字歌词
 - 原声、低音、清澈、人声、摇滚与自定义音效
@@ -81,7 +82,7 @@ Smartisan OS 已经退出历史舞台，本项目因此以锤子音乐 8.1.0 为
 | 构建 | Android Gradle Plugin `9.2.1`、Gradle `9.4.1`、JDK 21（Java 11 字节码） |
 | 语言 | Kotlin `2.4.0` |
 | UI | Jetpack Compose、自定义 Smartisan 组件、Drawable / NinePatch 资源绘制 |
-| 播放 | Media3 `1.10.1`、ExoPlayer、MediaLibraryService、MediaSession |
+| 播放 | Media3 `1.11.0`、ExoPlayer、MediaLibraryService、MediaSession |
 | 状态 | Lifecycle、StateFlow、Coroutines |
 | 存储 | Room `2.8.4`、DataStore `1.2.1`、MediaStore |
 | SDK | `minSdk 27` / `targetSdk 36` / `compileSdk 37` |

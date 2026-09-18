@@ -14,6 +14,8 @@ import androidx.media3.common.C
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
+import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.SeekParameters
 import androidx.media3.session.MediaLibraryService
@@ -45,6 +47,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
 
@@ -61,6 +64,7 @@ class PlaybackService : MediaLibraryService() {
     private lateinit var playbackSessionStateStore: PlaybackSessionStateStore
     private var playbackSessionStateCoordinator: PlaybackSessionStateCoordinator? = null
     private var playbackPlayCountTracker: PlaybackPlayCountTracker? = null
+    private var playbackProgressCoordinator: PlaybackProgressCoordinator? = null
     private var playbackAudioFxController: PlaybackAudioFxController? = null
     private var playbackMetadataPreloader: PlaybackMetadataPreloader? = null
     private var mediaSessionArtworkBitmapLoader: MediaSessionArtworkBitmapLoader? = null
@@ -164,6 +168,14 @@ class PlaybackService : MediaLibraryService() {
             coordinator.start()
         }
 
+        playbackProgressCoordinator = PlaybackProgressCoordinator(
+            player = exoPlayer,
+            repository = playbackStatsRepository,
+            scope = serviceScope,
+        ).also { coordinator ->
+            coordinator.start()
+        }
+
         serviceScope.launch(Dispatchers.IO) {
             libraryExclusionsStore.exclusions.collect { exclusions ->
                 exclusionsSnapshot = exclusions
@@ -202,6 +214,12 @@ class PlaybackService : MediaLibraryService() {
             coordinator.stop()
         }
         playbackSessionStateCoordinator = null
+        playbackProgressCoordinator?.let { coordinator ->
+            runBlocking {
+                coordinator.stopAndFlush()
+            }
+        }
+        playbackProgressCoordinator = null
         playbackPlayCountTracker?.let { tracker ->
             runBlocking {
                 tracker.stopAndFlush()
@@ -664,6 +682,58 @@ private class PlaybackStartFadePlayer(
     private val fadeController: PlaybackStartFadeController,
 ) : ForwardingPlayer(playbackPlayer) {
 
+    /**
+     * Listeners registered through the session facing wrapper. [MediaSession] refreshes the
+     * controller commands only from the `onAvailableCommandsChanged` payload, which the underlying
+     * player builds from its own command set. The chapter commands below are added by this wrapper,
+     * so the session has to be told about them explicitly.
+     */
+    private val listeners = CopyOnWriteArrayList<Player.Listener>()
+    private var announcedAvailableCommands: Player.Commands? = null
+
+    private val availableCommandsAnnouncer =
+        object : Player.Listener {
+            override fun onAvailableCommandsChanged(availableCommands: Player.Commands) {
+                // The raw payload has just overwritten the wrapper commands in the session, so the
+                // corrected set must be re-announced.
+                announceAvailableCommands(force = true)
+            }
+
+            override fun onTracksChanged(tracks: Tracks) {
+                // Chapters arrive with the track formats; the command set changes with them.
+                announceAvailableCommands(force = false)
+            }
+
+            override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+                announceAvailableCommands(force = false)
+            }
+        }
+
+    override fun addListener(listener: Player.Listener) {
+        listeners += listener
+        super.addListener(listener)
+        // Keep the announcer behind every forwarded listener so it can correct the raw commands
+        // the underlying player just delivered.
+        playbackPlayer.removeListener(availableCommandsAnnouncer)
+        playbackPlayer.addListener(availableCommandsAnnouncer)
+    }
+
+    override fun removeListener(listener: Player.Listener) {
+        listeners -= listener
+        super.removeListener(listener)
+    }
+
+    private fun announceAvailableCommands(force: Boolean) {
+        val commands = availableCommands
+        if (!force && commands == announcedAvailableCommands) {
+            return
+        }
+        announcedAvailableCommands = commands
+        for (listener in listeners) {
+            listener.onAvailableCommandsChanged(commands)
+        }
+    }
+
     override fun play() {
         fadeController.protectResumeIfNeeded(playbackPlayer)
         super.play()
@@ -674,6 +744,98 @@ private class PlaybackStartFadePlayer(
             fadeController.protectResumeIfNeeded(playbackPlayer)
         }
         super.setPlayWhenReady(playWhenReady)
+    }
+
+    override fun seekToPrevious() {
+        if (seekToAdjacentChapter(forward = false)) {
+            return
+        }
+        super.seekToPrevious()
+    }
+
+    override fun seekToNext() {
+        if (seekToAdjacentChapter(forward = true)) {
+            return
+        }
+        super.seekToNext()
+    }
+
+    override fun seekToPreviousMediaItem() {
+        if (seekToAdjacentChapter(forward = false)) {
+            return
+        }
+        super.seekToPreviousMediaItem()
+    }
+
+    override fun seekToNextMediaItem() {
+        if (seekToAdjacentChapter(forward = true)) {
+            return
+        }
+        super.seekToNextMediaItem()
+    }
+
+    /**
+     * ExoPlayer only advertises [Player.COMMAND_SEEK_TO_NEXT] while a next media item exists, so a
+     * single-file audiobook would hide the notification's next button and make
+     * [MediaController.seekToNext] a no-op. Chapters act as virtual next / previous items here:
+     * whenever the current file has chapters the two seek commands stay advertised. The session
+     * only learns about the extra commands through [availableCommandsAnnouncer] because
+     * [MediaSession] rebuilds the controller commands from the underlying player's event payload.
+     */
+    override fun getAvailableCommands(): Player.Commands {
+        val commands = playbackPlayer.availableCommands
+        if (currentChapters().isEmpty()) {
+            return commands
+        }
+        return Player.Commands.Builder()
+            .addAll(commands)
+            .add(Player.COMMAND_SEEK_TO_PREVIOUS)
+            .add(Player.COMMAND_SEEK_TO_NEXT)
+            .build()
+    }
+
+    override fun isCommandAvailable(command: Int): Boolean {
+        if (
+            (command == Player.COMMAND_SEEK_TO_PREVIOUS ||
+                command == Player.COMMAND_SEEK_TO_NEXT) && currentChapters().isNotEmpty()
+        ) {
+            return true
+        }
+        return super.isCommandAvailable(command)
+    }
+
+    /**
+     * Maps the session's previous / next commands (notification, lock screen, widgets and the
+     * in-app playback bars) to chapters of the current audiobook. Returns false when the file has
+     * no chapters or the jump would leave it, so the caller can fall back to media item
+     * navigation.
+     */
+    private fun seekToAdjacentChapter(forward: Boolean): Boolean {
+        val chapters = currentChapters()
+        if (chapters.isEmpty()) {
+            return false
+        }
+        val positionMs = playbackPlayer.currentPosition
+        val targetMs =
+            if (forward) {
+                nextPlaybackChapterStartMs(chapters, positionMs)
+            } else {
+                previousPlaybackChapterStartMs(chapters, positionMs)
+            } ?: return false
+        playbackPlayer.seekTo(targetMs)
+        return true
+    }
+
+    private var cachedTracks: Tracks? = null
+    private var cachedChapters: List<PlaybackChapter> = emptyList()
+
+    private fun currentChapters(): List<PlaybackChapter> {
+        val tracks = playbackPlayer.currentTracks
+        if (tracks !== cachedTracks) {
+            cachedTracks = tracks
+            cachedChapters = tracks.playbackChapters()
+        }
+        return cachedChapters
     }
 }
 

@@ -27,6 +27,20 @@ internal data class PlaybackStatsRow(
     val score: Int,
 )
 
+@Entity(tableName = "playback_progress")
+internal data class PlaybackProgressEntity(
+    @PrimaryKey val mediaId: String,
+    val positionMs: Long,
+    val durationMs: Long,
+    val updatedAt: Long,
+)
+
+internal data class PlaybackProgressRow(
+    val mediaId: String,
+    val positionMs: Long,
+    val durationMs: Long,
+)
+
 @Dao
 internal interface PlaybackStatsDao {
 
@@ -64,11 +78,20 @@ internal interface PlaybackStatsDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: PlaybackStatsEntity): Long
+
+    @Query("SELECT mediaId, positionMs, durationMs FROM playback_progress WHERE mediaId = :mediaId")
+    fun getProgress(mediaId: String): PlaybackProgressRow?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertProgress(entity: PlaybackProgressEntity)
+
+    @Query("DELETE FROM playback_progress WHERE mediaId = :mediaId")
+    suspend fun deleteProgress(mediaId: String)
 }
 
 @Database(
-    entities = [PlaybackStatsEntity::class],
-    version = 2,
+    entities = [PlaybackStatsEntity::class, PlaybackProgressEntity::class],
+    version = 3,
     exportSchema = false,
 )
 internal abstract class PlaybackStatsDatabase : RoomDatabase() {
@@ -85,7 +108,7 @@ internal abstract class PlaybackStatsDatabase : RoomDatabase() {
                     PlaybackStatsDatabase::class.java,
                     "playback_stats.db",
                 )
-                    .addMigrations(Migration1To2)
+                    .addMigrations(Migration1To2, Migration2To3)
                     .build()
                     .also { instance = it }
             }
@@ -95,6 +118,22 @@ internal abstract class PlaybackStatsDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
                     "ALTER TABLE playback_stats ADD COLUMN score INTEGER NOT NULL DEFAULT 0",
+                )
+            }
+        }
+
+        private val Migration2To3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS playback_progress (
+                        mediaId TEXT NOT NULL,
+                        positionMs INTEGER NOT NULL,
+                        durationMs INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL,
+                        PRIMARY KEY(mediaId)
+                    )
+                    """.trimIndent(),
                 )
             }
         }

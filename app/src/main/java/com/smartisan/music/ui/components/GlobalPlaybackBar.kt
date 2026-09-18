@@ -20,6 +20,8 @@ import com.smartisan.music.data.favorite.FavoriteSongsRepository
 import com.smartisan.music.isExternalAudioLaunchItem
 import com.smartisan.music.playback.LocalPlaybackController
 import com.smartisan.music.playback.artworkRequestKey
+import com.smartisan.music.playback.isM4bAudiobook
+import com.smartisan.music.ui.playback.rememberPlaybackChapters
 import com.smartisan.music.ui.shell.playback.PlaybackBar
 import com.smartisan.music.ui.shell.playback.loadArtworkBitmap
 import com.smartisan.music.ui.shell.playback.peekArtworkBitmap
@@ -58,6 +60,7 @@ fun GlobalPlaybackBar(
     }
 
     val mediaItem = snapshot.mediaItem ?: return
+    val chapters = rememberPlaybackChapters(mediaItem)
     val artworkRequestKey = mediaItem.artworkRequestKey()
     val artworkBitmap by
         produceState<Bitmap?>(
@@ -98,6 +101,7 @@ fun GlobalPlaybackBar(
             controller.seekToNext()
         },
         modifier = modifier.fillMaxWidth().height(GlobalPlaybackBarHeight),
+        chapterNavigation = chapters.isNotEmpty() || mediaItem.isM4bAudiobook(),
     )
 }
 

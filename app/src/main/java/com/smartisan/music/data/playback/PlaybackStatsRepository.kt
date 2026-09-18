@@ -8,6 +8,11 @@ data class PlaybackStatsRecord(
     val score: Int,
 )
 
+data class PlaybackProgressRecord(
+    val positionMs: Long,
+    val durationMs: Long,
+)
+
 class PlaybackStatsRepository private constructor(
     private val database: PlaybackStatsDatabase,
 ) {
@@ -86,6 +91,48 @@ class PlaybackStatsRepository private constructor(
             }
             playbackStatsDao.getScore(normalizedMediaId)
         }
+    }
+
+    fun getProgress(mediaId: String): PlaybackProgressRecord? {
+        val normalizedMediaId = mediaId.trim()
+        if (normalizedMediaId.isEmpty()) {
+            return null
+        }
+        return playbackStatsDao.getProgress(normalizedMediaId)?.let { row ->
+            PlaybackProgressRecord(
+                positionMs = row.positionMs.coerceAtLeast(0L),
+                durationMs = row.durationMs.coerceAtLeast(0L),
+            )
+        }
+    }
+
+    suspend fun setProgress(
+        mediaId: String,
+        positionMs: Long,
+        durationMs: Long,
+        updatedAt: Long = System.currentTimeMillis(),
+    ): Boolean {
+        val normalizedMediaId = mediaId.trim()
+        if (normalizedMediaId.isEmpty()) {
+            return false
+        }
+        playbackStatsDao.upsertProgress(
+            PlaybackProgressEntity(
+                mediaId = normalizedMediaId,
+                positionMs = positionMs.coerceAtLeast(0L),
+                durationMs = durationMs.coerceAtLeast(0L),
+                updatedAt = updatedAt,
+            ),
+        )
+        return true
+    }
+
+    suspend fun clearProgress(mediaId: String) {
+        val normalizedMediaId = mediaId.trim()
+        if (normalizedMediaId.isEmpty()) {
+            return
+        }
+        playbackStatsDao.deleteProgress(normalizedMediaId)
     }
 
     companion object {

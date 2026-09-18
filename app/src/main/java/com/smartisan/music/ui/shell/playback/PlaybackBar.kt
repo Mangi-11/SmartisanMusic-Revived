@@ -57,6 +57,7 @@ internal fun PlaybackBar(
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
     bottomDividerVisible: Boolean = true,
+    chapterNavigation: Boolean = false,
 ) {
     val offset = remember { Animatable(1f) }
     val latestOnHidden = rememberUpdatedState(onHidden)
@@ -243,7 +244,10 @@ internal fun PlaybackBar(
                                     )
                                     PlaybackBarButton(
                                         R.drawable.float_btn_prev_selector,
-                                        stringResource(R.string.previous_song),
+                                        stringResource(
+                                            if (chapterNavigation) R.string.previous_chapter
+                                            else R.string.previous_song
+                                        ),
                                         onPrevious,
                                     )
                                     PlaybackBarButton(
@@ -258,7 +262,10 @@ internal fun PlaybackBar(
                                     )
                                     PlaybackBarButton(
                                         R.drawable.float_btn_next_selector,
-                                        stringResource(R.string.next_song),
+                                        stringResource(
+                                            if (chapterNavigation) R.string.next_chapter
+                                            else R.string.next_song
+                                        ),
                                         onNext,
                                     )
                                 }

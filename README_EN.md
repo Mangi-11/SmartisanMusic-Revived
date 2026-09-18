@@ -8,7 +8,7 @@
   <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-2.4.0-7F52FF?logo=kotlin" alt="Kotlin 2.4.0" /></a>
   <a href="https://developer.android.com/build"><img src="https://img.shields.io/badge/AGP-9.2.1-3DDC84?logo=android" alt="AGP 9.2.1" /></a>
   <a href="https://developer.android.com/about/versions/oreo/android-8.1"><img src="https://img.shields.io/badge/minSdk-27-3DDC84?logo=android" alt="minSdk 27" /></a>
-  <a href="https://developer.android.com/media/media3"><img src="https://img.shields.io/badge/Media3-1.10.1-4285F4?logo=android" alt="Media3 1.10.1" /></a>
+  <a href="https://developer.android.com/media/media3"><img src="https://img.shields.io/badge/Media3-1.11.0-4285F4?logo=android" alt="Media3 1.11.0" /></a>
 </p>
 
 <p align="center">
@@ -47,6 +47,7 @@ Smartisan OS has left the stage, so this project uses Smartisan Music 8.1.0 as i
 - Background playback, media notifications, and headset and Bluetooth controls
 - Sequential, shuffle, repeat-one, and repeat-all playback modes
 - Expandable queue, drag-to-reorder, and queue and position recovery
+- M4B audiobook chapter parsing and chapter navigation, with per-file playback progress memory and resume
 - Vinyl turntable, draggable tonearm, scratching, and crackle audio
 - Static, line-synchronized, and word-timed lyrics embedded in audio files
 - Original, Bass, Clear, Vocal, Rock, and custom sound profiles
@@ -81,7 +82,7 @@ Album artwork, artist information, and music content visible in screenshots rema
 | Build | Android Gradle Plugin `9.2.1`, Gradle `9.4.1`, JDK 21 (Java 11 bytecode) |
 | Language | Kotlin `2.4.0` |
 | UI | Jetpack Compose, custom Smartisan components, Drawable / NinePatch rendering |
-| Playback | Media3 `1.10.1`, ExoPlayer, MediaLibraryService, MediaSession |
+| Playback | Media3 `1.11.0`, ExoPlayer, MediaLibraryService, MediaSession |
 | State | Lifecycle, StateFlow, Coroutines |
 | Storage | Room `2.8.4`, DataStore `1.2.1`, MediaStore |
 | SDK | `minSdk 27` / `targetSdk 36` / `compileSdk 37` |

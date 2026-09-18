@@ -6,7 +6,9 @@ import android.content.ContextWrapper
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -48,6 +50,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.smartisan.music.R
 import com.smartisan.music.data.favorite.FavoriteSongsRepository
+import com.smartisan.music.data.playback.PlaybackStatsRepository
 import com.smartisan.music.data.playlist.PlaylistRepository
 import com.smartisan.music.data.settings.PlaybackSettings
 import com.smartisan.music.isExternalAudioLaunchItem
@@ -60,6 +63,8 @@ import com.smartisan.music.playback.await
 import com.smartisan.music.playback.cancelSleepTimer
 import com.smartisan.music.playback.extractEmbeddedLyrics
 import com.smartisan.music.playback.invalidateLibrary
+import com.smartisan.music.playback.isM4bAudiobook
+import com.smartisan.music.playback.playbackChapterIndexAt
 import com.smartisan.music.playback.removeMediaItemsByMediaIds
 import com.smartisan.music.playback.setScratchSeekModeEnabled
 import com.smartisan.music.playback.startSleepTimer
@@ -107,6 +112,10 @@ fun PlaybackScreen(
         remember(context.applicationContext) {
             PlaylistRepository.getInstance(context.applicationContext)
         }
+    val playbackStatsRepository =
+        remember(context.applicationContext) {
+            PlaybackStatsRepository.getInstance(context.applicationContext)
+        }
     val entranceTimeMillis = remember { Animatable(0f) }
     val favoriteIds by favoriteRepository.observeFavoriteIds().collectAsState(initial = emptySet())
     val scope = rememberCoroutineScope()
@@ -133,6 +142,46 @@ fun PlaybackScreen(
         remember(controller) {
             mutableLongStateOf(state.currentPositionMs)
         }
+    var chaptersExpanded by remember(state.mediaItem?.mediaId) { mutableStateOf(false) }
+    var chapterPanelExpanded by remember(state.mediaItem?.mediaId) { mutableStateOf(false) }
+    var chapterRowExpanded by remember(state.mediaItem?.mediaId) { mutableStateOf(false) }
+    var chapterRowsHidden by remember(state.mediaItem?.mediaId) { mutableStateOf(false) }
+    val audiobookControlsScale by
+        animateFloatAsState(
+            targetValue = if (chapterPanelExpanded) PlaybackAudiobookControlsScale else 1f,
+            animationSpec =
+                tween(
+                    durationMillis = PlaybackChapterPanelMotionMillis,
+                    easing = FastOutSlowInEasing,
+                ),
+            label = "audiobook controls scale",
+        )
+    // Collapse: the current row morph plays first, then the list and the surrounding controls.
+    // Expand: the row morph is overlapped so that it finishes on the same frame as the panel
+    // reveal and the surrounding controls shrinking to 0.9.
+    LaunchedEffect(chaptersExpanded) {
+        if (chaptersExpanded) {
+            chapterRowsHidden = false
+            chapterPanelExpanded = true
+            delay(
+                (PlaybackChapterPanelMotionMillis - PlaybackChapterRowMorphMillis)
+                    .coerceAtLeast(0)
+                    .toLong()
+            )
+            if (chaptersExpanded) {
+                chapterRowExpanded = true
+            }
+        } else {
+            // Tapping the current row hides every other chapter row on the first frame, then
+            // the row morph and the panel collapse play with only the current row visible.
+            chapterRowsHidden = true
+            chapterRowExpanded = false
+            delay(PlaybackChapterRowMorphMillis.toLong())
+            if (!chaptersExpanded) {
+                chapterPanelExpanded = false
+            }
+        }
+    }
     var showMorePanel by rememberSaveable { mutableStateOf(false) }
     var showSleepTimerDialog by rememberSaveable { mutableStateOf(false) }
     var currentVisualPage by rememberSaveable { mutableStateOf(PlaybackVisualPage.Cover) }
@@ -169,6 +218,9 @@ fun PlaybackScreen(
                     runCatching {
                         playlistRepository.removeMediaIdsFromAll(mediaIds)
                     }
+                    mediaIds.forEach { mediaId ->
+                        runCatching { playbackStatsRepository.clearProgress(mediaId) }
+                    }
                     runCatching {
                         controller?.invalidateLibrary()?.await(context)
                     }
@@ -186,6 +238,8 @@ fun PlaybackScreen(
             showSleepTimerDialog = false
         } else if (showMorePanel) {
             showMorePanel = false
+        } else if (chaptersExpanded) {
+            chaptersExpanded = false
         } else {
             onCollapse()
         }
@@ -506,6 +560,9 @@ fun PlaybackScreen(
                 value = NowPlayingLyricsRepository.load(context, mediaItem)
             }
         }
+    val chapters = rememberPlaybackChapters(state.mediaItem)
+    val currentChapterIndex = playbackChapterIndexAt(chapters, boundedLivePositionMs)
+    val currentIsAudiobook = state.mediaItem?.isM4bAudiobook() == true
     val artworkRequestKey = state.mediaItem?.artworkRequestKey()
     val albumArtwork by
         produceState<ImageBitmap?>(
@@ -663,13 +720,19 @@ fun PlaybackScreen(
                     onCollapse = onCollapse,
                 )
             }
-            PlaybackTimeSeekBar(
-                durationMs = durationMs,
-                currentPositionMs = displayPositionMs,
-                thumbRes = R.drawable.playing_control_time,
-                modifier = Modifier.fillMaxWidth(),
-                onSeek = { positionMs ->
-                    controller?.seekTo(positionMs)
+            PlaybackVolumeBar(
+                width = bottomControlsWidth,
+                value = volume,
+                modifier =
+                    Modifier.fillMaxWidth().graphicsLayer {
+                        scaleX = audiobookControlsScale
+                        scaleY = audiobookControlsScale
+                    },
+                onValueChange = { targetVolume ->
+                    context.setMusicStreamVolumeFraction(targetVolume)
+                    val actualVolume = context.musicStreamVolumeFraction()
+                    volume = actualVolume
+                    state = state.copy(volume = actualVolume)
                 },
             )
             Box(
@@ -849,11 +912,45 @@ fun PlaybackScreen(
                     },
                 )
             }
+            if (chapters.isNotEmpty()) {
+                PlaybackChapterPanel(
+                    chapters = chapters,
+                    currentIndex = currentChapterIndex,
+                    totalDurationMs = durationMs,
+                    panelExpanded = chapterPanelExpanded,
+                    rowExpanded = chapterRowExpanded,
+                    rowsHidden = chapterRowsHidden,
+                    onToggle = { chaptersExpanded = !chaptersExpanded },
+                    onChapterClick = { chapterIndex ->
+                        chapters.getOrNull(chapterIndex)?.let { chapter ->
+                            controller?.seekTo(chapter.startTimeMs)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            PlaybackTimeSeekBar(
+                durationMs = durationMs,
+                currentPositionMs = displayPositionMs,
+                thumbRes = R.drawable.playing_control_time,
+                modifier =
+                    Modifier.fillMaxWidth().padding(top = PlaybackProgressTopPadding),
+                onSeek = { positionMs ->
+                    controller?.seekTo(positionMs)
+                },
+            )
             PlaybackBottomControls(
                 width = bottomControlsWidth,
                 bottomInset = bottomInset,
                 state = state.copy(volume = volume),
                 entranceTimeMillis = entranceTimeMillis.value,
+                chapterNavigation = chapters.isNotEmpty() || currentIsAudiobook,
+                showPlaybackModes = !currentIsAudiobook,
+                modifier =
+                    Modifier.graphicsLayer {
+                        scaleX = audiobookControlsScale
+                        scaleY = audiobookControlsScale
+                    },
                 onRepeatClick = {
                     val nextRepeatMode = nextPlaybackRepeatMode(state.repeatMode)
                     controller?.repeatMode = nextRepeatMode
@@ -878,12 +975,6 @@ fun PlaybackScreen(
                     controller?.shuffleModeEnabled = shuffleEnabled
                     state = state.copy(shuffleEnabled = shuffleEnabled)
                     context.toast(shuffleToastRes(shuffleEnabled))
-                },
-                onVolumeChange = { targetVolume ->
-                    context.setMusicStreamVolumeFraction(targetVolume)
-                    val actualVolume = context.musicStreamVolumeFraction()
-                    volume = actualVolume
-                    state = state.copy(volume = actualVolume)
                 },
             )
         }
